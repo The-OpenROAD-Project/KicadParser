@@ -133,7 +133,7 @@ class kicadPcbDataBase
       bool getNumOfInst(int *);
       bool getInst(int &, instance *);
       bool getPinPosition(std::string & inst_name, std::string & pin_name, point_2d *pos);
-     // bool getInstBBox(std::string &, point_2d *);
+      bool getInstBBox(std::string &, point_2d *);
       
 
     /*

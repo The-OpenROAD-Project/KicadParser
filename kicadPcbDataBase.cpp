@@ -103,32 +103,32 @@ auto read_quoted_string(std::istream &in)
 
 void ss_reset(std::stringstream &ss, const std::string &s)
 {
-	ss.str(s);
-	ss.clear();
+  ss.str(s);
+  ss.clear();
 }
 
 void get_value(std::stringstream &ss, std::vector<tree>::iterator t, int &x)
 {
-	ss_reset(ss, t->m_value);
-	ss >> x;
+  ss_reset(ss, t->m_value);
+  ss >> x;
 }
 
 void get_value(std::stringstream &ss, std::vector<tree>::iterator t, double &x)
 {
-	ss_reset(ss, t->m_value);
-	ss >> x;
+  ss_reset(ss, t->m_value);
+  ss >> x;
 }
 
 void get_2d(std::stringstream &ss, std::vector<tree>::iterator t, double &x, double &y)
 {
-	get_value(ss, t, x);
-	get_value(ss, t + 1, y);
+  get_value(ss, t, x);
+  get_value(ss, t + 1, y);
 }
 
 void get_rect(std::stringstream &ss, std::vector<tree>::iterator t, double &x1, double &y1, double &x2, double &y2)
 {
-	get_2d(ss, t, x1, y1);
-	get_2d(ss, t + 2, x2, y2);
+  get_2d(ss, t, x1, y1);
+  get_2d(ss, t + 2, x2, y2);
 }
 void kicadPcbDataBase::printKicadPcb(const tree &t, int indent)
 {
@@ -459,6 +459,107 @@ bool kicadPcbDataBase::getPinPosition(std::string & instName, std::string & pinN
   auto c = cos(inst.m_angle);
   pos->m_x = double((c*padX - s*padY) + inst.m_x);
   pos->m_y = double((s*padX + c*padY) + inst.m_y);
+
+  return true;
+}
+
+bool kicadPcbDataBase::getInstBBox(std::string &instName, point_2d *bBox)
+{
+  if(!bBox) return false;
+  auto &&inst = name_to_instance_map[instName];
+  auto &&comp = name_to_component_map[inst.m_comp];
+  auto angle = inst.m_angle;
+  auto minx = double(1000000.0);
+  auto miny = double(1000000.0);
+  auto maxx = double(-1000000.0);
+  auto maxy = double(-1000000.0);
+  for (size_t i = 0; i < comp.m_lines.size(); ++i) {
+    auto start = comp.m_lines[i].m_start;
+    auto end = comp.m_lines[i].m_end;
+    auto width = comp.m_lines[i].m_width/2;
+    minx = std::min(start.m_x-width, minx);
+    maxx = std::max(start.m_x+width, maxx);
+    minx = std::min(end.m_x-width, minx);
+    maxx = std::max(end.m_x+width, maxx);
+
+    miny = std::min(start.m_y-width, miny);
+    maxy = std::max(start.m_y+width, maxy);
+    miny = std::min(end.m_y-width, miny);
+    maxy = std::max(end.m_y+width, maxy);
+
+  }
+
+  for (size_t i = 0; i < comp.m_circles.size(); ++i) {
+    auto center = comp.m_circles[i].m_center;
+    auto end = comp.m_circles[i].m_end;
+    auto width = comp.m_circles[i].m_width/2;
+    minx = std::min(center.m_x-end.m_x-width, minx);
+    maxx = std::max(center.m_x+width+end.m_x, maxx);
+
+    miny = std::min(center.m_y-end.m_y-width, miny);
+    maxy = std::max(center.m_y+end.m_y+width, maxy);
+  }
+
+  for (size_t i = 0; i < comp.m_polys.size(); ++i) {
+    for (size_t j = 0; j < comp.m_polys[i].m_shape.size(); ++j) {
+      auto point = comp.m_polys[i].m_shape[j];
+      auto width = comp.m_polys[i].m_width/2;
+      minx = std::min(point.m_x-width, minx);
+      maxx = std::max(point.m_x+width, maxx);
+      miny = std::min(point.m_y-width, miny);
+      maxy = std::max(point.m_y+width, maxy);
+    }
+  }
+
+
+  for (size_t i = 0; i < comp.m_arcs.size(); ++i) {
+    auto start = comp.m_arcs[i].m_start;
+    auto end = comp.m_arcs[i].m_end;
+    auto width = comp.m_arcs[i].m_width/2;
+    minx = std::min(start.m_x-width, minx);
+    maxx = std::max(start.m_x+width, maxx);
+    minx = std::min(end.m_x-width, minx);
+    maxx = std::max(end.m_x+width, maxx);
+
+    miny = std::min(start.m_y-width, miny);
+    maxy = std::max(start.m_y+width, maxy);
+    miny = std::min(end.m_y-width, miny);
+    maxy = std::max(end.m_y+width, maxy);
+  }
+
+  for (pad_it = comp.m_pin_map.begin(); pad_it != comp.m_pin_map.end(); ++pad_it) {
+    auto &&pad = pad_it->second;
+    auto pad_x = pad.m_x;
+    auto pad_y = pad.m_y;
+    auto size = pad.m_size;
+    auto pad_angle = pad.m_angle;
+
+    if(pad_angle == 0 || pad_angle == 180) {
+      minx = std::min(pad_x-size.m_x/2, minx);
+      maxx = std::max(pad_x+size.m_x/2, maxx);
+
+      miny = std::min(pad_y-size.m_y/2, miny);
+      maxy = std::max(pad_y+size.m_y/2, maxy);
+    }
+
+    if(pad_angle == 90 || pad_angle == 270) {
+      miny = std::min(pad_x-size.m_x/2, miny);
+      maxy = std::max(pad_x+size.m_x/2, maxy);
+
+      minx = std::min(pad_y-size.m_y/2, minx);
+      maxx = std::max(pad_y+size.m_y/2, maxx);
+    }
+  }
+
+  double width = abs(maxx-minx);
+  double height = abs(maxy-miny);
+  if(angle == 90 || angle == 270) {
+    bBox->m_x = height;
+    bBox->m_y = width;
+  } else {
+    bBox->m_x = width;
+    bBox->m_y = height;
+  }
 
   return true;
 }
