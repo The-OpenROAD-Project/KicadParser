@@ -118,6 +118,8 @@ class net
     :m_clearance(clearance), m_trace_width(trace_width), m_via_dia(via_dia), m_via_drill(via_drill), m_uvia_dia(uvia_dia), m_uvia_drill(uvia_drill){}
   std::vector<pin> pins;
   double getClearance() {return m_clearance;}
+  bool setId (int &id) { m_id = id; return true;}
+  bool getId (int *id) { if(!id) return false; *id = m_id; return true;}
 /*public:
 	net(const track &t, pcb *pcb);
 	bool route();
