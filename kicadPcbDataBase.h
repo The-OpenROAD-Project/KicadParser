@@ -3,7 +3,9 @@
 
 
 #include "router.h"
-#include "math.h"
+#include <cmath>
+#include <math.h>
+#include <stdio.h>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -11,6 +13,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <iterator>
+
 
 struct tree
 {
@@ -155,6 +158,7 @@ class kicadPcbDataBase
     std::map<std::string, instance>::iterator inst_it;
     std::map<std::string, net>::iterator net_it;
     std::map<std::string, int>::iterator pin_it;
+    std::map<int, paths> net_to_segments_map;
     std::map<std::string, component> name_to_component_map;
     std::map<std::string, int> layer_to_index_map;
     std::map<std::string, instance> name_to_instance_map;

@@ -89,13 +89,15 @@ auto read_quoted_string(std::istream &in)
 {
   std::string s;
   s.push_back('"');
+  auto a = in.peek();
   for (;;)
   {
     auto b = in.peek();
-    if (b == '"') break;
+    if (b == '"' && a != '\\') break;
     char c;
     in.get(c);
     s.push_back(c);
+    a = b;
   }
   s.push_back('"');
   return tree{s, {}};
@@ -184,7 +186,6 @@ tree kicadPcbDataBase::readTree(std::istream &in)
     }
     t.m_branches.push_back(read_string(in));
   }
-  //std::cout << "vector_size_max: " << t.m_branches.max_size() << ", current size: " << t.m_branches.size() << std::endl;
   return t;
 }
 
@@ -211,7 +212,7 @@ bool kicadPcbDataBase::parseKicadPcb()
 
   //create tree from input
   auto tree = readTree(in);
-  //	print_tree(tree, 0);
+  //printTree(tree, 0);
 
 
   std::stringstream ss;
@@ -371,12 +372,42 @@ bool kicadPcbDataBase::parseKicadPcb()
         name_to_instance_map[the_instance.m_name] = the_instance;
       }
     }
+    //TODO: calculate outline  
+    else if (sub_node.m_value == "gr_line")
+    {
+    }
 
+    else if (sub_node.m_value == "segment")
+    {
+      auto x = 0.0, y = 0.0, z = 0.0;
+      auto width = 0.0;
+      auto net = 0;
+      auto segment = path{};
+
+      z = layer_to_index_map[sub_node.m_branches[4].m_branches[0].m_value];
+      get_2d(ss, begin(sub_node.m_branches[0].m_branches), x, y);
+      segment.push_back(point_3d(x, y, z));
+      get_2d(ss, begin(sub_node.m_branches[1].m_branches), x, y);
+      segment.push_back(point_3d(x, y, z));
+      get_value(ss, begin(sub_node.m_branches[3].m_branches), width);
+      get_value(ss, begin(sub_node.m_branches[4].m_branches), net);
+      net_to_segments_map[net].emplace_back(std::move(segment));
+    }
+
+    else if (sub_node.m_value == "via")
+    {
+        auto x = 0.0, y = 0.0;
+        auto net = 0;
+        get_2d(ss, begin(sub_node.m_branches[0].m_branches), x, y);
+        get_value(ss, begin(sub_node.m_branches[4].m_branches), net);
+        net_to_segments_map[net].emplace_back(
+            path{point_3d{x, y, 0}, point_3d{x, y, double(layer_to_index_map.size() - 1)}});
+    }
   }
 
 
-  return true;
 
+  return true;
 }
 
 void kicadPcbDataBase::printComp() 
@@ -454,9 +485,10 @@ bool kicadPcbDataBase::getPinPosition(std::string & instName, std::string & pinN
   auto &&comp = name_to_component_map[compName];
   auto &&pad = comp.m_pin_map[pinName];
   double padX = pad.m_x, padY = pad.m_y, padAngle = pad.m_angle;
+  auto instAngle = inst.m_angle * (-M_PI / 180.0);
 
-  auto s = sin(inst.m_angle);
-  auto c = cos(inst.m_angle);
+  auto s = sin((float)instAngle);
+  auto c = cos((float)instAngle);
   pos->m_x = double((c*padX - s*padY) + inst.m_x);
   pos->m_y = double((s*padX + c*padY) + inst.m_y);
 
