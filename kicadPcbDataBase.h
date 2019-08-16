@@ -128,11 +128,13 @@ class kicadPcbDataBase
       void printNet();
       void printInst();
       void printComp();
+      void printPcbRouterInfo();
 
       tree readTree(std::istream &);
 
       bool parseKicadPcb();
 
+      bool getPcbRouterInfo(std::vector<std::set<std::pair<double, double>>> *);
       bool getNumOfInst(int *);
       bool getInst(int &, instance *);
       bool getPinPosition(std::string & inst_name, std::string & pin_name, point_2d *pos);

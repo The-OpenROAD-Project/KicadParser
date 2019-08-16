@@ -459,6 +459,70 @@ void kicadPcbDataBase::printNet()
   }
 }
 
+// Warning! Doesn't count component rotation
+void kicadPcbDataBase::printPcbRouterInfo()
+{
+  std::cout << std::endl << "#################Routing Input###############" << std::endl;
+  for (net_it = name_to_net_map.begin(); net_it != name_to_net_map.end(); ++net_it) {
+    auto &&net = net_it->second;
+    std::cout << net_it->first << ", clearance: " << net.getClearance() << ", size: " << net.pins.size() << ", netId: " << net.getId() << std::endl;
+    for (size_t i = 0; i < net.pins.size(); ++i) {
+      auto &&pin = net.pins[i];
+      auto &&inst = name_to_instance_map[pin.m_instance_name];
+      std::string compName = inst.m_comp;
+      auto &&comp = name_to_component_map[compName];
+      auto &&pad = comp.m_pin_map[pin.m_name];
+      point_2d pinLocation;
+
+      getPinPosition(pin.m_instance_name, pin.m_name, &pinLocation);
+
+      std::cout << "\tinst name: " << pin.m_instance_name << ", " << inst.m_name << " (" << inst.m_x << " " << inst.m_y << ")" << ", Rot: " << inst.m_angle
+                << " pin name: " << pin.m_name << " Relative:(" << pad.m_x << " " << pad.m_y << ")" << ", Rot: " << pad.m_angle << ", Absolute Pin Loc:(" << pinLocation.m_x << ", " << pinLocation.m_y << ")"
+                << " comp name: " << pin.m_comp_name << ", " << comp.m_name << std::endl;
+
+    }
+  }
+}
+
+bool kicadPcbDataBase::getPcbRouterInfo(std::vector<std::set<std::pair<double, double>>> *routerInfo)
+{
+  int numNet = name_to_net_map.size();
+  routerInfo->resize(numNet);
+  int netCounter = 0;
+
+  for (net_it = name_to_net_map.begin(); net_it != name_to_net_map.end(); ++net_it) {
+    auto &&net = net_it->second;
+    assert(net.getId()<=numNet);
+
+    //std::cout << net_it->first << " " << net.getClearance() << " " << net.pins.size() << std::endl;
+    for (size_t i = 0; i < net.pins.size(); ++i) {
+      auto &&pin = net.pins[i];
+      /*
+      auto &&inst = name_to_instance_map[pin.m_instance_name];
+      std::string compName = inst.m_comp;
+      auto &&comp = name_to_component_map[compName];
+      auto &&pad = comp.m_pin_map[pin.m_name];
+
+
+      //routerInfo->at(net.m_id).insert(std::pair<double, double>(inst.m_x+pad.m_x, inst.m_y+pad.m_y));
+      //No rotation considered
+      //routerInfo->at(netCounter).insert(std::pair<double, double>(inst.m_x+pad.m_x, inst.m_y+pad.m_y));
+      */
+
+      point_2d pinLocation;
+      getPinPosition(pin.m_instance_name, pin.m_name, &pinLocation);
+      routerInfo->at(netCounter).insert(std::pair<double, double>(pinLocation.m_x, pinLocation.m_y));
+
+      //std::cout << "\tinst name: " << pin.m_instance_name << ", " << inst.m_name << " (" << inst.m_x << " " << inst.m_y << ")"
+      //          << " pin name: " << pin.m_name << " Relative:(" << pad.m_x << " " << pad.m_y << ")"
+      //          << " comp name: " << pin.m_comp_name << ", " << comp.m_name << std::endl;
+    }
+
+    ++netCounter;
+  }
+  return true;
+}
+
 bool kicadPcbDataBase::getNumOfInst(int* num)
 {
   if(!num) return false;
