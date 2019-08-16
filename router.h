@@ -120,6 +120,7 @@ class net
   double getClearance() {return m_clearance;}
   bool setId (int &id) { m_id = id; return true;}
   bool getId (int *id) { if(!id) return false; *id = m_id; return true;}
+  int getId () { return m_id; }
 /*public:
 	net(const track &t, pcb *pcb);
 	bool route();
