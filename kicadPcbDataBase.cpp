@@ -363,6 +363,7 @@ bool kicadPcbDataBase::parseKicadPcb()
                 auto the_pin = pin{pin_name, component_name, the_instance.m_name};
                 the_instance.m_pin_net_map[pin_name] = net_index;
                 auto &&the_net = name_to_net_map[net_name];
+                the_net.setId(net_index);
                 the_net.pins.push_back(the_pin);
 
               }
