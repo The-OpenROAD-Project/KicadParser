@@ -487,8 +487,9 @@ void kicadPcbDataBase::printPcbRouterInfo()
 bool kicadPcbDataBase::getPcbRouterInfo(std::vector<std::set<std::pair<double, double>>> *routerInfo)
 {
   int numNet = name_to_net_map.size();
-  routerInfo->resize(numNet);
-  int netCounter = 0;
+  // netId = 0 is default 
+  routerInfo->resize(numNet+1);
+  //int netCounter = 0;
 
   for (net_it = name_to_net_map.begin(); net_it != name_to_net_map.end(); ++net_it) {
     auto &&net = net_it->second;
@@ -511,14 +512,15 @@ bool kicadPcbDataBase::getPcbRouterInfo(std::vector<std::set<std::pair<double, d
 
       point_2d pinLocation;
       getPinPosition(pin.m_instance_name, pin.m_name, &pinLocation);
-      routerInfo->at(netCounter).insert(std::pair<double, double>(pinLocation.m_x, pinLocation.m_y));
+      //routerInfo->at(netCounter).insert(std::pair<double, double>(pinLocation.m_x, pinLocation.m_y));
+      routerInfo->at(net.getId()).insert(std::pair<double, double>(pinLocation.m_x, pinLocation.m_y));
 
       //std::cout << "\tinst name: " << pin.m_instance_name << ", " << inst.m_name << " (" << inst.m_x << " " << inst.m_y << ")"
       //          << " pin name: " << pin.m_name << " Relative:(" << pad.m_x << " " << pad.m_y << ")"
       //          << " comp name: " << pin.m_comp_name << ", " << comp.m_name << std::endl;
     }
 
-    ++netCounter;
+    //++netCounter;
   }
   return true;
 }
