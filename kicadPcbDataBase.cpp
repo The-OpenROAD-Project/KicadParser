@@ -330,9 +330,11 @@ bool kicadPcbDataBase::parseKicadPcb()
               // if(module_node.m_branches[1].m_value != "smd") continue;
               auto the_pin = padstack{};
               auto the_point = point_2d{};
-              the_pin.m_form = module_node.m_branches[2].m_value;
-              the_pin.m_type = module_node.m_branches[1].m_value;
+              auto form = module_node.m_branches[2].m_value;
+              auto type = module_node.m_branches[1].m_value;
               the_pin.m_name = module_node.m_branches[0].m_value;
+              the_pin.setForm(form);
+              the_pin.setType(type);
 
               get_2d(ss, begin(module_node.m_branches[3].m_branches), the_pin.m_x, the_pin.m_y);
               get_2d(ss, begin(module_node.m_branches[4].m_branches), the_point.m_x, the_point.m_y);
@@ -343,6 +345,10 @@ bool kicadPcbDataBase::parseKicadPcb()
               }
               else the_pin.m_angle = 0;
               the_comp.m_pin_map[the_pin.m_name] = the_pin;
+
+              for (auto &&layer_node : module_node.m_branches[5].m_branches) {
+                the_pin.m_layers.push_back(layer_node.m_value);
+              }
             }
             name_to_component_map[component_name] = the_comp;
           }
@@ -426,7 +432,7 @@ void kicadPcbDataBase::printComp()
     for (pad_it = comp.m_pin_map.begin(); pad_it != comp.m_pin_map.end(); ++pad_it) {
       auto pad = pad_it->second;
       std::cout << "\tpad: " << pad.m_name << " (" << pad.m_x << "," << pad.m_y << ") " << pad.m_angle << std::endl;
-      std::cout << "\t\tsize: " << pad.m_form << " (" << pad.m_size.m_x << "," << pad.m_size.m_y << ")" << std::endl;
+      std::cout << "\t\tsize: " << (int)pad.m_form << " (" << pad.m_size.m_x << "," << pad.m_size.m_y << ")" << std::endl;
     }
   }
 }
@@ -660,5 +666,13 @@ bool kicadPcbDataBase::getInstBBox(std::string &instName, point_2d *bBox)
     bBox->m_y = height;
   }
 
+  return true;
+}
+
+bool kicadPcbDataBase::getPad(std::string &compName, std::string &padName, padstack * pad)
+{
+  if(!pad) return false;
+  auto &&comp = name_to_component_map[compName];
+  *pad = comp.m_pin_map[padName];
   return true;
 }

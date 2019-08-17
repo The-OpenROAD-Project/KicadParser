@@ -14,6 +14,9 @@
 #include <assert.h>
 #include <iterator>
 
+enum class padShape {RECT, ROUNDRECT, CIRCLE, OVAL, TRAPEZOID};
+enum class padType {SMD, THRU_HOLE, CONNECT, NP_THRU_HOLE};
+
 
 struct tree
 {
@@ -30,15 +33,41 @@ struct rule
 struct padstack
 {
   std::string m_name;
-  std::string m_form;
-  std::string m_type;
+  padShape m_form;
+  padType m_type;
   double m_x;
   double m_y;
   double m_angle;
-  int m_layer;
-  point_2d m_size;
+  std::vector<std::string> m_layers;
+  point_2d m_size;    //(width,height)
   // points_2d m_shape;
   rule m_rule;
+
+  void setForm (std::string &form) {
+    if (form == "rect")
+      m_form = padShape::RECT;
+    else if (form == "roundrect")
+      m_form = padShape::ROUNDRECT;
+    else if (form == "circle")
+      m_form = padShape::CIRCLE;
+    else if (form == "oval")
+      m_form = padShape::OVAL;
+    else if (form == "trapezoid")
+      m_form = padShape::TRAPEZOID;
+    else  std::cout << "Error: No this pin shape!" << std::endl;
+  }
+
+  void setType (std::string &type) {
+    if (type == "smd")
+      m_type = padType::SMD;
+    else if (type == "thru_hole")
+      m_type = padType::THRU_HOLE;
+    else if (type == "connect")
+      m_type = padType::CONNECT;
+    else if (type == "np_thru_hole")
+      m_type = padType::NP_THRU_HOLE;
+    else std::cout << "Error: No this pin type!" << std::endl;
+  }
 };
 
 struct line
@@ -139,7 +168,7 @@ class kicadPcbDataBase
       bool getInst(int &, instance *);
       bool getPinPosition(std::string & inst_name, std::string & pin_name, point_2d *pos);
       bool getInstBBox(std::string &, point_2d *);
-      
+      bool getPad(std::string &, std::string &, padstack *);
 
     /*
      getPinPosition(std::string inst_name, std::string pin_name, point_2d *pos);
