@@ -34,6 +34,88 @@ auto shape_to_cords(const points_2d &shape, double a1, double a2)
   return cords;
 }
 
+auto shape_to_cords(const point_2d &size, point_2d &pos, padShape shape, double a1, double a2, const rule &rule)
+{
+  auto cords = points_2d{};
+  switch (shape)
+  {
+    case padShape::CIRCLE:
+      {
+        auto radius = size.m_x/2; 
+        for(int i = 0; i < 40; ++i) {       //40 points
+          auto point = point_2d{};
+          point.m_x = pos.m_x + radius * cos(9*i*M_PI/180);
+          point.m_y = pos.m_y + radius * sin(9*i*M_PI/180);
+          cords.push_back(point);
+        }
+        break;
+      }
+    case padShape::OVAL:
+      {
+        auto width = size.m_x/2; 
+        auto height = size.m_y/2;
+        for(int i = 0; i < 40; ++i) {       //40 points
+          auto point = point_2d{};
+          point.m_x = pos.m_x + width * cos(9*i*M_PI/180);
+          point.m_y = pos.m_y + height * sin(9*i*M_PI/180);
+          cords.push_back(point);
+        }
+        break;
+      }
+    case padShape::RECT:
+      {
+        auto width = size.m_x/2;
+        auto height = size.m_y/2;
+        cords.push_back(point_2d{-1*width, -1*height});
+        cords.push_back(point_2d{width, height});
+        break;
+      }
+    case padShape::ROUNDRECT:
+      {
+        auto width = size.m_x/2;
+        auto height = size.m_y/2;
+        auto radius = std::min(width,height)*rule.m_radius;
+        auto deltaWidth = width - radius;
+        auto deltaHeight = height - radius;                                 
+        for(int i = 0; i < 10; ++i) {       //10 points
+          auto point = point_2d{};
+          point.m_x = pos.m_x + deltaWidth + radius * cos(9*i*M_PI/180);
+          point.m_y = pos.m_y + deltaHeight + radius * sin(9*i*M_PI/180);
+          cords.push_back(point);
+        }
+        for(int i = 10; i < 20; ++i) {       //10 points
+          auto point = point_2d{};
+          point.m_x = pos.m_x - deltaWidth + radius * cos(9*i*M_PI/180);
+          point.m_y = pos.m_y + deltaHeight + radius * sin(9*i*M_PI/180);
+          cords.push_back(point);
+        }
+        for(int i = 20; i < 30; ++i) {       //10 points
+          auto point = point_2d{};
+          point.m_x = pos.m_x - deltaWidth + radius * cos(9*i*M_PI/180);
+          point.m_y = pos.m_y - deltaHeight + radius * sin(9*i*M_PI/180);
+          cords.push_back(point);
+        }
+        for(int i = 30; i < 40; ++i) {       //10 points
+          auto point = point_2d{};
+          point.m_x = pos.m_x + deltaWidth + radius * cos(9*i*M_PI/180);
+          point.m_y = pos.m_y - deltaHeight + radius * sin(9*i*M_PI/180);
+          cords.push_back(point);
+        }
+        break;
+      }
+    case padShape::TRAPEZOID:
+      {
+        break;
+      } 
+    default: 
+      {
+        break;
+      }
+  }
+
+  return shape_to_cords(cords, a1, a2);
+}
+
 //read input till given byte appears
 auto read_until(std::istream &in, char c)
 {
@@ -216,6 +298,8 @@ bool kicadPcbDataBase::parseKicadPcb()
 
 
   std::stringstream ss;
+  auto default_rule = rule{0.25, 0.25};
+
 
   for (auto &&sub_node : tree.m_branches) {
     //layer part
@@ -235,6 +319,16 @@ bool kicadPcbDataBase::parseKicadPcb()
       auto net_name = sub_node.m_branches[1].m_value;
       get_value(ss, begin(sub_node.m_branches), net_index);
       index_to_net_map[net_index] = net_name;
+
+      if (net_name[net_name.size()-1] == '+' || net_name[net_name.size()-1] == '-') {
+        auto name = net_name.substr(0,net_name.size()-1);
+        if (name_to_diff_pair_net_map.find(name) != name_to_diff_pair_net_map.end()) {
+           auto &&pair = name_to_diff_pair_net_map[name];
+           pair.second = net_index;
+        } else {
+          name_to_diff_pair_net_map[name] = std::make_pair(net_index, -1);
+        }
+      }
     }
     //net class
     else if (sub_node.m_value == "net_class") {
@@ -254,8 +348,15 @@ bool kicadPcbDataBase::parseKicadPcb()
         else if (net_class_node.m_value == "uvia_drill")
           get_value(ss, begin(net_class_node.m_branches), m_uvia_drill);
         else if (net_class_node.m_value == "add_net") {
-          auto the_net = net(m_clearance, m_trace_width, m_via_dia, m_via_drill, m_uvia_dia, m_uvia_drill);
+          
           auto net_name = net_class_node.m_branches[0].m_value;
+          
+          auto name = net_name.substr(0,net_name.size()-1);
+          auto pair = std::make_pair(-1, -1);
+          if (name_to_diff_pair_net_map.find(name) != name_to_diff_pair_net_map.end()) {
+            pair = name_to_diff_pair_net_map[name];
+          } 
+          auto the_net = net(pair, m_clearance, m_trace_width, m_via_dia, m_via_drill, m_uvia_dia, m_uvia_drill);
           name_to_net_map[net_name] = the_net;
         }
       }
@@ -330,6 +431,9 @@ bool kicadPcbDataBase::parseKicadPcb()
               // if(module_node.m_branches[1].m_value != "smd") continue;
               auto the_pin = padstack{};
               auto the_point = point_2d{};
+              auto points = points_2d{};
+					    the_pin.m_rule = default_rule;
+
               auto form = module_node.m_branches[2].m_value;
               auto type = module_node.m_branches[1].m_value;
               the_pin.m_name = module_node.m_branches[0].m_value;
@@ -348,6 +452,19 @@ bool kicadPcbDataBase::parseKicadPcb()
 
               for (auto &&layer_node : module_node.m_branches[5].m_branches) {
                 the_pin.m_layers.push_back(layer_node.m_value);
+              }
+
+              if (form == "circle") {
+                  the_pin.m_rule.m_radius = the_pin.m_size.m_x/2;
+              } else if (form == "oval") {
+                  the_pin.m_rule.m_radius = the_pin.m_size.m_x/2;
+              } else if (form == "rect") {
+
+
+
+              } else if (form == "roundrect") {
+
+
               }
             }
             name_to_component_map[component_name] = the_comp;
@@ -459,8 +576,45 @@ void kicadPcbDataBase::printNet()
     std::cout << net_it->first << " " << net.getClearance() << " " << net.pins.size() << std::endl;
     for (size_t i = 0; i < net.pins.size(); ++i) {
       auto pin = net.pins[i];
-      std::cout << "\tinst name: " << pin.m_instance_name << " pin name: " << pin.m_name << " comp name: " << pin.m_comp_name << std::endl;
+      point_2d pos;
+      getPinPosition(pin.m_instance_name, pin.m_name, &pos);
+      auto &&comp = name_to_component_map[pin.m_comp_name];
+      auto &&pad = comp.m_pin_map[pin.m_name];
+      auto &&inst = name_to_instance_map[pin.m_instance_name];
+      auto angle = inst.m_angle + pad.m_angle;
+      std::cout << "\tinst name: " << pin.m_instance_name << " pin name: " << pin.m_name << " comp name: " << pin.m_comp_name << "pos: (" << pos.m_x << "," << pos.m_y << ")";
+      if (angle == 0 || angle == 180)
+        std::cout << "width: " << pad.m_size.m_x << "height: " << pad.m_size.m_y << std::endl;
+      else 
+        std::cout << "height: " << pad.m_size.m_x << "width: " << pad.m_size.m_y << std::endl;
 
+    }
+  }
+}
+
+/* print info for Dongwon*/
+void kicadPcbDataBase::printFile() {
+
+  std::cout << "#netId   instName   pinName   pinXPos   pinYPos   pinWidth   pinHeight   netType   diffPair" << std::endl;
+  for (net_it = name_to_net_map.begin(); net_it != name_to_net_map.end(); ++net_it) {
+    auto net = net_it->second;
+    //std::cout << net_it->first << " " << net.getClearance() << " " << net.pins.size() << std::endl;
+    for (size_t i = 0; i < net.pins.size(); ++i) {
+      auto pin = net.pins[i];
+      point_2d pos;
+      getPinPosition(pin.m_instance_name, pin.m_name, &pos);
+      auto &&comp = name_to_component_map[pin.m_comp_name];
+      auto &&pad = comp.m_pin_map[pin.m_name];
+      auto &&inst = name_to_instance_map[pin.m_instance_name];
+      auto angle = inst.m_angle + pad.m_angle;
+      std::cout << net.getId() << " " << pin.m_instance_name << " " << pin.m_name << " " << pos.m_x << " " << pos.m_y << " ";
+      if (angle == 0 || angle == 180)
+        std::cout << pad.m_size.m_x << " " << pad.m_size.m_y;
+      else 
+        std::cout << pad.m_size.m_x << " " << pad.m_size.m_y;
+      
+      if (net.isDiffPair()) std::cout << " DIFFPAIR " << net.getDiffPairId() << std::endl;
+      else std::cout << " SIGNAL " << net.getDiffPairId() << std::endl;
     }
   }
 }

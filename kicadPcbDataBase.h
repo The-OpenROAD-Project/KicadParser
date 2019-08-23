@@ -40,7 +40,7 @@ struct padstack
   double m_angle;
   std::vector<std::string> m_layers;
   point_2d m_size;    //(width,height)
-  // points_2d m_shape;
+  //points_2d m_shape;
   rule m_rule;
 
   void setForm (std::string &form) {
@@ -137,7 +137,7 @@ class kicadPcbDataBase
   public:
 
     kicadPcbDataBase(std::string fileName):m_fileName(fileName){
-      std::cout << "Build Kicad Pcb database..." << std::endl;
+      std::cerr << "Build Kicad Pcb database..." << std::endl;
       if(!parseKicadPcb()) {
         std::cerr << "ERROR: Building Kicad Pcb database failed." << std::endl;
         assert(false);
@@ -158,6 +158,7 @@ class kicadPcbDataBase
       void printInst();
       void printComp();
       void printPcbRouterInfo();
+      void printFile();
 
       tree readTree(std::istream &);
 
@@ -195,6 +196,7 @@ class kicadPcbDataBase
     std::map<std::string, instance> name_to_instance_map;
     std::map<int, std::string> index_to_net_map;
     std::map<std::string, net> name_to_net_map;
+    std::map<std::string, std::pair<int,int> > name_to_diff_pair_net_map;
 };
 
 
