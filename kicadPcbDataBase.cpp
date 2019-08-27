@@ -34,7 +34,7 @@ auto shape_to_cords(const points_2d &shape, double a1, double a2)
   return cords;
 }
 
-auto shape_to_cords(const point_2d &size, point_2d &pos, padShape shape, double a1, double a2, const rule &rule)
+auto shape_to_cords(const point_2d &size, point_2d &pos, padShape shape, double a1, double a2, const double &ratio)
 {
   auto cords = points_2d{};
   switch (shape)
@@ -74,7 +74,7 @@ auto shape_to_cords(const point_2d &size, point_2d &pos, padShape shape, double 
       {
         auto width = size.m_x/2;
         auto height = size.m_y/2;
-        auto radius = std::min(width,height)*rule.m_radius;
+        auto radius = std::min(width,height)*ratio*2;
         auto deltaWidth = width - radius;
         auto deltaHeight = height - radius;                                 
         for(int i = 0; i < 10; ++i) {       //10 points
@@ -308,9 +308,11 @@ bool kicadPcbDataBase::parseKicadPcb()
       for (auto &&layer_node : sub_node.m_branches)
       {
         auto layer_index = 0;
-        auto layer_name = layer_node.m_branches[1].m_value;
-        get_value(ss, begin(layer_node.m_branches), layer_index);
-        layer_to_index_map[layer_name] = layer_index;
+        auto layer_name = layer_node.m_branches[0].m_value;
+        auto layer_type = layer_node.m_branches[1].m_value;
+        if (layer_type == "signal") {
+          layer_to_index_map[layer_name] = std::stoi(layer_node.m_value);
+        }
       }
     } 
     //net
@@ -440,7 +442,7 @@ bool kicadPcbDataBase::parseKicadPcb()
               the_pin.setForm(form);
               the_pin.setType(type);
 
-              get_2d(ss, begin(module_node.m_branches[3].m_branches), the_pin.m_x, the_pin.m_y);
+              get_2d(ss, begin(module_node.m_branches[3].m_branches), the_pin.m_pos.m_x, the_pin.m_pos.m_y);
               get_2d(ss, begin(module_node.m_branches[4].m_branches), the_point.m_x, the_point.m_y);
               the_pin.m_size = the_point;
               if ((int)module_node.m_branches[3].m_branches.size() == 3) {
@@ -448,10 +450,26 @@ bool kicadPcbDataBase::parseKicadPcb()
                 the_pin.m_angle = the_pin.m_angle - the_instance.m_angle;
               }
               else the_pin.m_angle = 0;
-              the_comp.m_pin_map[the_pin.m_name] = the_pin;
+             
 
-              for (auto &&layer_node : module_node.m_branches[5].m_branches) {
-                the_pin.m_layers.push_back(layer_node.m_value);
+              if (type == "smd") {
+                for (auto &&layer_node : module_node.m_branches[5].m_branches) {
+                  if (layer_node.m_value == "Top" || layer_node.m_value == "Bottom") {
+                    the_pin.m_layers.push_back(layer_node.m_value);
+                  }
+                }
+              } else if (type == "thru_hole") {
+                for (auto &&layer_node : module_node.m_branches[6].m_branches) {
+                  if (layer_node.m_value == "*.Cu") {
+                    for (auto &&layer : layer_to_index_map)
+                      the_pin.m_layers.push_back(layer.first);
+                  }
+                }
+              } else {
+                for (auto &&layer_node : module_node.m_branches[5].m_branches) {
+                  if (layer_to_index_map.find(layer_node.m_value)!=layer_to_index_map.end())
+                    the_pin.m_layers.push_back(layer_node.m_value);
+                }
               }
 
               if (form == "circle") {
@@ -459,13 +477,12 @@ bool kicadPcbDataBase::parseKicadPcb()
               } else if (form == "oval") {
                   the_pin.m_rule.m_radius = the_pin.m_size.m_x/2;
               } else if (form == "rect") {
-
-
-
+                  the_pin.m_rule.m_radius = 0.0;
+                  get_value(ss, begin(module_node.m_branches[6].m_branches), the_pin.m_roundrect_ratio);
               } else if (form == "roundrect") {
-
-
+                  the_pin.m_rule.m_radius = 0.0;
               }
+              the_comp.m_pin_map[the_pin.m_name] = the_pin;
             }
             name_to_component_map[component_name] = the_comp;
           }
@@ -527,9 +544,139 @@ bool kicadPcbDataBase::parseKicadPcb()
         net_to_segments_map[net].emplace_back(
             path{point_3d{x, y, 0}, point_3d{x, y, double(layer_to_index_map.size() - 1)}});
     }
+
+    else if (sub_node.m_value == "zone")
+    {
+      auto layer = sub_node.m_branches[2].m_branches[0].m_value;
+      if (sub_node.m_branches[8].m_value == "keepout") {
+        for (auto &&zone_node : sub_node.m_branches) {
+          if (zone_node.m_value == "polygon") {
+            auto points = points_2d{};
+            for (auto &&cord_node : zone_node.m_branches[0].m_branches) {
+              if (cord_node.m_value == "xy") {
+                auto point = point_2d{};
+                get_2d(ss, begin(cord_node.m_branches), point.m_x, point.m_y);
+                points.push_back(point);
+              }
+            }
+            layer_to_keepout_map[layer] = points;
+          }
+        }
+      }
+    }
+
   }
 
 
+  auto minx = double(1000000.0);
+	auto miny = double(1000000.0);
+	auto maxx = double(-1000000.0);
+	auto maxy = double(-1000000.0);
+
+  auto all_pads = pads{};
+	for (auto &&inst : name_to_instance_map)
+	{
+		auto instance = inst.second;
+		auto component = name_to_component_map[instance.m_comp];
+		for (auto &&p : component.m_pin_map)
+		{
+			auto pin = p.second;
+			auto m_x = pin.m_pos.m_x;
+			auto m_y = pin.m_pos.m_y;
+			auto s = sin(instance.m_angle);
+			auto c = cos(instance.m_angle);
+			auto px = double((c*m_x - s*m_y) + instance.m_x);
+			auto py = double((s*m_x + c*m_y) + instance.m_y);
+      auto layerId = 0.0;
+      if(pin.m_layers.size()>0) layerId =    (double)layer_to_index_map[pin.m_layers[0]];
+      auto tp = point_3d{px, py, layerId}; // x, y, layer
+      auto cords = shape_to_cords(pin.m_size, pin.m_pos, pin.m_form, pin.m_angle, instance.m_angle, pin.m_roundrect_ratio);
+			all_pads.push_back(pad{p.second.m_rule.m_radius, p.second.m_rule.m_gap, tp, cords});
+			for (auto &&p1 : cords)
+			{
+				auto x = p1.m_x + px;
+				auto y = p1.m_y + py;
+				minx = std::min(x - p.second.m_rule.m_radius - p.second.m_rule.m_gap, minx);
+				maxx = std::max(x + p.second.m_rule.m_radius + p.second.m_rule.m_gap, maxx);
+        miny = std::min(y - p.second.m_rule.m_radius - p.second.m_rule.m_gap, miny);
+				maxy = std::max(y + p.second.m_rule.m_radius + p.second.m_rule.m_gap, maxy);
+			}
+		}
+	}
+
+  auto track_id = 0;
+  auto the_tracks = tracks{};
+  for (net_it = name_to_net_map.begin(); net_it != name_to_net_map.end(); ++net_it) {
+    
+    auto net = net_it->second;
+    //std::cout << "Net: " << net.getId() << std::endl;
+    auto the_pads = pads{};
+    for (size_t i = 0; i < net.pins.size(); ++i) {
+      auto pin = net.pins[i];
+      auto &&comp = name_to_component_map[pin.m_comp_name];
+      auto &&p = comp.m_pin_map[pin.m_name];
+      auto &&instance = name_to_instance_map[pin.m_instance_name];
+      auto m_x = p.m_pos.m_x;
+			auto m_y = p.m_pos.m_y;
+								
+      auto s = sin(instance.m_angle);
+			auto c = cos(instance.m_angle);
+			auto px = double((c*m_x - s*m_y) + instance.m_x);
+			auto py = double((s*m_x + c*m_y) + instance.m_y);
+
+      auto layerId = 0.0;
+      if(p.m_layers.size()>0) layerId =  (double)layer_to_index_map[p.m_layers[0]];
+      auto tp = point_3d{px, py, 0.0};//layerId}; // x, y, layer
+      auto cords = shape_to_cords(p.m_size, p.m_pos, p.m_form, p.m_angle, instance.m_angle, p.m_roundrect_ratio);
+      auto term = pad{p.m_rule.m_radius, p.m_rule.m_gap, tp, cords};
+			the_pads.push_back(term);
+      //TODO: delete pin in all pin
+    }
+		the_tracks.push_back(track{std::to_string(track_id++), default_rule.m_radius, default_rule.m_radius, default_rule.m_gap,
+												the_pads, net_to_segments_map[net.getId()]});
+  }
+
+/*print for GUI
+	double border = 0.0;
+  auto num_layers = (int)layer_to_index_map.size();
+	std::cout << "(" << maxx - minx + border * 2
+	 			<< " " << maxy - miny + border * 2
+				<< " " << num_layers << ")\n";
+	minx -= border;
+	miny -= border;
+	for (auto &&track : the_tracks)
+	{
+		std::cout << "(" << track.m_id << " " << track.m_track_radius << " "
+						<< track.m_via_radius << " " << track.m_gap << " (";
+		for (auto i = 0; i < static_cast<int>(track.m_pads.size()); ++i)
+		{
+			auto &&term = track.m_pads[i];
+			std::cout << "(" << term.m_radius << " " << term.m_gap
+				<< " (" << term.m_pos.m_x - minx
+				<< " " << term.m_pos.m_y - miny
+				<< " " << term.m_pos.m_z << ") (";
+			for (auto j = 0; j < static_cast<int>(term.m_shape.size()); ++j)
+			{
+				auto cord = term.m_shape[j];
+				std::cout << "(" << cord.m_x << " " << cord.m_y << ")";
+			}
+			std::cout << "))";
+		}
+		std::cout << ") (";
+		for (auto i = 0; i < 0; ++i)//static_cast<int>(track.m_paths.size()); ++i)
+		{
+			std::cout << "(";
+			auto &&p = track.m_paths[i];
+			for (auto j = 0; j < static_cast<int>(p.size()); ++j)
+			{
+				std::cout << "(" << p[j].m_x - minx
+					<< " " << p[j].m_y - miny
+					<< " " << p[j].m_z << ")";
+			}
+			std::cout << ")";
+		}
+		std::cout << "))\n";
+	}*/
 
   return true;
 }
@@ -548,7 +695,7 @@ void kicadPcbDataBase::printComp()
     }
     for (pad_it = comp.m_pin_map.begin(); pad_it != comp.m_pin_map.end(); ++pad_it) {
       auto pad = pad_it->second;
-      std::cout << "\tpad: " << pad.m_name << " (" << pad.m_x << "," << pad.m_y << ") " << pad.m_angle << std::endl;
+      std::cout << "\tpad: " << pad.m_name << " (" << pad.m_pos.m_x << "," << pad.m_pos.m_y << ") " << pad.m_angle << std::endl;
       std::cout << "\t\tsize: " << (int)pad.m_form << " (" << pad.m_size.m_x << "," << pad.m_size.m_y << ")" << std::endl;
     }
   }
@@ -595,12 +742,11 @@ void kicadPcbDataBase::printNet()
 /* print info for Dongwon*/
 void kicadPcbDataBase::printFile() {
 
-  std::cout << "#netId   instName   pinName   pinXPos   pinYPos   pinWidth   pinHeight   netType   diffPair" << std::endl;
+  std::cout << "#netId   instName   pinName   pinXPos   pinYPos   pinWidth   pinHeight   netType   diffPair   layerId   layerName" << std::endl;
   for (net_it = name_to_net_map.begin(); net_it != name_to_net_map.end(); ++net_it) {
     auto net = net_it->second;
     //std::cout << net_it->first << " " << net.getClearance() << " " << net.pins.size() << std::endl;
-    for (size_t i = 0; i < net.pins.size(); ++i) {
-      auto pin = net.pins[i];
+    for (auto &&pin : net.pins) {
       point_2d pos;
       getPinPosition(pin.m_instance_name, pin.m_name, &pos);
       auto &&comp = name_to_component_map[pin.m_comp_name];
@@ -613,8 +759,29 @@ void kicadPcbDataBase::printFile() {
       else 
         std::cout << pad.m_size.m_x << " " << pad.m_size.m_y;
       
-      if (net.isDiffPair()) std::cout << " DIFFPAIR " << net.getDiffPairId() << std::endl;
-      else std::cout << " SIGNAL " << net.getDiffPairId() << std::endl;
+      if (net.isDiffPair()) std::cout << " DIFFPAIR " << net.getDiffPairId() << " ";
+      else std::cout << " SIGNAL " << net.getDiffPairId() << " ";
+
+      std::cout << "( ";
+      for (auto &&layer : pad.m_layers) {
+         std::cout << layer_to_index_map[layer] << " ";
+      }
+      std::cout << ") ";
+
+      std::cout << "( ";
+      for (auto &&layer : pad.m_layers) {
+         std::cout << layer << " ";
+      }
+      std::cout << ")" << std::endl;
+    }
+  }
+  std::cout << "\n#keepoutId   layerId   layerName   xPos   yPos" << std::endl;
+  int i = 0;
+  for (auto &&keepout : layer_to_keepout_map) {
+    for(auto &&pos : keepout.second) {
+      std::cout << i << " " << layer_to_index_map[keepout.first] << " " << keepout.first;
+      std::cout << " " << pos.m_x << " " << pos.m_y << std::endl;
+      ++i;
     }
   }
 }
@@ -637,7 +804,7 @@ void kicadPcbDataBase::printPcbRouterInfo()
       getPinPosition(pin.m_instance_name, pin.m_name, &pinLocation);
 
       std::cout << "\tinst name: " << pin.m_instance_name << ", " << inst.m_name << " (" << inst.m_x << " " << inst.m_y << ")" << ", Rot: " << inst.m_angle
-                << " pin name: " << pin.m_name << " Relative:(" << pad.m_x << " " << pad.m_y << ")" << ", Rot: " << pad.m_angle << ", Absolute Pin Loc:(" << pinLocation.m_x << ", " << pinLocation.m_y << ")"
+                << " pin name: " << pin.m_name << " Relative:(" << pad.m_pos.m_x << " " << pad.m_pos.m_y << ")" << ", Rot: " << pad.m_angle << ", Absolute Pin Loc:(" << pinLocation.m_x << ", " << pinLocation.m_y << ")"
                 << " comp name: " << pin.m_comp_name << ", " << comp.m_name << std::endl;
 
     }
@@ -711,7 +878,7 @@ bool kicadPcbDataBase::getPinPosition(std::string & instName, std::string & pinN
   std::string compName = inst.m_comp;
   auto &&comp = name_to_component_map[compName];
   auto &&pad = comp.m_pin_map[pinName];
-  double padX = pad.m_x, padY = pad.m_y, padAngle = pad.m_angle;
+  double padX = pad.m_pos.m_x, padY = pad.m_pos.m_y, padAngle = pad.m_angle;
   auto instAngle = inst.m_angle * (-M_PI / 180.0);
 
   auto s = sin((float)instAngle);
@@ -788,8 +955,8 @@ bool kicadPcbDataBase::getInstBBox(std::string &instName, point_2d *bBox)
 
   for (pad_it = comp.m_pin_map.begin(); pad_it != comp.m_pin_map.end(); ++pad_it) {
     auto &&pad = pad_it->second;
-    auto pad_x = pad.m_x;
-    auto pad_y = pad.m_y;
+    auto pad_x = pad.m_pos.m_x;
+    auto pad_y = pad.m_pos.m_y;
     auto size = pad.m_size;
     auto pad_angle = pad.m_angle;
 

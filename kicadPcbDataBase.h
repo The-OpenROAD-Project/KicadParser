@@ -35,13 +35,13 @@ struct padstack
   std::string m_name;
   padShape m_form;
   padType m_type;
-  double m_x;
-  double m_y;
+  point_2d m_pos;
   double m_angle;
   std::vector<std::string> m_layers;
   point_2d m_size;    //(width,height)
   //points_2d m_shape;
   rule m_rule;
+  double m_roundrect_ratio;
 
   void setForm (std::string &form) {
     if (form == "rect")
@@ -193,6 +193,7 @@ class kicadPcbDataBase
     std::map<int, paths> net_to_segments_map;
     std::map<std::string, component> name_to_component_map;
     std::map<std::string, int> layer_to_index_map;
+    std::map<std::string, points_2d> layer_to_keepout_map;
     std::map<std::string, instance> name_to_instance_map;
     std::map<int, std::string> index_to_net_map;
     std::map<std::string, net> name_to_net_map;
