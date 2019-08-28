@@ -29,6 +29,7 @@ struct pad
 	double m_gap;
 	point_3d m_pos;
 	points_2d m_shape;
+	point_2d m_size;
 };
 typedef std::vector<pad> pads;
 

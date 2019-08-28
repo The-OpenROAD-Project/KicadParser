@@ -7,6 +7,7 @@ int main(int argc, char *argv[])
 
   std::string designName = argv[1];
   auto db = kicadPcbDataBase{designName};
+  db.printFile();
 
   return 0;
 }
