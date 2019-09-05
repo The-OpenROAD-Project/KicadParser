@@ -14,7 +14,6 @@ set(KICADPCB_HOME ${PROJECT_SOURCE_DIR} )
 
 set (KICADPCB_SRC 
   src/kicadPcbDataBase.cpp
-#  src/main.cpp
   )
 
 set (KICADPCB_HEADER
@@ -26,25 +25,7 @@ set (KICADPCB_HEADER
 ############################################################
 # include directories 
 ############################################################
-# TODO
 include_directories(
-  ${X11_INCLUDE_DIR}
-  ${MKL_INCLUDE_DIR}
-  ${Boost_INCLUDE_DIR}
-
-  ${EIGEN_HOME}
-  ${CIMG_HOME}
-
-  ${DEFLIB_HOME}/def
-  ${DEFLIB_HOME}/defzlib
-  ${DEFLIB_HOME}/cdef
-  ${DEFLIB_HOME}/cdefzlib
-
-  ${LEFLIB_HOME}/lef
-  ${LEFLIB_HOME}/lefzlib
-  ${LEFLIB_HOME}/clef
-  ${LEFLIB_HOME}/clefzlib
-
   )
 
 ############################################################
