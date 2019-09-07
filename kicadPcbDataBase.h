@@ -39,7 +39,7 @@ struct padstack
   double m_angle;
   std::vector<std::string> m_layers;
   point_2d m_size;    //(width,height)
-  //points_2d m_shape;
+  points_2d m_shape;
   rule m_rule;
   double m_roundrect_ratio;
 
@@ -159,6 +159,7 @@ class kicadPcbDataBase
       void printComp();
       void printPcbRouterInfo();
       void printFile();
+      void printSegment();
 
       tree readTree(std::istream &);
 
@@ -189,7 +190,7 @@ class kicadPcbDataBase
     std::map<std::string, padstack>::iterator pad_it;
     std::map<std::string, instance>::iterator inst_it;
     std::map<std::string, net>::iterator net_it;
-    std::map<std::string, int>::iterator pin_it;
+    std::map<std::string, int>::iterator pin_it, layer_it;
     std::map<int, paths> net_to_segments_map;
     std::map<std::string, component> name_to_component_map;
     std::map<std::string, int> layer_to_index_map;

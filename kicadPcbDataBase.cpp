@@ -22,7 +22,7 @@ std::vector<std::string> split(const std::string &s, char delim)
 auto shape_to_cords(const points_2d &shape, double a1, double a2)
 {
   auto cords = points_2d{};
-  auto rads = fmod(a1+a2, 2*M_PI);
+  auto rads = fmod((a1+a2)*-M_PI/180, 2*M_PI);
   auto s = sin(rads);
   auto c = cos(rads);
   for (auto &p : shape)
@@ -34,6 +34,46 @@ auto shape_to_cords(const points_2d &shape, double a1, double a2)
   return cords;
 }
 
+auto roundrect_to_cords( const point_2d &size, const double &ratio)
+{
+  auto cords = points_2d{};
+  auto width = size.m_x/2;
+  auto height = size.m_y/2;
+  auto radius = std::min(width,height)*ratio*2;
+  auto deltaWidth = width - radius;
+  auto deltaHeight = height - radius; 
+  auto point = point_2d{};                                
+        for(int i = 0; i < 10; ++i) {        //10 points
+          point.m_x = deltaWidth + radius * cos(-9*i*M_PI/180);
+          point.m_y = -deltaHeight + radius * sin(-9*i*M_PI/180);
+          //std::cout << point.m_x << " " << point.m_y << std::endl;
+          cords.push_back(point);
+        }
+        for(int i = 10; i < 20; ++i) {       //10 points
+          point.m_x = -deltaWidth + radius * cos(-9*i*M_PI/180);
+          point.m_y = -deltaHeight + radius * sin(-9*i*M_PI/180);
+          //std::cout << point.m_x << " " << point.m_y << std::endl;
+          cords.push_back(point);
+        }
+        for(int i = 20; i < 30; ++i) {       //10 points
+          point.m_x = -deltaWidth + radius * cos(-9*i*M_PI/180);
+          point.m_y = deltaHeight + radius * sin(-9*i*M_PI/180);
+          //std::cout << point.m_x << " " << point.m_y << std::endl;
+          cords.push_back(point);
+        }
+        for(int i = 30; i < 40; ++i) {       //10 points
+          point.m_x = deltaWidth + radius * cos(-9*i*M_PI/180);
+          point.m_y = deltaHeight + radius * sin(-9*i*M_PI/180);
+          //std::cout << point.m_x << " " << point.m_y << std::endl;
+          cords.push_back(point);
+        }
+        point.m_x = deltaWidth + radius * cos(0*M_PI/180);
+        point.m_y = -deltaHeight + radius * sin(0*M_PI/180);
+        //std::cout << point.m_x << " " << point.m_y << std::endl;
+        cords.push_back(point);
+  return cords;
+}
+
 auto shape_to_cords(const point_2d &size, point_2d &pos, padShape shape, double a1, double a2, const double &ratio)
 {
   auto cords = points_2d{};
@@ -42,24 +82,30 @@ auto shape_to_cords(const point_2d &size, point_2d &pos, padShape shape, double 
     case padShape::CIRCLE:
       {
         auto radius = size.m_x/2; 
+        auto point = point_2d{};
         for(int i = 0; i < 40; ++i) {       //40 points
-          auto point = point_2d{};
-          point.m_x = pos.m_x + radius * cos(9*i*M_PI/180);
-          point.m_y = pos.m_y + radius * sin(9*i*M_PI/180);
+          point.m_x = pos.m_x + radius * cos(-9*i*M_PI/180);
+          point.m_y = pos.m_y + radius * sin(-9*i*M_PI/180);
           cords.push_back(point);
         }
+        point.m_x = pos.m_x + radius * cos(0*M_PI/180);
+        point.m_y = pos.m_y + radius * sin(0*M_PI/180);
+        cords.push_back(point);
         break;
       }
     case padShape::OVAL:
       {
-        auto width = size.m_x/2; 
+        auto width = size.m_x/2;
         auto height = size.m_y/2;
-        for(int i = 0; i < 40; ++i) {       //40 points
-          auto point = point_2d{};
-          point.m_x = pos.m_x + width * cos(9*i*M_PI/180);
-          point.m_y = pos.m_y + height * sin(9*i*M_PI/180);
+        auto point = point_2d{};
+        for(int i = 0; i < 40; ++i) {       //40 points        
+          point.m_x = pos.m_x + width * cos(-9*i*M_PI/180);
+          point.m_y = pos.m_y + height * sin(-9*i*M_PI/180);
           cords.push_back(point);
         }
+        point.m_x = pos.m_x + width * cos(0*M_PI/180);
+        point.m_y = pos.m_y + height * sin(0*M_PI/180);
+        cords.push_back(point);
         break;
       }
     case padShape::RECT:
@@ -76,31 +122,31 @@ auto shape_to_cords(const point_2d &size, point_2d &pos, padShape shape, double 
         auto height = size.m_y/2;
         auto radius = std::min(width,height)*ratio*2;
         auto deltaWidth = width - radius;
-        auto deltaHeight = height - radius;                                 
-        for(int i = 0; i < 10; ++i) {       //10 points
-          auto point = point_2d{};
-          point.m_x = pos.m_x + deltaWidth + radius * cos(9*i*M_PI/180);
-          point.m_y = pos.m_y + deltaHeight + radius * sin(9*i*M_PI/180);
+        auto deltaHeight = height - radius; 
+        auto point = point_2d{};                                
+        for(int i = 0; i < 10; ++i) {        //10 points
+          point.m_x = pos.m_x + deltaWidth + radius * cos(-9*i*M_PI/180);
+          point.m_y = pos.m_y - deltaHeight + radius * sin(-9*i*M_PI/180);
           cords.push_back(point);
         }
         for(int i = 10; i < 20; ++i) {       //10 points
-          auto point = point_2d{};
-          point.m_x = pos.m_x - deltaWidth + radius * cos(9*i*M_PI/180);
-          point.m_y = pos.m_y + deltaHeight + radius * sin(9*i*M_PI/180);
+          point.m_x = pos.m_x - deltaWidth + radius * cos(-9*i*M_PI/180);
+          point.m_y = pos.m_y - deltaHeight + radius * sin(-9*i*M_PI/180);
           cords.push_back(point);
         }
         for(int i = 20; i < 30; ++i) {       //10 points
-          auto point = point_2d{};
-          point.m_x = pos.m_x - deltaWidth + radius * cos(9*i*M_PI/180);
-          point.m_y = pos.m_y - deltaHeight + radius * sin(9*i*M_PI/180);
+          point.m_x = pos.m_x - deltaWidth + radius * cos(-9*i*M_PI/180);
+          point.m_y = pos.m_y + deltaHeight + radius * sin(-9*i*M_PI/180);
           cords.push_back(point);
         }
         for(int i = 30; i < 40; ++i) {       //10 points
-          auto point = point_2d{};
-          point.m_x = pos.m_x + deltaWidth + radius * cos(9*i*M_PI/180);
-          point.m_y = pos.m_y - deltaHeight + radius * sin(9*i*M_PI/180);
+          point.m_x = pos.m_x + deltaWidth + radius * cos(-9*i*M_PI/180);
+          point.m_y = pos.m_y + deltaHeight + radius * sin(-9*i*M_PI/180);
           cords.push_back(point);
         }
+        point.m_x = pos.m_x + deltaWidth + radius * cos(0*M_PI/180);
+        point.m_y = pos.m_y - deltaHeight + radius * sin(0*M_PI/180);
+        cords.push_back(point);
         break;
       }
     case padShape::TRAPEZOID:
@@ -364,24 +410,20 @@ bool kicadPcbDataBase::parseKicadPcb()
       }
     }
     else if (sub_node.m_value == "module") {
-      //padstack?? hole??
-      if (sub_node.m_branches[0].m_value == "\"\"" ) {
-
-
-
-      }
-      //instance and component
-      else {
-
-        auto name = split(sub_node.m_branches[0].m_value, ':');
-        auto component_name = name[1]; 
+      std::string component_name;
+      auto name = split(sub_node.m_branches[0].m_value, ':');
+      if(name.size()==2) component_name = name[1]; 
+      else component_name = name[0];
+      
 
         auto layer = sub_node.m_branches[1].m_branches[0].m_value;
         auto the_instance = instance{};
         the_instance.m_comp = component_name;
 
         get_2d(ss, begin(sub_node.m_branches[4].m_branches), the_instance.m_x, the_instance.m_y);
-        //std::cout << node.m_branches[0].m_value << " " << node.m_branches[1].m_value << std::endl;
+        //if(component_name == "2X08") {
+        //  std::cout << "HELLO" << the_instance.m_x << " " << the_instance.m_y << std::endl;
+        //}
         if (int(sub_node.m_branches[4].m_branches.size()) == 3)
           get_value(ss,begin(sub_node.m_branches[4].m_branches)+2, the_instance.m_angle);
         else the_instance.m_angle = 0;
@@ -451,10 +493,9 @@ bool kicadPcbDataBase::parseKicadPcb()
               the_pin.m_size = the_point;
               if ((int)module_node.m_branches[3].m_branches.size() == 3) {
                 get_value(ss, begin(module_node.m_branches[3].m_branches)+2, the_pin.m_angle);
-                the_pin.m_angle = the_pin.m_angle - the_instance.m_angle;
               }
-              else the_pin.m_angle = 0;
-             
+              else the_pin.m_angle = 0;  
+              the_pin.m_angle = the_pin.m_angle - the_instance.m_angle;
 
               if (type == "smd") {
                 for (auto &&layer_node : module_node.m_branches[5].m_branches) {
@@ -479,13 +520,34 @@ bool kicadPcbDataBase::parseKicadPcb()
               if (form == "circle") {
                   the_pin.m_rule.m_radius = the_pin.m_size.m_x/2;
               } else if (form == "oval") {
-                  the_pin.m_rule.m_radius = the_pin.m_size.m_x/2;
+                  the_pin.m_rule.m_radius = the_pin.m_size.m_x/4;
+                  auto point1 = point_2d{the_pin.m_size.m_y/(-2),0};
+                  auto point2 = point_2d{the_pin.m_size.m_y/2, 0};
+                  the_pin.m_shape.push_back(point1);
+                  the_pin.m_shape.push_back(point2);
               } else if (form == "rect") {
-                  the_pin.m_rule.m_radius = 0.0;          
+                  the_pin.m_rule.m_radius = 0.0;  
+                  auto x1 = the_pin.m_size.m_x/(-2);
+                  auto y1 = the_pin.m_size.m_y/2;
+                  auto x2 = the_pin.m_size.m_x/2;
+                  auto y2 = the_pin.m_size.m_y/(-2);
+                  the_pin.m_shape.push_back(point_2d{x1, y1}); 
+                  the_pin.m_shape.push_back(point_2d{x2, y1}); 
+                  the_pin.m_shape.push_back(point_2d{x2, y2});
+                  the_pin.m_shape.push_back(point_2d{x1, y2}); 
+                  the_pin.m_shape.push_back(point_2d{x1, y1}); 
               } else if (form == "roundrect") {
                   the_pin.m_rule.m_radius = 0.0;
                   get_value(ss, begin(module_node.m_branches[6].m_branches), the_pin.m_roundrect_ratio);
+                  the_pin.m_shape = roundrect_to_cords(the_pin.m_size, the_pin.m_roundrect_ratio);
+                  /*
+                  //TEST
+                  for(auto &&cord : the_pin.m_shape) {
+                    std::cout << "(" << cord.m_x << "," << cord.m_y << ") ";
+                  }
+                  std::cout << std::endl;*/
               }
+              the_pin.m_rule.m_gap = 0; //TODO: double check
               the_comp.m_pin_map[the_pin.m_name] = the_pin;
             }
             name_to_component_map[component_name] = the_comp;
@@ -515,7 +577,7 @@ bool kicadPcbDataBase::parseKicadPcb()
           }
         }
         name_to_instance_map[the_instance.m_name] = the_instance;
-      }
+      
     }
     //TODO: calculate outline  
     else if (sub_node.m_value == "gr_line")
@@ -529,12 +591,12 @@ bool kicadPcbDataBase::parseKicadPcb()
       auto net = 0;
       auto segment = path{};
 
-      z = layer_to_index_map[sub_node.m_branches[4].m_branches[0].m_value];
+      z = layer_to_index_map[sub_node.m_branches[3].m_branches[0].m_value];
       get_2d(ss, begin(sub_node.m_branches[0].m_branches), x, y);
       segment.push_back(point_3d(x, y, z));
       get_2d(ss, begin(sub_node.m_branches[1].m_branches), x, y);
       segment.push_back(point_3d(x, y, z));
-      get_value(ss, begin(sub_node.m_branches[3].m_branches), width);
+      get_value(ss, begin(sub_node.m_branches[2].m_branches), width);
       get_value(ss, begin(sub_node.m_branches[4].m_branches), net);
       net_to_segments_map[net].emplace_back(std::move(segment));
     }
@@ -545,8 +607,12 @@ bool kicadPcbDataBase::parseKicadPcb()
         auto net = 0;
         get_2d(ss, begin(sub_node.m_branches[0].m_branches), x, y);
         get_value(ss, begin(sub_node.m_branches[4].m_branches), net);
+        layer_it = layer_to_index_map.begin();
+        auto z0 = layer_it->second;
+        layer_it = layer_to_index_map.end();
+        auto z1 = layer_it->second;
         net_to_segments_map[net].emplace_back(
-            path{point_3d{x, y, 0}, point_3d{x, y, double(layer_to_index_map.size() - 1)}});
+            path{point_3d{x, y, double(z0)}, point_3d{x, y, double(z1)}});
     }
 
     else if (sub_node.m_value == "zone")
@@ -588,24 +654,28 @@ bool kicadPcbDataBase::parseKicadPcb()
 			auto pin = p.second;
 			auto m_x = pin.m_pos.m_x;
 			auto m_y = pin.m_pos.m_y;
-			auto s = sin(instance.m_angle);
-			auto c = cos(instance.m_angle);
+			auto s = sin(instance.m_angle*-M_PI/180);
+			auto c = cos(instance.m_angle*-M_PI/180);
 			auto px = double((c*m_x - s*m_y) + instance.m_x);
 			auto py = double((s*m_x + c*m_y) + instance.m_y);
       auto layerId = 0.0;
       for(auto &&layer : pin.m_layers) {
         layerId = (double)layer_to_index_map[layer];
         auto tp = point_3d{px, py, layerId}; // x, y, layer
-        auto cords = shape_to_cords(pin.m_size, pin.m_pos, pin.m_form, pin.m_angle, instance.m_angle, pin.m_roundrect_ratio);
-      /*TEST
-      std::cout << "inst: " << instance.m_name << " comp: " << component.m_name << " pin: " << pin.m_name << std::endl;
+        auto cords = shape_to_cords(pin.m_shape,pin.m_angle, instance.m_angle);
+        //shape_to_cords(pin.m_size, pin.m_pos, pin.m_form, pin.m_angle, instance.m_angle, pin.m_roundrect_ratio);
+      /*
+      //TEST
+      if(instance.m_name == "IC6") {
+      std::cout << "inst: " << instance.m_name << " comp: " << component.m_name << " pin: " << pin.m_name << " pin angle: " << pin.m_angle << " instance angle: " << instance.m_angle << std::endl;
+      std::cout << "pin pos: (" << px << "," << py << ")" << pin.m_rule.m_radius << " " << pin.m_rule.m_gap << std::endl;
       std::cout << "\t\n";
 
-      for (auto &&cord : cords) {
-        std::cout << "(" << cord.m_x << "," << cord.m_y << ")";
+        for (auto &&cord : cords) {
+          std::cout << "(" << cord.m_x << "," << cord.m_y << ")";
+        }
+        std::cout << std::endl;
       }
-      std::cout << std::endl;
-      /////
       */
 			  all_pads.push_back(pad{p.second.m_rule.m_radius, p.second.m_rule.m_gap, tp, cords, pin.m_size});
       
@@ -618,10 +688,18 @@ bool kicadPcbDataBase::parseKicadPcb()
           miny = std::min(y - p.second.m_rule.m_radius - p.second.m_rule.m_gap, miny);
 				  maxy = std::max(y + p.second.m_rule.m_radius + p.second.m_rule.m_gap, maxy);
 			  }
+
+				  minx = std::min(px - p.second.m_rule.m_radius - p.second.m_rule.m_gap, minx);
+				  maxx = std::max(px + p.second.m_rule.m_radius + p.second.m_rule.m_gap, maxx);
+          miny = std::min(py - p.second.m_rule.m_radius - p.second.m_rule.m_gap, miny);
+				  maxy = std::max(py + p.second.m_rule.m_radius + p.second.m_rule.m_gap, maxy);
+
       }
 		}
 	}
 
+
+//std::cout << "MINX: " << minx << " MAXX: " << maxx <<std::endl;
   auto track_id = 0;
   auto the_tracks = tracks{};
   for (net_it = name_to_net_map.begin(); net_it != name_to_net_map.end(); ++net_it) {
@@ -637,8 +715,8 @@ bool kicadPcbDataBase::parseKicadPcb()
       auto m_x = p.m_pos.m_x;
 			auto m_y = p.m_pos.m_y;
 								
-      auto s = sin(instance.m_angle);
-			auto c = cos(instance.m_angle);
+      auto s = sin(instance.m_angle*-M_PI/180);
+			auto c = cos(instance.m_angle*-M_PI/180);
 			auto px = double((c*m_x - s*m_y) + instance.m_x);
 			auto py = double((s*m_x + c*m_y) + instance.m_y);
 
@@ -646,7 +724,8 @@ bool kicadPcbDataBase::parseKicadPcb()
       for(auto &&layer : p.m_layers) {
         layerId =  (double)layer_to_index_map[layer];
         auto tp = point_3d{px, py, layerId}; // x, y, layer
-        auto cords = shape_to_cords(p.m_size, p.m_pos, p.m_form, p.m_angle, instance.m_angle, p.m_roundrect_ratio);
+        auto cords = shape_to_cords(p.m_shape, p.m_angle, instance.m_angle);
+       // auto cords = shape_to_cords(p.m_size, p.m_pos, p.m_form, p.m_angle, instance.m_angle, p.m_roundrect_ratio);
         auto term = pad{p.m_rule.m_radius, p.m_rule.m_gap, tp, cords, p.m_size};
 			  the_pads.push_back(term);
 
@@ -679,7 +758,7 @@ layer_to_keepout_map[layer_name].push_back(p);
       std::cout << "(" << cord.m_x << "," << cord.m_y << ") ";
     std::cout << std::endl;
   }*/
-/*
+
 //print for GUI
 	double border = 0.0;
   auto num_layers = (int)layer_to_index_map.size();
@@ -707,10 +786,10 @@ layer_to_keepout_map[layer_name].push_back(p);
 			std::cout << "))";
 		}
 		std::cout << ") (";
-		for (auto i = 0; i < 0; ++i)//static_cast<int>(track.m_paths.size()); ++i)
+		for (auto i = 0; i < static_cast<int>(track.m_paths.size()); ++i)
 		{
 			std::cout << "(";
-			auto &&p = track.m_paths[i];
+			auto &&p = track.m_paths.at(i);
 			for (auto j = 0; j < static_cast<int>(p.size()); ++j)
 			{
 				std::cout << "(" << p[j].m_x - minx
@@ -721,8 +800,20 @@ layer_to_keepout_map[layer_name].push_back(p);
 		}
 		std::cout << "))\n";
 	}
-*/
+  
+
   return true;
+}
+
+void kicadPcbDataBase::printSegment()
+{
+  for (auto &&s : net_to_segments_map) {
+    std::cout << "net: " << s.first << std::endl;
+    for (auto &&path : s.second) {
+      for(auto &&point : path)
+      std::cout << "(" << point.m_x << "," << point.m_y << "," << point.m_z << ")" << std::endl;
+    }
+  }
 }
 
 void kicadPcbDataBase::printComp() 
