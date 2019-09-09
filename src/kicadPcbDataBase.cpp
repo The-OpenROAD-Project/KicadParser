@@ -43,34 +43,34 @@ auto roundrect_to_cords( const point_2d &size, const double &ratio)
   auto deltaWidth = width - radius;
   auto deltaHeight = height - radius; 
   auto point = point_2d{};                                
-        for(int i = 0; i < 10; ++i) {        //10 points
-          point.m_x = deltaWidth + radius * cos(-9*i*M_PI/180);
-          point.m_y = -deltaHeight + radius * sin(-9*i*M_PI/180);
-          //std::cout << point.m_x << " " << point.m_y << std::endl;
-          cords.push_back(point);
-        }
-        for(int i = 10; i < 20; ++i) {       //10 points
-          point.m_x = -deltaWidth + radius * cos(-9*i*M_PI/180);
-          point.m_y = -deltaHeight + radius * sin(-9*i*M_PI/180);
-          //std::cout << point.m_x << " " << point.m_y << std::endl;
-          cords.push_back(point);
-        }
-        for(int i = 20; i < 30; ++i) {       //10 points
-          point.m_x = -deltaWidth + radius * cos(-9*i*M_PI/180);
-          point.m_y = deltaHeight + radius * sin(-9*i*M_PI/180);
-          //std::cout << point.m_x << " " << point.m_y << std::endl;
-          cords.push_back(point);
-        }
-        for(int i = 30; i < 40; ++i) {       //10 points
-          point.m_x = deltaWidth + radius * cos(-9*i*M_PI/180);
-          point.m_y = deltaHeight + radius * sin(-9*i*M_PI/180);
-          //std::cout << point.m_x << " " << point.m_y << std::endl;
-          cords.push_back(point);
-        }
-        point.m_x = deltaWidth + radius * cos(0*M_PI/180);
-        point.m_y = -deltaHeight + radius * sin(0*M_PI/180);
-        //std::cout << point.m_x << " " << point.m_y << std::endl;
-        cords.push_back(point);
+  for(int i = 0; i < 10; ++i) {        //10 points
+    point.m_x = deltaWidth + radius * cos(-9*i*M_PI/180);
+    point.m_y = -deltaHeight + radius * sin(-9*i*M_PI/180);
+    //std::cout << point.m_x << " " << point.m_y << std::endl;
+    cords.push_back(point);
+  }
+  for(int i = 10; i < 20; ++i) {       //10 points
+    point.m_x = -deltaWidth + radius * cos(-9*i*M_PI/180);
+    point.m_y = -deltaHeight + radius * sin(-9*i*M_PI/180);
+    //std::cout << point.m_x << " " << point.m_y << std::endl;
+    cords.push_back(point);
+  }
+  for(int i = 20; i < 30; ++i) {       //10 points
+    point.m_x = -deltaWidth + radius * cos(-9*i*M_PI/180);
+    point.m_y = deltaHeight + radius * sin(-9*i*M_PI/180);
+    //std::cout << point.m_x << " " << point.m_y << std::endl;
+    cords.push_back(point);
+  }
+  for(int i = 30; i < 40; ++i) {       //10 points
+    point.m_x = deltaWidth + radius * cos(-9*i*M_PI/180);
+    point.m_y = deltaHeight + radius * sin(-9*i*M_PI/180);
+    //std::cout << point.m_x << " " << point.m_y << std::endl;
+    cords.push_back(point);
+  }
+  point.m_x = deltaWidth + radius * cos(0*M_PI/180);
+  point.m_y = -deltaHeight + radius * sin(0*M_PI/180);
+  //std::cout << point.m_x << " " << point.m_y << std::endl;
+  cords.push_back(point);
   return cords;
 }
 
@@ -371,8 +371,8 @@ bool kicadPcbDataBase::parseKicadPcb()
       if (net_name[net_name.size()-1] == '+' || net_name[net_name.size()-1] == '-') {
         auto name = net_name.substr(0,net_name.size()-1);
         if (name_to_diff_pair_net_map.find(name) != name_to_diff_pair_net_map.end()) {
-           auto &&pair = name_to_diff_pair_net_map[name];
-           pair.second = net_index;
+          auto &&pair = name_to_diff_pair_net_map[name];
+          pair.second = net_index;
         } else {
           name_to_diff_pair_net_map[name] = std::make_pair(net_index, -1);
         }
@@ -396,9 +396,9 @@ bool kicadPcbDataBase::parseKicadPcb()
         else if (net_class_node.m_value == "uvia_drill")
           get_value(ss, begin(net_class_node.m_branches), m_uvia_drill);
         else if (net_class_node.m_value == "add_net") {
-          
+
           auto net_name = net_class_node.m_branches[0].m_value;
-          
+
           auto name = net_name.substr(0,net_name.size()-1);
           auto pair = std::make_pair(-1, -1);
           if (name_to_diff_pair_net_map.find(name) != name_to_diff_pair_net_map.end()) {
@@ -414,170 +414,170 @@ bool kicadPcbDataBase::parseKicadPcb()
       auto name = split(sub_node.m_branches[0].m_value, ':');
       if(name.size()==2) component_name = name[1]; 
       else component_name = name[0];
-      
 
-        auto layer = sub_node.m_branches[1].m_branches[0].m_value;
-        auto the_instance = instance{};
-        the_instance.m_comp = component_name;
 
-        get_2d(ss, begin(sub_node.m_branches[4].m_branches), the_instance.m_x, the_instance.m_y);
-        //if(component_name == "2X08") {
-        //  std::cout << "HELLO" << the_instance.m_x << " " << the_instance.m_y << std::endl;
-        //}
-        if (int(sub_node.m_branches[4].m_branches.size()) == 3)
-          get_value(ss,begin(sub_node.m_branches[4].m_branches)+2, the_instance.m_angle);
-        else the_instance.m_angle = 0;
+      auto layer = sub_node.m_branches[1].m_branches[0].m_value;
+      auto the_instance = instance{};
+      the_instance.m_comp = component_name;
 
-        comp_it = name_to_component_map.find(component_name);
+      get_2d(ss, begin(sub_node.m_branches[4].m_branches), the_instance.m_x, the_instance.m_y);
+      //if(component_name == "2X08") {
+      //  std::cout << "HELLO" << the_instance.m_x << " " << the_instance.m_y << std::endl;
+      //}
+      if (int(sub_node.m_branches[4].m_branches.size()) == 3)
+        get_value(ss,begin(sub_node.m_branches[4].m_branches)+2, the_instance.m_angle);
+      else the_instance.m_angle = 0;
 
-        auto the_comp = component{component_name, std::map<std::string, padstack>{}};
+      comp_it = name_to_component_map.find(component_name);
 
-        for (auto &&module_node : sub_node.m_branches) {
+      auto the_comp = component{component_name, std::map<std::string, padstack>{}};
 
-          if (module_node.m_value == "fp_text" && module_node.m_branches[0].m_value == "reference") {
-            the_instance.m_name = module_node.m_branches[1].m_value;
+      for (auto &&module_node : sub_node.m_branches) {
+
+        if (module_node.m_value == "fp_text" && module_node.m_branches[0].m_value == "reference") {
+          the_instance.m_name = module_node.m_branches[1].m_value;
+        }
+        if(comp_it == name_to_component_map.end()) { 
+          if (module_node.m_value == "fp_line") {
+            auto the_line = line{};
+            get_2d(ss, begin(module_node.m_branches[0].m_branches), the_line.m_start.m_x, the_line.m_start.m_y);
+            get_2d(ss, begin(module_node.m_branches[1].m_branches), the_line.m_end.m_x, the_line.m_end.m_y);
+            get_value(ss, begin(module_node.m_branches[3].m_branches), the_line.m_width);
+            the_comp.m_lines.push_back(the_line);
           }
-          if(comp_it == name_to_component_map.end()) { 
-            if (module_node.m_value == "fp_line") {
-              auto the_line = line{};
-              get_2d(ss, begin(module_node.m_branches[0].m_branches), the_line.m_start.m_x, the_line.m_start.m_y);
-              get_2d(ss, begin(module_node.m_branches[1].m_branches), the_line.m_end.m_x, the_line.m_end.m_y);
-              get_value(ss, begin(module_node.m_branches[3].m_branches), the_line.m_width);
-              the_comp.m_lines.push_back(the_line);
-            }
-            else if (module_node.m_value == "fp_poly") {
-              auto the_poly = poly{};
-              for (auto &&cor_node : module_node.m_branches[0].m_branches) {
-                auto the_point = point_2d{};
-                get_2d(ss, begin(cor_node.m_branches), the_point.m_x, the_point.m_y);
-                the_poly.m_shape.push_back(the_point);
-              }
-              get_value(ss, begin(module_node.m_branches[2].m_branches), the_poly.m_width);
-              the_comp.m_polys.push_back(the_poly);
-            }
-            else if (module_node.m_value == "fp_circle") {
-              auto the_circle = circle{};
-              get_2d(ss, begin(module_node.m_branches[0].m_branches), the_circle.m_center.m_x, the_circle.m_center.m_y);
-              get_2d(ss, begin(module_node.m_branches[1].m_branches), the_circle.m_end.m_x, the_circle.m_end.m_y);
-              get_value(ss, begin(module_node.m_branches[3].m_branches), the_circle.m_width);
-              the_comp.m_circles.push_back(the_circle);
-            }
-            else if (module_node.m_value == "fp_arc") {
-              auto the_arc = arc{};
-              get_2d(ss, begin(module_node.m_branches[0].m_branches), the_arc.m_start.m_x, the_arc.m_start.m_y);
-              get_2d(ss, begin(module_node.m_branches[1].m_branches), the_arc.m_end.m_x, the_arc.m_end.m_y);
-              get_value(ss, begin(module_node.m_branches[2].m_branches), the_arc.m_angle);
-              get_value(ss, begin(module_node.m_branches[4].m_branches), the_arc.m_width);
-              the_comp.m_arcs.push_back(the_arc);
-            }
-
-            else if (module_node.m_value == "pad") {
-              auto the_pin = padstack{};
+          else if (module_node.m_value == "fp_poly") {
+            auto the_poly = poly{};
+            for (auto &&cor_node : module_node.m_branches[0].m_branches) {
               auto the_point = point_2d{};
-              auto points = points_2d{};
-					    the_pin.m_rule = default_rule;
-
-              auto form = module_node.m_branches[2].m_value;
-              auto type = module_node.m_branches[1].m_value;
-              the_pin.m_name = module_node.m_branches[0].m_value;
-              if(the_pin.m_name == "\"\"") {
-                the_pin.m_name = "Unnamed" + std::to_string(noNameId);
-                ++noNameId;
-              }
-
-              the_pin.setForm(form);
-              the_pin.setType(type);
-
-              get_2d(ss, begin(module_node.m_branches[3].m_branches), the_pin.m_pos.m_x, the_pin.m_pos.m_y);
-              get_2d(ss, begin(module_node.m_branches[4].m_branches), the_point.m_x, the_point.m_y);
-              the_pin.m_size = the_point;
-              if ((int)module_node.m_branches[3].m_branches.size() == 3) {
-                get_value(ss, begin(module_node.m_branches[3].m_branches)+2, the_pin.m_angle);
-              }
-              else the_pin.m_angle = 0;  
-              the_pin.m_angle = the_pin.m_angle - the_instance.m_angle;
-
-              if (type == "smd") {
-                for (auto &&layer_node : module_node.m_branches[5].m_branches) {
-                  if (layer_node.m_value == "Top" || layer_node.m_value == "Bottom") {
-                    the_pin.m_layers.push_back(layer_node.m_value);
-                  }
-                }
-              } else if (type == "thru_hole" || type == "np_thru_hole") {
-                for (auto &&layer_node : module_node.m_branches[6].m_branches) {
-                  if (layer_node.m_value == "*.Cu") {
-                    for (auto &&layer : layer_to_index_map)
-                      the_pin.m_layers.push_back(layer.first);
-                  }
-                }
-              } else {
-                for (auto &&layer_node : module_node.m_branches[5].m_branches) {
-                  if (layer_to_index_map.find(layer_node.m_value)!=layer_to_index_map.end())
-                    the_pin.m_layers.push_back(layer_node.m_value);
-                }
-              }
-
-              if (form == "circle") {
-                  the_pin.m_rule.m_radius = the_pin.m_size.m_x/2;
-              } else if (form == "oval") {
-                  the_pin.m_rule.m_radius = the_pin.m_size.m_x/4;
-                  auto point1 = point_2d{the_pin.m_size.m_y/(-2),0};
-                  auto point2 = point_2d{the_pin.m_size.m_y/2, 0};
-                  the_pin.m_shape.push_back(point1);
-                  the_pin.m_shape.push_back(point2);
-              } else if (form == "rect") {
-                  the_pin.m_rule.m_radius = 0.0;  
-                  auto x1 = the_pin.m_size.m_x/(-2);
-                  auto y1 = the_pin.m_size.m_y/2;
-                  auto x2 = the_pin.m_size.m_x/2;
-                  auto y2 = the_pin.m_size.m_y/(-2);
-                  the_pin.m_shape.push_back(point_2d{x1, y1}); 
-                  the_pin.m_shape.push_back(point_2d{x2, y1}); 
-                  the_pin.m_shape.push_back(point_2d{x2, y2});
-                  the_pin.m_shape.push_back(point_2d{x1, y2}); 
-                  the_pin.m_shape.push_back(point_2d{x1, y1}); 
-              } else if (form == "roundrect") {
-                  the_pin.m_rule.m_radius = 0.0;
-                  get_value(ss, begin(module_node.m_branches[6].m_branches), the_pin.m_roundrect_ratio);
-                  the_pin.m_shape = roundrect_to_cords(the_pin.m_size, the_pin.m_roundrect_ratio);
-                  /*
-                  //TEST
-                  for(auto &&cord : the_pin.m_shape) {
-                    std::cout << "(" << cord.m_x << "," << cord.m_y << ") ";
-                  }
-                  std::cout << std::endl;*/
-              }
-              the_pin.m_rule.m_gap = 0; //TODO: double check
-              the_comp.m_pin_map[the_pin.m_name] = the_pin;
+              get_2d(ss, begin(cor_node.m_branches), the_point.m_x, the_point.m_y);
+              the_poly.m_shape.push_back(the_point);
             }
-            name_to_component_map[component_name] = the_comp;
+            get_value(ss, begin(module_node.m_branches[2].m_branches), the_poly.m_width);
+            the_comp.m_polys.push_back(the_poly);
           }
-        }
+          else if (module_node.m_value == "fp_circle") {
+            auto the_circle = circle{};
+            get_2d(ss, begin(module_node.m_branches[0].m_branches), the_circle.m_center.m_x, the_circle.m_center.m_y);
+            get_2d(ss, begin(module_node.m_branches[1].m_branches), the_circle.m_end.m_x, the_circle.m_end.m_y);
+            get_value(ss, begin(module_node.m_branches[3].m_branches), the_circle.m_width);
+            the_comp.m_circles.push_back(the_circle);
+          }
+          else if (module_node.m_value == "fp_arc") {
+            auto the_arc = arc{};
+            get_2d(ss, begin(module_node.m_branches[0].m_branches), the_arc.m_start.m_x, the_arc.m_start.m_y);
+            get_2d(ss, begin(module_node.m_branches[1].m_branches), the_arc.m_end.m_x, the_arc.m_end.m_y);
+            get_value(ss, begin(module_node.m_branches[2].m_branches), the_arc.m_angle);
+            get_value(ss, begin(module_node.m_branches[4].m_branches), the_arc.m_width);
+            the_comp.m_arcs.push_back(the_arc);
+          }
 
-        //Find the connection of the pad
-        for (auto &&pad_node : sub_node.m_branches)
-        {
-          if (pad_node.m_value == "pad") {
-            auto pin_name = pad_node.m_branches[0].m_value;
-            int net_index = 0;
-            std::string net_name = "";
-            for (auto &&net_node : pad_node.m_branches) {
-              if (net_node.m_value == "net") {
-                net_name = net_node.m_branches[1].m_value;
-                get_value(ss, begin(net_node.m_branches), net_index);
+          else if (module_node.m_value == "pad") {
+            auto the_pin = padstack{};
+            auto the_point = point_2d{};
+            auto points = points_2d{};
+            the_pin.m_rule = default_rule;
 
-                auto the_pin = pin{pin_name, component_name, the_instance.m_name};
-                the_instance.m_pin_net_map[pin_name] = net_index;
-                auto &&the_net = name_to_net_map[net_name];
-                the_net.setId(net_index);
-                the_net.pins.push_back(the_pin);
+            auto form = module_node.m_branches[2].m_value;
+            auto type = module_node.m_branches[1].m_value;
+            the_pin.m_name = module_node.m_branches[0].m_value;
+            if(the_pin.m_name == "\"\"") {
+              the_pin.m_name = "Unnamed" + std::to_string(noNameId);
+              ++noNameId;
+            }
 
+            the_pin.setForm(form);
+            the_pin.setType(type);
+
+            get_2d(ss, begin(module_node.m_branches[3].m_branches), the_pin.m_pos.m_x, the_pin.m_pos.m_y);
+            get_2d(ss, begin(module_node.m_branches[4].m_branches), the_point.m_x, the_point.m_y);
+            the_pin.m_size = the_point;
+            if ((int)module_node.m_branches[3].m_branches.size() == 3) {
+              get_value(ss, begin(module_node.m_branches[3].m_branches)+2, the_pin.m_angle);
+            }
+            else the_pin.m_angle = 0;  
+            the_pin.m_angle = the_pin.m_angle - the_instance.m_angle;
+
+            if (type == "smd") {
+              for (auto &&layer_node : module_node.m_branches[5].m_branches) {
+                if (layer_node.m_value == "Top" || layer_node.m_value == "Bottom") {
+                  the_pin.m_layers.push_back(layer_node.m_value);
+                }
+              }
+            } else if (type == "thru_hole" || type == "np_thru_hole") {
+              for (auto &&layer_node : module_node.m_branches[6].m_branches) {
+                if (layer_node.m_value == "*.Cu") {
+                  for (auto &&layer : layer_to_index_map)
+                    the_pin.m_layers.push_back(layer.first);
+                }
+              }
+            } else {
+              for (auto &&layer_node : module_node.m_branches[5].m_branches) {
+                if (layer_to_index_map.find(layer_node.m_value)!=layer_to_index_map.end())
+                  the_pin.m_layers.push_back(layer_node.m_value);
               }
             }
+
+            if (form == "circle") {
+              the_pin.m_rule.m_radius = the_pin.m_size.m_x/2;
+            } else if (form == "oval") {
+              the_pin.m_rule.m_radius = the_pin.m_size.m_x/4;
+              auto point1 = point_2d{the_pin.m_size.m_y/(-2),0};
+              auto point2 = point_2d{the_pin.m_size.m_y/2, 0};
+              the_pin.m_shape.push_back(point1);
+              the_pin.m_shape.push_back(point2);
+            } else if (form == "rect") {
+              the_pin.m_rule.m_radius = 0.0;  
+              auto x1 = the_pin.m_size.m_x/(-2);
+              auto y1 = the_pin.m_size.m_y/2;
+              auto x2 = the_pin.m_size.m_x/2;
+              auto y2 = the_pin.m_size.m_y/(-2);
+              the_pin.m_shape.push_back(point_2d{x1, y1}); 
+              the_pin.m_shape.push_back(point_2d{x2, y1}); 
+              the_pin.m_shape.push_back(point_2d{x2, y2});
+              the_pin.m_shape.push_back(point_2d{x1, y2}); 
+              the_pin.m_shape.push_back(point_2d{x1, y1}); 
+            } else if (form == "roundrect") {
+              the_pin.m_rule.m_radius = 0.0;
+              get_value(ss, begin(module_node.m_branches[6].m_branches), the_pin.m_roundrect_ratio);
+              the_pin.m_shape = roundrect_to_cords(the_pin.m_size, the_pin.m_roundrect_ratio);
+              /*
+              //TEST
+              for(auto &&cord : the_pin.m_shape) {
+              std::cout << "(" << cord.m_x << "," << cord.m_y << ") ";
+              }
+              std::cout << std::endl;*/
+            }
+            the_pin.m_rule.m_gap = 0; //TODO: double check
+            the_comp.m_pin_map[the_pin.m_name] = the_pin;
+          }
+          name_to_component_map[component_name] = the_comp;
+        }
+      }
+
+      //Find the connection of the pad
+      for (auto &&pad_node : sub_node.m_branches)
+      {
+        if (pad_node.m_value == "pad") {
+          auto pin_name = pad_node.m_branches[0].m_value;
+          int net_index = 0;
+          std::string net_name = "";
+          for (auto &&net_node : pad_node.m_branches) {
+            if (net_node.m_value == "net") {
+              net_name = net_node.m_branches[1].m_value;
+              get_value(ss, begin(net_node.m_branches), net_index);
+
+              auto the_pin = pin{pin_name, component_name, the_instance.m_name};
+              the_instance.m_pin_net_map[pin_name] = net_index;
+              auto &&the_net = name_to_net_map[net_name];
+              the_net.setId(net_index);
+              the_net.pins.push_back(the_pin);
+
+            }
           }
         }
-        name_to_instance_map[the_instance.m_name] = the_instance;
-      
+      }
+      name_to_instance_map[the_instance.m_name] = the_instance;
+
     }
     //TODO: calculate outline  
     else if (sub_node.m_value == "gr_line")
@@ -603,16 +603,16 @@ bool kicadPcbDataBase::parseKicadPcb()
 
     else if (sub_node.m_value == "via")
     {
-        auto x = 0.0, y = 0.0;
-        auto net = 0;
-        get_2d(ss, begin(sub_node.m_branches[0].m_branches), x, y);
-        get_value(ss, begin(sub_node.m_branches[4].m_branches), net);
-        layer_it = layer_to_index_map.begin();
-        auto z0 = layer_it->second;
-        layer_it = layer_to_index_map.end();
-        auto z1 = layer_it->second;
-        net_to_segments_map[net].emplace_back(
-            path{point_3d{x, y, double(z0)}, point_3d{x, y, double(z1)}});
+      auto x = 0.0, y = 0.0;
+      auto net = 0;
+      get_2d(ss, begin(sub_node.m_branches[0].m_branches), x, y);
+      get_value(ss, begin(sub_node.m_branches[4].m_branches), net);
+      layer_it = layer_to_index_map.begin();
+      auto z0 = layer_it->second;
+      layer_it = layer_to_index_map.end();
+      auto z1 = layer_it->second;
+      net_to_segments_map[net].emplace_back(
+          path{point_3d{x, y, double(z0)}, point_3d{x, y, double(z1)}});
     }
 
     else if (sub_node.m_value == "zone")
@@ -640,70 +640,70 @@ bool kicadPcbDataBase::parseKicadPcb()
 
 
   auto minx = double(1000000.0);
-	auto miny = double(1000000.0);
-	auto maxx = double(-1000000.0);
-	auto maxy = double(-1000000.0);
+  auto miny = double(1000000.0);
+  auto maxx = double(-1000000.0);
+  auto maxy = double(-1000000.0);
 
   //auto all_pads = pads{};
-	for (auto &&inst : name_to_instance_map)
-	{
-		auto instance = inst.second;
-		auto component = name_to_component_map[instance.m_comp];
-		for (auto &&p : component.m_pin_map)
-		{
-			auto pin = p.second;
-			auto m_x = pin.m_pos.m_x;
-			auto m_y = pin.m_pos.m_y;
-			auto s = sin(instance.m_angle*-M_PI/180);
-			auto c = cos(instance.m_angle*-M_PI/180);
-			auto px = double((c*m_x - s*m_y) + instance.m_x);
-			auto py = double((s*m_x + c*m_y) + instance.m_y);
+  for (auto &&inst : name_to_instance_map)
+  {
+    auto instance = inst.second;
+    auto component = name_to_component_map[instance.m_comp];
+    for (auto &&p : component.m_pin_map)
+    {
+      auto pin = p.second;
+      auto m_x = pin.m_pos.m_x;
+      auto m_y = pin.m_pos.m_y;
+      auto s = sin(instance.m_angle*-M_PI/180);
+      auto c = cos(instance.m_angle*-M_PI/180);
+      auto px = double((c*m_x - s*m_y) + instance.m_x);
+      auto py = double((s*m_x + c*m_y) + instance.m_y);
       auto layerId = 0.0;
       for(auto &&layer : pin.m_layers) {
         layerId = (double)layer_to_index_map[layer];
         auto tp = point_3d{px, py, layerId}; // x, y, layer
         auto cords = shape_to_cords(pin.m_shape,pin.m_angle, instance.m_angle);
         //shape_to_cords(pin.m_size, pin.m_pos, pin.m_form, pin.m_angle, instance.m_angle, pin.m_roundrect_ratio);
-      /*
-      //TEST
-      if(instance.m_name == "IC6") {
-      std::cout << "inst: " << instance.m_name << " comp: " << component.m_name << " pin: " << pin.m_name << " pin angle: " << pin.m_angle << " instance angle: " << instance.m_angle << std::endl;
-      std::cout << "pin pos: (" << px << "," << py << ")" << pin.m_rule.m_radius << " " << pin.m_rule.m_gap << std::endl;
-      std::cout << "\t\n";
+        /*
+        //TEST
+        if(instance.m_name == "IC6") {
+        std::cout << "inst: " << instance.m_name << " comp: " << component.m_name << " pin: " << pin.m_name << " pin angle: " << pin.m_angle << " instance angle: " << instance.m_angle << std::endl;
+        std::cout << "pin pos: (" << px << "," << py << ")" << pin.m_rule.m_radius << " " << pin.m_rule.m_gap << std::endl;
+        std::cout << "\t\n";
 
         for (auto &&cord : cords) {
-          std::cout << "(" << cord.m_x << "," << cord.m_y << ")";
+        std::cout << "(" << cord.m_x << "," << cord.m_y << ")";
         }
         std::cout << std::endl;
-      }
-      */
-			  all_pads.push_back(pad{p.second.m_rule.m_radius, p.second.m_rule.m_gap, tp, cords, pin.m_size});
-      
-			  for (auto &&p1 : cords)
-			  {
-				  auto x = p1.m_x + px;
-				  auto y = p1.m_y + py;
-				  minx = std::min(x - p.second.m_rule.m_radius - p.second.m_rule.m_gap, minx);
-				  maxx = std::max(x + p.second.m_rule.m_radius + p.second.m_rule.m_gap, maxx);
+        }
+        */
+        all_pads.push_back(pad{p.second.m_rule.m_radius, p.second.m_rule.m_gap, tp, cords, pin.m_size});
+
+        for (auto &&p1 : cords)
+        {
+          auto x = p1.m_x + px;
+          auto y = p1.m_y + py;
+          minx = std::min(x - p.second.m_rule.m_radius - p.second.m_rule.m_gap, minx);
+          maxx = std::max(x + p.second.m_rule.m_radius + p.second.m_rule.m_gap, maxx);
           miny = std::min(y - p.second.m_rule.m_radius - p.second.m_rule.m_gap, miny);
-				  maxy = std::max(y + p.second.m_rule.m_radius + p.second.m_rule.m_gap, maxy);
-			  }
+          maxy = std::max(y + p.second.m_rule.m_radius + p.second.m_rule.m_gap, maxy);
+        }
 
-				  minx = std::min(px - p.second.m_rule.m_radius - p.second.m_rule.m_gap, minx);
-				  maxx = std::max(px + p.second.m_rule.m_radius + p.second.m_rule.m_gap, maxx);
-          miny = std::min(py - p.second.m_rule.m_radius - p.second.m_rule.m_gap, miny);
-				  maxy = std::max(py + p.second.m_rule.m_radius + p.second.m_rule.m_gap, maxy);
+        minx = std::min(px - p.second.m_rule.m_radius - p.second.m_rule.m_gap, minx);
+        maxx = std::max(px + p.second.m_rule.m_radius + p.second.m_rule.m_gap, maxx);
+        miny = std::min(py - p.second.m_rule.m_radius - p.second.m_rule.m_gap, miny);
+        maxy = std::max(py + p.second.m_rule.m_radius + p.second.m_rule.m_gap, maxy);
 
       }
-		}
-	}
+    }
+  }
 
 
-//std::cout << "MINX: " << minx << " MAXX: " << maxx <<std::endl;
+  //std::cout << "MINX: " << minx << " MAXX: " << maxx <<std::endl;
   auto track_id = 0;
   auto the_tracks = tracks{};
   for (net_it = name_to_net_map.begin(); net_it != name_to_net_map.end(); ++net_it) {
-    
+
     auto net = net_it->second;
     //std::cout << "Net: " << net.getId() << std::endl;
     auto the_pads = pads{};
@@ -713,94 +713,94 @@ bool kicadPcbDataBase::parseKicadPcb()
       auto &&p = comp.m_pin_map[pin.m_name];
       auto &&instance = name_to_instance_map[pin.m_instance_name];
       auto m_x = p.m_pos.m_x;
-			auto m_y = p.m_pos.m_y;
-								
+      auto m_y = p.m_pos.m_y;
+
       auto s = sin(instance.m_angle*-M_PI/180);
-			auto c = cos(instance.m_angle*-M_PI/180);
-			auto px = double((c*m_x - s*m_y) + instance.m_x);
-			auto py = double((s*m_x + c*m_y) + instance.m_y);
+      auto c = cos(instance.m_angle*-M_PI/180);
+      auto px = double((c*m_x - s*m_y) + instance.m_x);
+      auto py = double((s*m_x + c*m_y) + instance.m_y);
 
       auto layerId = 0.0;
       for(auto &&layer : p.m_layers) {
         layerId =  (double)layer_to_index_map[layer];
         auto tp = point_3d{px, py, layerId}; // x, y, layer
         auto cords = shape_to_cords(p.m_shape, p.m_angle, instance.m_angle);
-       // auto cords = shape_to_cords(p.m_size, p.m_pos, p.m_form, p.m_angle, instance.m_angle, p.m_roundrect_ratio);
+        // auto cords = shape_to_cords(p.m_size, p.m_pos, p.m_form, p.m_angle, instance.m_angle, p.m_roundrect_ratio);
         auto term = pad{p.m_rule.m_radius, p.m_rule.m_gap, tp, cords, p.m_size};
-			  the_pads.push_back(term);
+        the_pads.push_back(term);
 
         //TODO: delete pin in all pin
         all_pads.erase(std::find(begin(all_pads), end(all_pads), term));
       }
     }
-		the_tracks.push_back(track{std::to_string(track_id++), default_rule.m_radius, default_rule.m_radius, default_rule.m_gap,
-												the_pads, net_to_segments_map[net.getId()]});
+    the_tracks.push_back(track{std::to_string(track_id++), default_rule.m_radius, default_rule.m_radius, default_rule.m_gap,
+        the_pads, net_to_segments_map[net.getId()]});
   }
 
-/*for (auto &&pad : all_pads) {
-  auto p = path{};
-  auto point = point_3d{};
-  for (auto &&cord : pad.m_shape) {
+  /*for (auto &&pad : all_pads) {
+    auto p = path{};
+    auto point = point_3d{};
+    for (auto &&cord : pad.m_shape) {
     point.m_x = pad.m_pos.m_x+cord.m_x;
     point.m_y = pad.m_pos.m_y+cord.m_y;
     point.m_z = pad.m_pos.m_z;
     p.push_back(point);
-  }
-auto layer_name = index_to_layer_map[point.m_z];
-layer_to_keepout_map[layer_name].push_back(p);
-}*/
+    }
+    auto layer_name = index_to_layer_map[point.m_z];
+    layer_to_keepout_map[layer_name].push_back(p);
+    }*/
 
 
   /*Test
-  for (auto &&pad : all_pads) {
+    for (auto &&pad : all_pads) {
     std::cout << pad.m_pos.m_x << " " << pad.m_pos.m_y << " " << pad.m_pos.m_z << std::endl;
     for (auto &&cord : pad.m_shape)
-      std::cout << "(" << cord.m_x << "," << cord.m_y << ") ";
+    std::cout << "(" << cord.m_x << "," << cord.m_y << ") ";
     std::cout << std::endl;
-  }*/
+    }*/
 
-//print for GUI
-	double border = 0.0;
+  //print for GUI
+  double border = 0.0;
   auto num_layers = (int)layer_to_index_map.size();
-	std::cout << "(" << maxx - minx + border * 2
-	 			<< " " << maxy - miny + border * 2
-				<< " " << num_layers << ")\n";
-	minx -= border;
-	miny -= border;
-	for (auto &&track : the_tracks)
-	{
-		std::cout << "(" << track.m_id << " " << track.m_track_radius << " "
-						<< track.m_via_radius << " " << track.m_gap << " (";
-		for (auto i = 0; i < static_cast<int>(track.m_pads.size()); ++i)
-		{
-			auto &&term = track.m_pads[i];
-			std::cout << "(" << term.m_radius << " " << term.m_gap
-				<< " (" << term.m_pos.m_x - minx
-				<< " " << term.m_pos.m_y - miny
-				<< " " << term.m_pos.m_z << ") (";
-			for (auto j = 0; j < static_cast<int>(term.m_shape.size()); ++j)
-			{
-				auto cord = term.m_shape[j];
-				std::cout << "(" << cord.m_x << " " << cord.m_y << ")";
-			}
-			std::cout << "))";
-		}
-		std::cout << ") (";
-		for (auto i = 0; i < static_cast<int>(track.m_paths.size()); ++i)
-		{
-			std::cout << "(";
-			auto &&p = track.m_paths.at(i);
-			for (auto j = 0; j < static_cast<int>(p.size()); ++j)
-			{
-				std::cout << "(" << p[j].m_x - minx
-					<< " " << p[j].m_y - miny
-					<< " " << p[j].m_z << ")";
-			}
-			std::cout << ")";
-		}
-		std::cout << "))\n";
-	}
-  
+  std::cout << "(" << maxx - minx + border * 2
+    << " " << maxy - miny + border * 2
+    << " " << num_layers << ")\n";
+  minx -= border;
+  miny -= border;
+  for (auto &&track : the_tracks)
+  {
+    std::cout << "(" << track.m_id << " " << track.m_track_radius << " "
+      << track.m_via_radius << " " << track.m_gap << " (";
+    for (auto i = 0; i < static_cast<int>(track.m_pads.size()); ++i)
+    {
+      auto &&term = track.m_pads[i];
+      std::cout << "(" << term.m_radius << " " << term.m_gap
+        << " (" << term.m_pos.m_x - minx
+        << " " << term.m_pos.m_y - miny
+        << " " << term.m_pos.m_z << ") (";
+      for (auto j = 0; j < static_cast<int>(term.m_shape.size()); ++j)
+      {
+        auto cord = term.m_shape[j];
+        std::cout << "(" << cord.m_x << " " << cord.m_y << ")";
+      }
+      std::cout << "))";
+    }
+    std::cout << ") (";
+    for (auto i = 0; i < static_cast<int>(track.m_paths.size()); ++i)
+    {
+      std::cout << "(";
+      auto &&p = track.m_paths.at(i);
+      for (auto j = 0; j < static_cast<int>(p.size()); ++j)
+      {
+        std::cout << "(" << p[j].m_x - minx
+          << " " << p[j].m_y - miny
+          << " " << p[j].m_z << ")";
+      }
+      std::cout << ")";
+    }
+    std::cout << "))\n";
+  }
+
 
   return true;
 }
@@ -811,7 +811,7 @@ void kicadPcbDataBase::printSegment()
     std::cout << "net: " << s.first << std::endl;
     for (auto &&path : s.second) {
       for(auto &&point : path)
-      std::cout << "(" << point.m_x << "," << point.m_y << "," << point.m_z << ")" << std::endl;
+        std::cout << "(" << point.m_x << "," << point.m_y << "," << point.m_z << ")" << std::endl;
     }
   }
 }
@@ -893,19 +893,19 @@ void kicadPcbDataBase::printFile() {
         std::cout << pad.m_size.m_x << " " << pad.m_size.m_y;
       else 
         std::cout << pad.m_size.m_x << " " << pad.m_size.m_y;
-      
+
       if (net.isDiffPair()) std::cout << " DIFFPAIR " << net.getDiffPairId() << " ";
       else std::cout << " SIGNAL " << net.getDiffPairId() << " ";
 
       std::cout << "( ";
       for (auto &&layer : pad.m_layers) {
-         std::cout << layer_to_index_map[layer] << " ";
+        std::cout << layer_to_index_map[layer] << " ";
       }
       std::cout << ") ";
 
       std::cout << "( ";
       for (auto &&layer : pad.m_layers) {
-         std::cout << layer << " ";
+        std::cout << layer << " ";
       }
       std::cout << ")" << std::endl;
     }
@@ -917,9 +917,9 @@ void kicadPcbDataBase::printFile() {
       for(auto &&cord : path) {
         std::cout << i << " " << layer_to_index_map[keepout.first] << " " << keepout.first;
         std::cout << " " << cord.m_x << " " << cord.m_y << std::endl;
-        
+
       }
-    ++i;
+      ++i;
     }
   }
 
@@ -952,8 +952,8 @@ void kicadPcbDataBase::printPcbRouterInfo()
       getPinPosition(pin.m_instance_name, pin.m_name, &pinLocation);
 
       std::cout << "\tinst name: " << pin.m_instance_name << ", " << inst.m_name << " (" << inst.m_x << " " << inst.m_y << ")" << ", Rot: " << inst.m_angle
-                << " pin name: " << pin.m_name << " Relative:(" << pad.m_pos.m_x << " " << pad.m_pos.m_y << ")" << ", Rot: " << pad.m_angle << ", Absolute Pin Loc:(" << pinLocation.m_x << ", " << pinLocation.m_y << ")"
-                << " comp name: " << pin.m_comp_name << ", " << comp.m_name << std::endl;
+        << " pin name: " << pin.m_name << " Relative:(" << pad.m_pos.m_x << " " << pad.m_pos.m_y << ")" << ", Rot: " << pad.m_angle << ", Absolute Pin Loc:(" << pinLocation.m_x << ", " << pinLocation.m_y << ")"
+        << " comp name: " << pin.m_comp_name << ", " << comp.m_name << std::endl;
 
     }
   }
@@ -974,10 +974,10 @@ bool kicadPcbDataBase::getPcbRouterInfo(std::vector<std::set<std::pair<double, d
     for (size_t i = 0; i < net.pins.size(); ++i) {
       auto &&pin = net.pins[i];
       /*
-      auto &&inst = name_to_instance_map[pin.m_instance_name];
-      std::string compName = inst.m_comp;
-      auto &&comp = name_to_component_map[compName];
-      auto &&pad = comp.m_pin_map[pin.m_name];
+         auto &&inst = name_to_instance_map[pin.m_instance_name];
+         std::string compName = inst.m_comp;
+         auto &&comp = name_to_component_map[compName];
+         auto &&pad = comp.m_pin_map[pin.m_name];
 
 
       //routerInfo->at(net.m_id).insert(std::pair<double, double>(inst.m_x+pad.m_x, inst.m_y+pad.m_y));
