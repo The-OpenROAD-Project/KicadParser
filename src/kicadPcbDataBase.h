@@ -3,6 +3,10 @@
 
 
 #include "router.h"
+#include "kicadParser.h"
+#include "tree.h"
+#include "util.h"
+#include "shape.h"
 #include <cmath>
 #include <math.h>
 #include <stdio.h>
@@ -14,20 +18,15 @@
 #include <assert.h>
 #include <iterator>
 
-enum class padShape {RECT, ROUNDRECT, CIRCLE, OVAL, TRAPEZOID};
+
 enum class padType {SMD, THRU_HOLE, CONNECT, NP_THRU_HOLE};
 
 
-struct tree
-{
-  std::string m_value;
-  std::vector <tree> m_branches;
-};
 
 struct rule
 {
   double m_radius;
-  double m_gap;
+  double m_clearance;
 };
 
 struct padstack
@@ -70,37 +69,7 @@ struct padstack
   }
 };
 
-struct line
-{
-  point_2d m_start;
-  point_2d m_end;
-  double m_width;
-  int m_layer;
-};
 
-struct circle
-{
-  point_2d m_center;
-  point_2d m_end;
-  double m_width;
-  int m_layer;
-};
-
-struct poly
-{
-  points_2d m_shape;
-  double m_width;
-  int m_layer;
-};
-
-struct arc
-{
-  point_2d m_start;
-  point_2d m_end;
-  double m_angle;
-  double m_width;
-  int m_layer;
-};
 
 struct component
 {
@@ -126,11 +95,6 @@ struct instance
   std::map<std::string, int> m_pin_net_map;
 };
 
-struct circuit
-{
-  std::string m_via;
-  rule m_rule;
-};
 
 class kicadPcbDataBase
 {
@@ -138,7 +102,7 @@ class kicadPcbDataBase
 
     kicadPcbDataBase(std::string fileName):m_fileName(fileName){
       std::cerr << "Build Kicad Pcb database..." << std::endl;
-      if(!parseKicadPcb()) {
+      if(!buildKicadPcb()) {
         std::cerr << "ERROR: Building Kicad Pcb database failed." << std::endl;
         assert(false);
       }
@@ -152,8 +116,6 @@ class kicadPcbDataBase
       name_to_net_map.clear();
     };
 
-      void printTree(const tree &, int);
-      void printKicadPcb(const tree &, int);
       void printNet();
       void printInst();
       void printComp();
@@ -161,9 +123,7 @@ class kicadPcbDataBase
       void printFile();
       void printSegment();
 
-      tree readTree(std::istream &);
-
-      bool parseKicadPcb();
+      bool buildKicadPcb();
 
       bool getPcbRouterInfo(std::vector<std::set<std::pair<double, double>>> *);
       bool getNumOfInst(int *);
@@ -201,6 +161,9 @@ class kicadPcbDataBase
     std::map<std::string, net> name_to_net_map;
     std::map<std::string, std::pair<int,int> > name_to_diff_pair_net_map;
     std::vector<pad> all_pads;
+    paths all_keepouts;
+
+    tree tree;
 };
 
 
