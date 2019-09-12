@@ -23,11 +23,14 @@ set (KICADPCB_SRC
 set (KICADPCB_HEADER
   src/kicadPcbDataBase.h
   src/mymath.h
-  src/router.h
+  src/net.h
   src/kicadParser.h
   src/tree.h
   src/util.h
   src/shape.h
+  src/pin.h
+  src/rule.h
+  src/module.h
   )
 
 ############################################################
