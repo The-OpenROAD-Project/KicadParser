@@ -1,8 +1,8 @@
 #ifndef KICADPCB_DATABASE_H
 #define KICADPCB_DATABASE_H
 
-
 #include "router.h"
+#include "util.h"
 #include <cmath>
 #include <math.h>
 #include <stdio.h>
@@ -14,14 +14,26 @@
 #include <assert.h>
 #include <iterator>
 
-enum class padShape {RECT, ROUNDRECT, CIRCLE, OVAL, TRAPEZOID};
-enum class padType {SMD, THRU_HOLE, CONNECT, NP_THRU_HOLE};
-
+enum class padShape
+{
+  RECT,
+  ROUNDRECT,
+  CIRCLE,
+  OVAL,
+  TRAPEZOID
+};
+enum class padType
+{
+  SMD,
+  THRU_HOLE,
+  CONNECT,
+  NP_THRU_HOLE
+};
 
 struct tree
 {
   std::string m_value;
-  std::vector <tree> m_branches;
+  std::vector<tree> m_branches;
 };
 
 struct rule
@@ -38,12 +50,13 @@ struct padstack
   point_2d m_pos;
   double m_angle;
   std::vector<std::string> m_layers;
-  point_2d m_size;    //(width,height)
+  point_2d m_size; //(width,height)
   points_2d m_shape;
   rule m_rule;
   double m_roundrect_ratio;
 
-  void setForm (std::string &form) {
+  void setForm(std::string &form)
+  {
     if (form == "rect")
       m_form = padShape::RECT;
     else if (form == "roundrect")
@@ -54,10 +67,12 @@ struct padstack
       m_form = padShape::OVAL;
     else if (form == "trapezoid")
       m_form = padShape::TRAPEZOID;
-    else  std::cout << "Error: No this pin shape!" << std::endl;
+    else
+      std::cout << "Error: No this pin shape!" << std::endl;
   }
 
-  void setType (std::string &type) {
+  void setType(std::string &type)
+  {
     if (type == "smd")
       m_type = padType::SMD;
     else if (type == "thru_hole")
@@ -66,7 +81,8 @@ struct padstack
       m_type = padType::CONNECT;
     else if (type == "np_thru_hole")
       m_type = padType::NP_THRU_HOLE;
-    else std::cout << "Error: No this pin type!" << std::endl;
+    else
+      std::cout << "Error: No this pin type!" << std::endl;
   }
 };
 
@@ -106,10 +122,10 @@ struct component
 {
   std::string m_name;
   std::map<std::string, padstack> m_pin_map;
-  std::vector <line> m_lines;
-  std::vector <circle> m_circles;
-  std::vector <poly> m_polys;
-  std::vector <arc> m_arcs;
+  std::vector<line> m_lines;
+  std::vector<circle> m_circles;
+  std::vector<poly> m_polys;
+  std::vector<arc> m_arcs;
   int m_layer;
 };
 
@@ -134,45 +150,49 @@ struct circuit
 
 class kicadPcbDataBase
 {
-  public:
+public:
+  kicadPcbDataBase(std::string fileName) : m_fileName(fileName)
+  {
+    std::cerr << "Build Kicad Pcb database..." << std::endl;
+    if (!parseKicadPcb())
+    {
+      std::cerr << "ERROR: Building Kicad Pcb database failed." << std::endl;
+      assert(false);
+    }
+  };
 
-    kicadPcbDataBase(std::string fileName):m_fileName(fileName){
-      std::cerr << "Build Kicad Pcb database..." << std::endl;
-      if(!parseKicadPcb()) {
-        std::cerr << "ERROR: Building Kicad Pcb database failed." << std::endl;
-        assert(false);
-      }
-    };
+  ~kicadPcbDataBase()
+  {
+    name_to_component_map.clear();
+    layer_to_index_map.clear();
+    name_to_instance_map.clear();
+    index_to_net_map.clear();
+    name_to_net_map.clear();
+  };
 
-    ~kicadPcbDataBase(){
-      name_to_component_map.clear();
-      layer_to_index_map.clear();
-      name_to_instance_map.clear();
-      index_to_net_map.clear();
-      name_to_net_map.clear();
-    };
+  void printTree(const tree &, int);
+  void printKicadPcb(const tree &, int);
+  void printNet();
+  void printInst();
+  void printComp();
+  void printPcbRouterInfo();
+  void printFile();
+  void printSegment();
 
-      void printTree(const tree &, int);
-      void printKicadPcb(const tree &, int);
-      void printNet();
-      void printInst();
-      void printComp();
-      void printPcbRouterInfo();
-      void printFile();
-      void printSegment();
+  tree readTree(std::istream &);
 
-      tree readTree(std::istream &);
+  bool parseKicadPcb();
 
-      bool parseKicadPcb();
+  bool getPcbRouterInfo(std::vector<std::set<std::pair<double, double>>> *);
+  bool getNumOfInst(int *);
+  bool getInst(int &, instance *);
+  bool getPinPosition(std::string &inst_name, std::string &pin_name, point_2d *pos);
+  bool getInstBBox(std::string &, point_2d *);
+  bool getPad(std::string &, std::string &, padstack *);
 
-      bool getPcbRouterInfo(std::vector<std::set<std::pair<double, double>>> *);
-      bool getNumOfInst(int *);
-      bool getInst(int &, instance *);
-      bool getPinPosition(std::string & inst_name, std::string & pin_name, point_2d *pos);
-      bool getInstBBox(std::string &, point_2d *);
-      bool getPad(std::string &, std::string &, padstack *);
+  std::string getFileName() { return m_fileName; }
 
-    /*
+  /*
      getPinPosition(std::string inst_name, std::string pin_name, point_2d *pos);
      getNet
      getPin
@@ -181,27 +201,24 @@ class kicadPcbDataBase
      getInstanceBBox
      */
 
+private:
+  std::string m_fileName;
 
-  private:
-
-    std::string m_fileName;
-
-    std::map<std::string,component>::iterator comp_it;
-    std::map<std::string, padstack>::iterator pad_it;
-    std::map<std::string, instance>::iterator inst_it;
-    std::map<std::string, net>::iterator net_it;
-    std::map<std::string, int>::iterator pin_it, layer_it;
-    std::map<int, paths> net_to_segments_map;
-    std::map<std::string, component> name_to_component_map;
-    std::map<std::string, int> layer_to_index_map;
-    std::map<int, std::string> index_to_layer_map;
-    std::map<std::string, paths> layer_to_keepout_map;
-    std::map<std::string, instance> name_to_instance_map;
-    std::map<int, std::string> index_to_net_map;
-    std::map<std::string, net> name_to_net_map;
-    std::map<std::string, std::pair<int,int> > name_to_diff_pair_net_map;
-    std::vector<pad> all_pads;
+  std::map<std::string, component>::iterator comp_it;
+  std::map<std::string, padstack>::iterator pad_it;
+  std::map<std::string, instance>::iterator inst_it;
+  std::map<std::string, net>::iterator net_it;
+  std::map<std::string, int>::iterator pin_it, layer_it;
+  std::map<int, paths> net_to_segments_map;
+  std::map<std::string, component> name_to_component_map;
+  std::map<std::string, int> layer_to_index_map;
+  std::map<int, std::string> index_to_layer_map;
+  std::map<std::string, paths> layer_to_keepout_map;
+  std::map<std::string, instance> name_to_instance_map;
+  std::map<int, std::string> index_to_net_map;
+  std::map<std::string, net> name_to_net_map;
+  std::map<std::string, std::pair<int, int>> name_to_diff_pair_net_map;
+  std::vector<pad> all_pads;
 };
-
 
 #endif
