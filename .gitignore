@@ -18,6 +18,10 @@ CMakeCache.txt
 CMakeFiles
 install_manifest.txt
 
+# Display File and KiCad files
+*.view
+*.pro
+
 # Backup files
 *.bk
 
