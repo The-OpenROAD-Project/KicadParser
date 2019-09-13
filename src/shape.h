@@ -1,5 +1,5 @@
-#ifndef SHAPE_H
-#define SHAPE_H
+#ifndef KICAD_PCB_SHAPE_H
+#define KICAD_PCB_SHAPE_H
 
 #include <cmath>
 #include <math.h>

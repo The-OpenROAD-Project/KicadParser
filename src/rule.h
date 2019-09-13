@@ -1,5 +1,5 @@
-#ifndef RULE_H
-#define RULE_H
+#ifndef KICAD_PCB_RULE_H
+#define KICAD_PCB_RULE_H
 
 struct rule
 {

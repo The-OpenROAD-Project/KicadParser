@@ -1,5 +1,5 @@
-#ifndef TREE_H
-#define TREE_H
+#ifndef KICAD_PCB_TREE_H
+#define KICAD_PCB_TREE_H
 
 #include <vector>
 #include <string>

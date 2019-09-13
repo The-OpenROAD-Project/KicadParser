@@ -1,5 +1,5 @@
-#ifndef PIN_H
-#define PIN_H
+#ifndef KICAD_PCB_PIN_H
+#define KICAD_PCB_PIN_H
 
 #include "mymath.h"
 #include "shape.h"

@@ -1,5 +1,5 @@
-#ifndef KICADPCB_PARSER_H
-#define KICADPCB_PARSER_H
+#ifndef KICAD_PCB_KICADPCB_PARSER_H
+#define KICAD_PCB_KICADPCB_PARSER_H
 
 #include <string>
 #include <iostream>

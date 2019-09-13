@@ -1,5 +1,5 @@
-#ifndef NET_H
-#define NET_H
+#ifndef KICAD_PCB_NET_H
+#define KICAD_PCB_NET_H
 
 #include "mymath.h"
 #include "pin.h"

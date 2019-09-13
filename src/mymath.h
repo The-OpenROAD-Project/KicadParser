@@ -1,5 +1,5 @@
-#ifndef MYMATH_H
-#define MYMATH_H
+#ifndef KICAD_PCB_MYMATH_H
+#define KICAD_PCB_MYMATH_H
 
 #include <vector>
 #include <tuple>

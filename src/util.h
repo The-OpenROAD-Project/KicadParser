@@ -1,5 +1,5 @@
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef KICAD_PCB_UTIL_H
+#define KICAD_PCB_UTIL_H
 
 #include <cmath>
 #include <math.h>
