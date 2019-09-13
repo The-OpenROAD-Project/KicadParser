@@ -1,5 +1,5 @@
-#ifndef MODULE_H
-#define MODULE_H
+#ifndef KICAD_PCB_MODULE_H
+#define KICAD_PCB_MODULE_H
 
 #include "shape.h"
 #include "pin.h"

@@ -1,5 +1,5 @@
-#ifndef KICADPCB_DATABASE_H
-#define KICADPCB_DATABASE_H
+#ifndef KICAD_PCB_KICADPCB_DATABASE_H
+#define KICAD_PCB_KICADPCB_DATABASE_H
 
 #include "net.h"
 #include "kicadParser.h"
