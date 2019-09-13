@@ -12,7 +12,6 @@ kicadParser::kicadParser(std::string fileName) : fileName_(fileName)
 
 kicadParser::~kicadParser()
 {
-
 }
 
 bool kicadParser::parseKicadPcb(tree *tree)

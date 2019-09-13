@@ -8,25 +8,24 @@
 #include <assert.h>
 #include "tree.h"
 
-class kicadParser {
+class kicadParser
+{
 
-    public:
-        kicadParser(std::string);
-        ~kicadParser();
-        bool parseKicadPcb(tree *);
-        bool readUntil(std::istream &, char);
-        void readWhitespace(std::istream &);
-        std::string readNodeName(std::istream &);
-        tree readString(std::istream &);
-        tree readQuotedString(std::istream &);
-        tree readTree(std::istream &);
-        void printTree(const tree &, int);
-        void printKicadPcb(const tree &, int);
+public:
+    kicadParser(std::string);
+    ~kicadParser();
+    bool parseKicadPcb(tree *);
+    bool readUntil(std::istream &, char);
+    void readWhitespace(std::istream &);
+    std::string readNodeName(std::istream &);
+    tree readString(std::istream &);
+    tree readQuotedString(std::istream &);
+    tree readTree(std::istream &);
+    void printTree(const tree &, int);
+    void printKicadPcb(const tree &, int);
 
-    private:
-        std::string fileName_;
+private:
+    std::string fileName_;
 };
 
-
-
-#endif 
+#endif

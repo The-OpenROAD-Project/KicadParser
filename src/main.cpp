@@ -1,7 +1,5 @@
 #include "kicadPcbDataBase.h"
 
-
-
 int main(int argc, char *argv[])
 {
 

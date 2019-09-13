@@ -7,7 +7,6 @@
 #include <map>
 #include <vector>
 
-
 struct component
 {
     std::string m_name;

@@ -17,5 +17,46 @@ void get_value(std::stringstream &ss, std::vector<tree>::iterator t, double &x);
 void get_2d(std::stringstream &ss, std::vector<tree>::iterator t, double &x, double &y);
 void get_rect(std::stringstream &ss, std::vector<tree>::iterator t, double &x1, double &y1, double &x2, double &y2);
 
+namespace utilParser
+{
+// =====================================================
+// filename --------------------------------------------
+// =====================================================
+inline std::string getFileDirName(const std::string filePathName)
+{
+    std::string retStr = filePathName;
+    std::string::size_type pos = retStr.find_last_of("/\\");
+    if (pos != std::string::npos)
+        retStr = retStr.substr(0, pos);
+    return retStr;
+}
+inline std::string getFileName(const std::string filePathName)
+{
+    std::string retStr = filePathName;
+    std::string::size_type pos = retStr.find_last_of("/\\");
+    if (pos != std::string::npos)
+        retStr = retStr.substr(pos + 1);
+    return retStr;
+}
+inline std::string getFileNameWoExtension(const std::string filePathName)
+{
+    std::string retStr = filePathName;
+    std::string::size_type pos = retStr.find_last_of("/\\");
+    if (pos != std::string::npos)
+        retStr = retStr.substr(pos + 1);
+    pos = retStr.find_last_of(".");
+    if (pos != std::string::npos)
+        retStr = retStr.substr(0, pos);
+    return retStr;
+}
+inline std::string getFileExtension(const std::string filePathName)
+{
+    std::string retStr = filePathName;
+    std::string::size_type pos = retStr.rfind(".");
+    if (pos != std::string::npos)
+        retStr = retStr.substr(pos + 1);
+    return retStr;
+}
+} // namespace utilParser
 
 #endif
