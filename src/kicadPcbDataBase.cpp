@@ -24,7 +24,7 @@ bool kicadPcbDataBase::buildKicadPcb()
 
             for (auto &&layer_node : sub_node.m_branches)
             {
-                auto layer_index = 0;
+                //auto layer_index = 0;
                 auto layer_name = layer_node.m_branches[0].m_value;
                 auto layer_type = layer_node.m_branches[1].m_value;
                 if (layer_type == "signal")
@@ -61,7 +61,7 @@ bool kicadPcbDataBase::buildKicadPcb()
         {
             for (auto &&net_class_node : sub_node.m_branches)
             {
-                double m_clearance, m_trace_width, m_via_dia, m_via_drill, m_uvia_dia, m_uvia_drill;
+                double m_clearance = 0.0, m_trace_width = 0.0, m_via_dia = 0.0, m_via_drill = 0.0, m_uvia_dia = 0.0, m_uvia_drill = 0.0;
                 if (net_class_node.m_value == "clearance")
                     get_value(ss, begin(net_class_node.m_branches), m_clearance);
                 else if (net_class_node.m_value == "trace_width")
@@ -818,7 +818,8 @@ bool kicadPcbDataBase::getPinPosition(std::string &instName, std::string &pinNam
     std::string compName = inst.m_comp;
     auto &&comp = name_to_component_map[compName];
     auto &&pad = comp.m_pin_map[pinName];
-    double padX = pad.m_pos.m_x, padY = pad.m_pos.m_y, padAngle = pad.m_angle;
+    double padX = pad.m_pos.m_x, padY = pad.m_pos.m_y;
+    //double padAngle = pad.m_angle;
     auto instAngle = inst.m_angle * (-M_PI / 180.0);
 
     auto s = sin((float)instAngle);

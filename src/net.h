@@ -38,11 +38,14 @@ public:
         const double via_drill = 0.0,
         const double uvia_dia = 0.0,
         const double uvia_drill = 0.0)
-        : m_diff_pair(pair), m_clearance(clearance), m_trace_width(trace_width), m_via_dia(via_dia), m_via_drill(via_drill), m_uvia_dia(uvia_dia), m_uvia_drill(uvia_drill) {}
+        : m_clearance(clearance), m_trace_width(trace_width), m_via_dia(via_dia), m_via_drill(via_drill), m_uvia_dia(uvia_dia), m_uvia_drill(uvia_drill), m_diff_pair(pair) {}
     std::vector<pin> pins;
     double getClearance() { return m_clearance; }
     double getTraceWidth() { return m_trace_width; }
     double getViaDia() { return m_via_dia; }
+    double getViaDrill() { return m_via_drill; }
+    double getMicroViaDia() { return m_uvia_dia; }
+    double getMicroViaDrill() { return m_uvia_drill; }
     bool setId(int &id)
     {
         m_id = id;
