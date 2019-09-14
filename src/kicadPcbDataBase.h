@@ -58,14 +58,11 @@ public:
 
     std::string getFileName() { return m_fileName; }
 
-    /*
-           getPinPosition(std::string inst_name, std::string pin_name, point_2d *pos);
-           getNet
-           getPin
-           getComponent
-           getInstance
-           getInstanceBBox
-           */
+    //TODO
+    //getPinPosition(std::string inst_name, std::string pin_name, point_2d *pos);
+    //getNet
+    //getPin
+    //getComponent
 
 private:
     std::string m_fileName;
@@ -79,12 +76,12 @@ private:
     std::map<std::string, component> name_to_component_map;
     std::map<std::string, int> layer_to_index_map;
     std::map<int, std::string> index_to_layer_map;
-    std::map<std::string, paths> layer_to_keepout_map;
+    std::map<std::string, paths> layer_to_keepout_map; // keepout zones <layerID, obstacles>
     std::map<std::string, instance> name_to_instance_map;
     std::map<int, std::string> index_to_net_map;
     std::map<std::string, net> name_to_net_map;
     std::map<std::string, std::pair<int, int>> name_to_diff_pair_net_map;
-    std::vector<pad> all_pads;
+    std::vector<pad> all_pads; // unconnected pins
     paths all_keepouts;
 
     tree tree;

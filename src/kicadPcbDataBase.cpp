@@ -540,8 +540,12 @@ void kicadPcbDataBase::printSegment()
 
 void kicadPcbDataBase::printComp()
 {
-
-    std::cout << "###########COMP############" << std::endl;
+    std::cout << std::endl;
+    std::cout << "#####################################" << std::endl;
+    std::cout << "###                               ###" << std::endl;
+    std::cout << "###             COMP              ###" << std::endl;
+    std::cout << "###                               ###" << std::endl;
+    std::cout << "#####################################" << std::endl;
     for (comp_it = name_to_component_map.begin(); comp_it != name_to_component_map.end(); ++comp_it)
     {
         std::cout << comp_it->first << " "
@@ -564,8 +568,12 @@ void kicadPcbDataBase::printComp()
 
 void kicadPcbDataBase::printInst()
 {
-
-    std::cout << "###########INST############" << std::endl;
+    std::cout << std::endl;
+    std::cout << "#####################################" << std::endl;
+    std::cout << "###                               ###" << std::endl;
+    std::cout << "###             INST              ###" << std::endl;
+    std::cout << "###                               ###" << std::endl;
+    std::cout << "#####################################" << std::endl;
     for (inst_it = name_to_instance_map.begin(); inst_it != name_to_instance_map.end(); ++inst_it)
     {
         auto inst = inst_it->second;
@@ -579,11 +587,16 @@ void kicadPcbDataBase::printInst()
 
 void kicadPcbDataBase::printNet()
 {
-    std::cout << "#################NET###############" << std::endl;
+    std::cout << std::endl;
+    std::cout << "#####################################" << std::endl;
+    std::cout << "###                               ###" << std::endl;
+    std::cout << "###              NET              ###" << std::endl;
+    std::cout << "###                               ###" << std::endl;
+    std::cout << "#####################################" << std::endl;
     for (net_it = name_to_net_map.begin(); net_it != name_to_net_map.end(); ++net_it)
     {
         auto net = net_it->second;
-        std::cout << net_it->first << " " << net.getClearance() << " " << net.pins.size() << std::endl;
+        std::cout << net_it->first << ", clearance: " << net.getClearance() << ", netDegree: " << net.pins.size() << ", netId: " << net.getId() << std::endl;
         for (size_t i = 0; i < net.pins.size(); ++i)
         {
             auto pin = net.pins[i];
@@ -593,11 +606,11 @@ void kicadPcbDataBase::printNet()
             auto &&pad = comp.m_pin_map[pin.m_name];
             auto &&inst = name_to_instance_map[pin.m_instance_name];
             auto angle = inst.m_angle + pad.m_angle;
-            std::cout << "\tinst name: " << pin.m_instance_name << " pin name: " << pin.m_name << " comp name: " << pin.m_comp_name << "pos: (" << pos.m_x << "," << pos.m_y << ")";
+            std::cout << "\tinst name: " << pin.m_instance_name << " pin name: " << pin.m_name << " comp name: " << pin.m_comp_name << " pos: (" << pos.m_x << "," << pos.m_y << ")";
             if (angle == 0 || angle == 180)
-                std::cout << "width: " << pad.m_size.m_x << "height: " << pad.m_size.m_y << std::endl;
+                std::cout << " width: " << pad.m_size.m_x << " height: " << pad.m_size.m_y << std::endl;
             else
-                std::cout << "height: " << pad.m_size.m_x << "width: " << pad.m_size.m_y << std::endl;
+                std::cout << " height: " << pad.m_size.m_x << " width: " << pad.m_size.m_y << std::endl;
         }
     }
 }
@@ -674,29 +687,63 @@ void kicadPcbDataBase::printFile()
 // Warning! Doesn't count component rotation
 void kicadPcbDataBase::printPcbRouterInfo()
 {
-    std::cout << std::endl
-              << "#################Routing Input###############" << std::endl;
+    std::cout << std::endl;
+    std::cout << "#####################################" << std::endl;
+    std::cout << "###                               ###" << std::endl;
+    std::cout << "###         ROUTER INFO           ###" << std::endl;
+    std::cout << "###                               ###" << std::endl;
+    std::cout << "#####################################" << std::endl;
+    // Nets
     for (net_it = name_to_net_map.begin(); net_it != name_to_net_map.end(); ++net_it)
     {
-        auto &&net = net_it->second;
-        std::cout << net_it->first << ", clearance: " << net.getClearance() << ", size: " << net.pins.size() << ", netId: " << net.getId() << std::endl;
+        auto &net = net_it->second;
+        std::cout << net_it->first << ", clearance: " << net.getClearance() << ", netDegree(#pins): " << net.pins.size() << ", netId: " << net.getId() << std::endl;
         for (size_t i = 0; i < net.pins.size(); ++i)
         {
-            auto &&pin = net.pins[i];
-            auto &&inst = name_to_instance_map[pin.m_instance_name];
+            auto &pin = net.pins[i];
+            auto &inst = name_to_instance_map[pin.m_instance_name];
             std::string compName = inst.m_comp;
-            auto &&comp = name_to_component_map[compName];
-            auto &&pad = comp.m_pin_map[pin.m_name];
+            auto &comp = name_to_component_map[compName];
+            auto &pad = comp.m_pin_map[pin.m_name];
             point_2d pinLocation;
 
             getPinPosition(pin.m_instance_name, pin.m_name, &pinLocation);
 
-            std::cout << "\tinst name: " << pin.m_instance_name << ", " << inst.m_name << " (" << inst.m_x << " " << inst.m_y << ")"
+            assert(pin.m_instance_name == inst.m_name);
+            assert(pin.m_comp_name == comp.m_name);
+
+            std::cout << "   inst name: " << pin.m_instance_name << " (" << inst.m_x << " " << inst.m_y << ")"
                       << ", Rot: " << inst.m_angle
-                      << " pin name: " << pin.m_name << " Relative:(" << pad.m_pos.m_x << " " << pad.m_pos.m_y << ")"
-                      << ", Rot: " << pad.m_angle << ", Absolute Pin Loc:(" << pinLocation.m_x << ", " << pinLocation.m_y << ")"
-                      << " comp name: " << pin.m_comp_name << ", " << comp.m_name << std::endl;
+                      << " pin name: " << pin.m_name << " Rel. Loc:(" << pad.m_pos.m_x << " " << pad.m_pos.m_y << ")"
+                      << ", Rot: " << pad.m_angle << ", Abs. Pin Loc:(" << pinLocation.m_x << ", " << pinLocation.m_y << ")"
+                      << " comp name: " << pin.m_comp_name << std::endl;
         }
+    }
+
+    // Routing keepouts
+    std::cout << "\n#keepoutId   layerId   layerName   xPos   yPos" << std::endl;
+    int i = 0;
+    for (auto keepout : layer_to_keepout_map)
+    {
+        for (auto &path : keepout.second)
+        {
+            for (auto &cord : path)
+            {
+                std::cout << i << " " << layer_to_index_map[keepout.first] << " " << keepout.first;
+                std::cout << " " << cord.m_x << " " << cord.m_y << std::endl;
+            }
+            ++i;
+        }
+    }
+
+    // Unused Pins
+    std::cout << std::endl;
+    std::cout << "#unusedPinId   pinXPos   pinYPos   pinWidth   pinHeight   layerId   layerName" << std::endl;
+    for (unsigned int i = 0; i < all_pads.size(); ++i)
+    {
+        auto &pin = all_pads.at(i);
+        std::cout << i << " " << pin.m_pos.m_x << " " << pin.m_pos.m_y << " " << pin.m_size.m_x << " " << pin.m_size.m_y;
+        std::cout << " " << pin.m_pos.m_z << " " << index_to_layer_map[pin.m_pos.m_z] << std::endl;
     }
 }
 
@@ -709,13 +756,13 @@ bool kicadPcbDataBase::getPcbRouterInfo(std::vector<std::set<std::pair<double, d
 
     for (net_it = name_to_net_map.begin(); net_it != name_to_net_map.end(); ++net_it)
     {
-        auto &&net = net_it->second;
+        auto &net = net_it->second;
         assert(net.getId() <= numNet);
 
         //std::cout << net_it->first << " " << net.getClearance() << " " << net.pins.size() << std::endl;
         for (size_t i = 0; i < net.pins.size(); ++i)
         {
-            auto &&pin = net.pins[i];
+            auto &pin = net.pins[i];
             /*
                auto &&inst = name_to_instance_map[pin.m_instance_name];
                std::string compName = inst.m_comp;
