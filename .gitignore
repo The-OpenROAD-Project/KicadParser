@@ -21,6 +21,7 @@ install_manifest.txt
 # Display File and KiCad files
 *.view
 *.pro
+*fp-info-cache
 
 # Backup files
 *.bk
