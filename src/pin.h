@@ -30,8 +30,8 @@ struct pad
         return std::tie(m_radius, m_clearance, m_pos, m_shape) == std::tie(t.m_radius, t.m_clearance, t.m_pos, t.m_shape);
     }
     bool operator<(const pad &t) const { return m_pos < t.m_pos; }
-    double m_radius;
-    double m_clearance;
+    double m_radius;    // from rule
+    double m_clearance; // from rule
     point_3d m_pos;
     points_2d m_shape;
     point_2d m_size;

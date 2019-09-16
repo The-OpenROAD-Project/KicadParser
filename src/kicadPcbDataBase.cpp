@@ -42,7 +42,8 @@ bool kicadPcbDataBase::buildKicadPcb()
             get_value(ss, begin(sub_node.m_branches), net_index);
             index_to_net_map[net_index] = net_name;
 
-            if (net_name[net_name.size() - 1] == '+' || net_name[net_name.size() - 1] == '-')
+            // Identify differential pairs
+            if (net_name.back() == '+' || net_name.back() == '-')
             {
                 auto name = net_name.substr(0, net_name.size() - 1);
                 if (name_to_diff_pair_net_map.find(name) != name_to_diff_pair_net_map.end())
@@ -56,7 +57,7 @@ bool kicadPcbDataBase::buildKicadPcb()
                 }
             }
         }
-        //net class
+        //net class (Create Net Instances)
         else if (sub_node.m_value == "net_class")
         {
             for (auto &&net_class_node : sub_node.m_branches)
@@ -76,20 +77,20 @@ bool kicadPcbDataBase::buildKicadPcb()
                     get_value(ss, begin(net_class_node.m_branches), m_uvia_drill);
                 else if (net_class_node.m_value == "add_net")
                 {
-
                     auto net_name = net_class_node.m_branches[0].m_value;
-
                     auto name = net_name.substr(0, net_name.size() - 1);
                     auto pair = std::make_pair(-1, -1);
                     if (name_to_diff_pair_net_map.find(name) != name_to_diff_pair_net_map.end())
                     {
                         pair = name_to_diff_pair_net_map[name];
                     }
+                    // Create the Net Instance
                     auto the_net = net(pair, m_clearance, m_trace_width, m_via_dia, m_via_drill, m_uvia_dia, m_uvia_drill);
                     name_to_net_map[net_name] = the_net;
                 }
             }
         }
+        // Create Module Instances
         else if (sub_node.m_value == "module")
         {
             std::string component_name;
@@ -103,6 +104,7 @@ bool kicadPcbDataBase::buildKicadPcb()
             auto the_instance = instance{};
             the_instance.m_comp = component_name;
 
+            // (at x y (rot))
             get_2d(ss, begin(sub_node.m_branches[4].m_branches), the_instance.m_x, the_instance.m_y);
             //if(component_name == "2X08") {
             //  std::cout << "HELLO" << the_instance.m_x << " " << the_instance.m_y << std::endl;
@@ -112,17 +114,18 @@ bool kicadPcbDataBase::buildKicadPcb()
             else
                 the_instance.m_angle = 0;
 
+            // See if the component is created
             comp_it = name_to_component_map.find(component_name);
-
             auto the_comp = component{component_name, std::map<std::string, padstack>{}};
 
             for (auto &&module_node : sub_node.m_branches)
             {
-
+                //TODO:: Handle (fp_text value ...)
                 if (module_node.m_value == "fp_text" && module_node.m_branches[0].m_value == "reference")
                 {
                     the_instance.m_name = module_node.m_branches[1].m_value;
                 }
+                // Create Component if needed
                 if (comp_it == name_to_component_map.end())
                 {
                     if (module_node.m_value == "fp_line")
@@ -162,7 +165,6 @@ bool kicadPcbDataBase::buildKicadPcb()
                         get_value(ss, begin(module_node.m_branches[4].m_branches), the_arc.m_width);
                         the_comp.m_arcs.push_back(the_arc);
                     }
-
                     else if (module_node.m_value == "pad")
                     {
                         auto the_pin = padstack{};
@@ -190,7 +192,9 @@ bool kicadPcbDataBase::buildKicadPcb()
                             get_value(ss, begin(module_node.m_branches[3].m_branches) + 2, the_pin.m_angle);
                         }
                         else
+                        {
                             the_pin.m_angle = 0;
+                        }
                         the_pin.m_angle = the_pin.m_angle - the_instance.m_angle;
 
                         if (type == "smd")
@@ -209,7 +213,7 @@ bool kicadPcbDataBase::buildKicadPcb()
                             {
                                 if (layer_node.m_value == "*.Cu")
                                 {
-                                    for (auto &&layer : layer_to_index_map)
+                                    for (auto &layer : layer_to_index_map)
                                         the_pin.m_layers.push_back(layer.first);
                                 }
                             }
@@ -264,7 +268,7 @@ bool kicadPcbDataBase::buildKicadPcb()
                         the_comp.m_pin_map[the_pin.m_name] = the_pin;
                     }
                     name_to_component_map[component_name] = the_comp;
-                }
+                } //
             }
 
             //Find the connection of the pad
@@ -297,7 +301,7 @@ bool kicadPcbDataBase::buildKicadPcb()
         else if (sub_node.m_value == "gr_line")
         {
         }
-
+        // TODO: belongs to Net Instance
         else if (sub_node.m_value == "segment")
         {
             auto x = 0.0, y = 0.0, z = 0.0;
@@ -314,7 +318,7 @@ bool kicadPcbDataBase::buildKicadPcb()
             get_value(ss, begin(sub_node.m_branches[4].m_branches), net);
             net_to_segments_map[net].emplace_back(std::move(segment));
         }
-
+        // TODO: belongs to Net Instance
         else if (sub_node.m_value == "via")
         {
             auto x = 0.0, y = 0.0;
@@ -328,7 +332,7 @@ bool kicadPcbDataBase::buildKicadPcb()
             net_to_segments_map[net].emplace_back(
                 path{point_3d{x, y, double(z0)}, point_3d{x, y, double(z1)}});
         }
-
+        //TODO: Copper Pours
         else if (sub_node.m_value == "zone")
         {
             auto layer = sub_node.m_branches[2].m_branches[0].m_value;
@@ -362,7 +366,6 @@ bool kicadPcbDataBase::buildKicadPcb()
     auto maxx = double(-1000000.0);
     auto maxy = double(-1000000.0);
 
-    //auto all_pads = pads{};
     for (auto &&inst : name_to_instance_map)
     {
         auto instance = inst.second;
@@ -418,7 +421,7 @@ bool kicadPcbDataBase::buildKicadPcb()
 
     //std::cout << "MINX: " << minx << " MAXX: " << maxx <<std::endl;
     auto track_id = 0;
-    auto the_tracks = tracks{};
+    //auto the_tracks = tracks{};
     for (net_it = name_to_net_map.begin(); net_it != name_to_net_map.end(); ++net_it)
     {
 

@@ -10,7 +10,7 @@
 struct component
 {
     std::string m_name;
-    std::map<std::string, padstack> m_pin_map;
+    std::map<std::string, padstack> m_pin_map; //<pin name, pin instance>
     std::vector<line> m_lines;
     std::vector<circle> m_circles;
     std::vector<poly> m_polys;
@@ -28,7 +28,7 @@ struct instance
     double m_angle;
     double m_width;
     double m_height;
-    std::map<std::string, int> m_pin_net_map;
+    std::map<std::string, int> m_pin_net_map; //<pin name, netId>
 };
 
 #endif
