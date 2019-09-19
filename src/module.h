@@ -6,11 +6,79 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <optional>
 
-struct component
+class component
 {
+public:
+    //ctor
+    component(const int id = -1,
+              const std::string name = "defaultName")
+        : m_id(id), m_name(name) {}
+    //dtor
+    ~component() {}
+
+    int getId() { return m_id; }
+    std::string &getName() { return m_name; }
+    std::vector<padstack> &getPads() { return m_pads; }
+    bool isPadstackId(const int id) { return id < m_pads.size() ? true : false; }
+
+    bool getPadstack(const std::string &name, padstack *&pad)
+    {
+        auto ite = m_pad_name_to_id.find(name);
+        if (ite != m_pad_name_to_id.end())
+        {
+            pad = &(m_pads.at(ite->second));
+            return true;
+        }
+        else
+        {
+            pad = nullptr;
+            return false;
+        }
+    }
+    bool getPadstack(const int id, padstack *&pad)
+    {
+        if (id < m_pads.size())
+        {
+            pad = &(m_pads.at(id));
+            return true;
+        }
+        else
+        {
+            pad = nullptr;
+            return false;
+        }
+    }
+
+    friend class kicadPcbDataBase;
+
+private:
+    bool getPadstack(const std::string &name, padstack &pad)
+    {
+        auto ite = m_pad_name_to_id.find(name);
+        if (ite != m_pad_name_to_id.end())
+        {
+            pad = m_pads.at(ite->second);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    padstack &getPadstack(const std::string &name)
+    {
+        auto ite = m_pad_name_to_id.find(name);
+        return m_pads.at(ite->second);
+    }
+    padstack &getPadstack(const int id) { return m_pads.at(id); }
+
+private:
+    int m_id;
     std::string m_name;
-    std::map<std::string, padstack> m_pin_map; //<pin name, pin instance>
+    std::map<std::string, int> m_pad_name_to_id; //<pad name, pad id>
+    std::vector<padstack> m_pads;
     std::vector<line> m_lines;
     std::vector<circle> m_circles;
     std::vector<poly> m_polys;
@@ -18,10 +86,24 @@ struct component
     int m_layer;
 };
 
-struct instance
+class instance
 {
+public:
+    //ctor
+    instance() {}
+    //dtor
+    ~instance() {}
+
+    std::string &getName() { return m_name; }
+    int getComponentId() { return m_comp_id; }
+    int getId() { return m_id; }
+
+    friend class kicadPcbDataBase;
+
+private:
+    int m_id;
     std::string m_name;
-    std::string m_comp;
+    int m_comp_id;
     std::string m_side;
     double m_x;
     double m_y;

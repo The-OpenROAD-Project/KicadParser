@@ -32,18 +32,12 @@ public:
         }
     };
 
-    ~kicadPcbDataBase()
-    {
-        name_to_component_map.clear();
-        layer_to_index_map.clear();
-        name_to_instance_map.clear();
-        index_to_net_map.clear();
-        name_to_net_map.clear();
-    };
+    ~kicadPcbDataBase(){};
 
     void printNet();
     void printInst();
     void printComp();
+    void printNetclass();
     void printPcbRouterInfo();
     void printFile();
     void printSegment();
@@ -51,41 +45,49 @@ public:
     bool buildKicadPcb();
 
     bool getPcbRouterInfo(std::vector<std::set<std::pair<double, double>>> *);
-    bool getNumOfInst(int *);
-    bool getInst(int &, instance *);
-    bool getPinPosition(std::string &inst_name, std::string &pin_name, point_2d *pos);
-    bool getInstBBox(std::string &, point_2d *);
-    bool getPad(std::string &, std::string &, padstack *);
+    bool getPinPosition(const std::string &inst_name, const std::string &pin_name, point_2d *pos);
+    bool getPinPosition(const int inst_id, const int &pin_id, point_2d *pos);
+    bool getInstBBox(const int inst_id, point_2d *bBox);
+
+    bool getInstance(const int &, instance *&);
+    bool getInstance(const std::string &, instance *&);
+    bool getComponent(const std::string &, component *&);
+    bool getNet(const std::string &, net *&);
 
     std::string getFileName() { return m_fileName; }
+    std::vector<instance> &getInstances() { return instances; }
+    std::vector<component> &getComponents() { return components; }
+    std::vector<net> &getNets() { return nets; }
 
-    //TODO
-    //getPinPosition(std::string inst_name, std::string pin_name, point_2d *pos);
-    //getNet
-    //getPin
-    //getComponent
+    bool isInstanceId(const int id) { return id < instances.size() ? true : false; }
+    bool isComponentId(const int id) { return id < components.size() ? true : false; }
+    bool isNetId(const int id) { return id < nets.size() ? true : false; }
+
+private:
+    net &getNet(const std::string &);
+    component &getComponent(const int id) { return components.at(id); }
+    instance &getInstance(const int id) { return instances.at(id); }
+    net &getNet(const int id) { return nets.at(id); }
+
+    void getPinPosition(const padstack &, const instance &, point_2d *pos);
 
 private:
     // Input
     std::string m_fileName;
 
-    // Iterator
-    std::unordered_map<std::string, component>::iterator comp_it;
-    std::map<std::string, padstack>::iterator pad_it;
-    std::unordered_map<std::string, instance>::iterator inst_it;
-    std::unordered_map<std::string, net>::iterator net_it;
-    std::map<std::string, int>::iterator pin_it, layer_it;
-
     // Index map
-    std::map<std::string, int> layer_to_index_map;
-    std::map<int, std::string> index_to_layer_map;
-    std::map<int, std::string> index_to_net_map;
+    std::unordered_map<std::string, int> layer_to_index_map;   //<layer name, layer id>
+    std::unordered_map<int, std::string> index_to_layer_map;   //<layer name, layer id>
+    std::unordered_map<std::string, int> net_name_to_id;       //<net name, net id>
+    std::unordered_map<int, std::string> net_id_to_name;       //<net id, net name>
+    std::unordered_map<std::string, int> instance_name_to_id;  //<instance name, instance int>
+    std::unordered_map<std::string, int> component_name_to_id; //<component name, component int>
 
-    // TODO: netclass objects
     // Object Instances
-    std::unordered_map<std::string, instance> name_to_instance_map;   //<instance name, instance instance>
-    std::unordered_map<std::string, component> name_to_component_map; //<component name, component instance>
-    std::unordered_map<std::string, net> name_to_net_map;             //<net name, net instance>
+    std::vector<instance> instances;
+    std::vector<component> components;
+    std::vector<net> nets;
+    std::vector<netclass> netclasses;
 
     // Keepouts
     std::map<std::string, paths> layer_to_keepout_map; // keepout zones <layer name, polygon>

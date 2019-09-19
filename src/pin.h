@@ -16,11 +16,12 @@ enum class padType
     NP_THRU_HOLE
 };
 
+//TOOD: Change to int id based recording
 struct pin
 {
     std::string m_name;
-    std::string m_comp_name;
-    std::string m_instance_name;
+    int m_comp_id;
+    int m_inst_id;
 };
 
 struct pad
@@ -38,8 +39,21 @@ struct pad
 };
 typedef std::vector<pad> pads;
 
-struct padstack
+class padstack
 {
+public:
+    //ctor
+    padstack() {}
+    //dtor
+    ~padstack() {}
+
+    int getId() { return m_id; }
+    std::string &getName() { return m_name; }
+
+    friend class kicadPcbDataBase;
+
+private:
+    int m_id;
     std::string m_name;
     padShape m_form;
     padType m_type;
