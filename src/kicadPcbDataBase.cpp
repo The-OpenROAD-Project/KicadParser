@@ -205,7 +205,7 @@ bool kicadPcbDataBase::buildKicadPcb()
                             ++noNameId;
                         }
 
-                        the_pin.setForm(form);
+                        the_pin.setShape(form);
                         the_pin.setType(type);
 
                         get_2d(ss, begin(module_node.m_branches[3].m_branches), the_pin.m_pos.m_x, the_pin.m_pos.m_y);
@@ -260,8 +260,8 @@ bool kicadPcbDataBase::buildKicadPcb()
                             the_pin.m_rule.m_radius = the_pin.m_size.m_x / 4;
                             auto point1 = point_2d{the_pin.m_size.m_y / (-2), 0};
                             auto point2 = point_2d{the_pin.m_size.m_y / 2, 0};
-                            the_pin.m_shape.push_back(point1);
-                            the_pin.m_shape.push_back(point2);
+                            the_pin.m_shape_coords.push_back(point1);
+                            the_pin.m_shape_coords.push_back(point2);
                         }
                         else if (form == "rect")
                         {
@@ -270,17 +270,17 @@ bool kicadPcbDataBase::buildKicadPcb()
                             auto y1 = the_pin.m_size.m_y / 2;
                             auto x2 = the_pin.m_size.m_x / 2;
                             auto y2 = the_pin.m_size.m_y / (-2);
-                            the_pin.m_shape.push_back(point_2d{x1, y1});
-                            the_pin.m_shape.push_back(point_2d{x2, y1});
-                            the_pin.m_shape.push_back(point_2d{x2, y2});
-                            the_pin.m_shape.push_back(point_2d{x1, y2});
-                            the_pin.m_shape.push_back(point_2d{x1, y1});
+                            the_pin.m_shape_coords.push_back(point_2d{x1, y1});
+                            the_pin.m_shape_coords.push_back(point_2d{x2, y1});
+                            the_pin.m_shape_coords.push_back(point_2d{x2, y2});
+                            the_pin.m_shape_coords.push_back(point_2d{x1, y2});
+                            the_pin.m_shape_coords.push_back(point_2d{x1, y1});
                         }
                         else if (form == "roundrect")
                         {
                             the_pin.m_rule.m_radius = 0.0;
                             get_value(ss, begin(module_node.m_branches[6].m_branches), the_pin.m_roundrect_ratio);
-                            the_pin.m_shape = roundrect_to_cords(the_pin.m_size, the_pin.m_roundrect_ratio);
+                            the_pin.m_shape_coords = roundrect_to_shape_coords(the_pin.m_size, the_pin.m_roundrect_ratio);
                             /*
                             //TEST
                             for(auto &&cord : the_pin.m_shape) {
@@ -418,9 +418,8 @@ bool kicadPcbDataBase::buildKicadPcb()
             {
                 layerId = (double)layer_to_index_map[layer];
                 auto tp = point_3d{px, py, layerId}; // x, y, layer
-                auto cords = shape_to_cords(pin.m_shape, pin.m_angle, instance.m_angle);
+                auto cords = rotateShapeCoordsByAngles(pin.m_shape, pin.m_angle, instance.m_angle);
                 //shape_to_cords(pin.m_size, pin.m_pos, pin.m_form, pin.m_angle, instance.m_angle, pin.m_roundrect_ratio);
-
 
                 // //TEST
                 // if(instance.m_name == "IC6") {
@@ -601,7 +600,7 @@ void kicadPcbDataBase::printComp()
         for (auto &pad : comp.m_pads)
         {
             std::cout << "\tpad: " << pad.m_name << ", padId: " << pad.m_id << " (" << pad.m_pos.m_x << "," << pad.m_pos.m_y << ") " << pad.m_angle << std::endl;
-            std::cout << "\t\tsize: " << (int)pad.m_form << " (" << pad.m_size.m_x << "," << pad.m_size.m_y << ")" << std::endl;
+            std::cout << "\t\tsize: " << (int)pad.m_shape << " (" << pad.m_size.m_x << "," << pad.m_size.m_y << ")" << std::endl;
         }
     }
 }

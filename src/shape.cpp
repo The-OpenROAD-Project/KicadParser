@@ -1,9 +1,9 @@
 #include "shape.h"
 
-points_2d shape_to_cords(const points_2d &shape, double a1, double a2)
+points_2d rotateShapeCoordsByAngles(const points_2d &shape, double instAngle, double padAngle)
 {
     auto cords = points_2d{};
-    auto rads = fmod((a1 + a2) * -M_PI / 180, 2 * M_PI);
+    auto rads = fmod((instAngle + padAngle) * -M_PI / 180, 2 * M_PI);
     auto s = sin(rads);
     auto c = cos(rads);
     for (auto &p : shape)
@@ -15,7 +15,7 @@ points_2d shape_to_cords(const points_2d &shape, double a1, double a2)
     return cords;
 }
 
-points_2d roundrect_to_cords(const point_2d &size, const double &ratio)
+points_2d roundrect_to_shape_coords(const point_2d &size, const double &ratio)
 {
     auto cords = points_2d{};
     auto width = size.m_x / 2;
@@ -59,6 +59,9 @@ points_2d roundrect_to_cords(const point_2d &size, const double &ratio)
     return cords;
 }
 
+// Ongoing work
+// TODO: all coords in CW or CCW
+// TODO: parameters for #points to Circle
 points_2d shape_to_cords(const point_2d &size, point_2d &pos, padShape shape, double a1, double a2, const double &ratio)
 {
     auto cords = points_2d{};
@@ -150,5 +153,5 @@ points_2d shape_to_cords(const point_2d &size, point_2d &pos, padShape shape, do
     }
     }
 
-    return shape_to_cords(cords, a1, a2);
+    return rotateShapeCoordsByAngles(cords, a1, a2);
 }

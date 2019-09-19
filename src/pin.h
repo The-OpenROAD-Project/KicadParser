@@ -55,28 +55,30 @@ public:
 private:
     int m_id;
     std::string m_name;
-    padShape m_form;
+    padShape m_shape;
     padType m_type;
-    point_2d m_pos;
-    double m_angle;
+    point_2d m_pos;           //Relative position to Instance's position
+    double m_angle;           //Relative angle to Instance's angles
+    point_2d m_size;          //All shapes has (width, height) from KiCad
+    rule m_rule;              //{m_radius (CIRCLE only), m_clearance}
+    double m_roundrect_ratio; //ROUNDRECT only
     std::vector<std::string> m_layers;
-    point_2d m_size; //(width,height)
-    points_2d m_shape;
-    rule m_rule;
-    double m_roundrect_ratio;
 
-    void setForm(std::string &form)
+    // Derived
+    points_2d m_shape_coords; //Transformed
+
+    void setShape(std::string &shape)
     {
-        if (form == "rect")
-            m_form = padShape::RECT;
-        else if (form == "roundrect")
-            m_form = padShape::ROUNDRECT;
-        else if (form == "circle")
-            m_form = padShape::CIRCLE;
-        else if (form == "oval")
-            m_form = padShape::OVAL;
-        else if (form == "trapezoid")
-            m_form = padShape::TRAPEZOID;
+        if (shape == "rect")
+            m_shape = padShape::RECT;
+        else if (shape == "roundrect")
+            m_shape = padShape::ROUNDRECT;
+        else if (shape == "circle")
+            m_shape = padShape::CIRCLE;
+        else if (shape == "oval")
+            m_shape = padShape::OVAL;
+        else if (shape == "trapezoid")
+            m_shape = padShape::TRAPEZOID;
         else
             std::cout << "Error: No this pin shape!" << std::endl;
     }
