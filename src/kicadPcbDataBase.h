@@ -34,6 +34,7 @@ public:
 
     ~kicadPcbDataBase(){};
 
+    void printLayer();
     void printNet();
     void printInst();
     void printComp();
@@ -47,12 +48,19 @@ public:
     bool getPcbRouterInfo(std::vector<std::set<std::pair<double, double>>> *);
     bool getPinPosition(const std::string &inst_name, const std::string &pin_name, point_2d *pos);
     bool getPinPosition(const int inst_id, const int &pin_id, point_2d *pos);
+    void getPinPosition(const padstack &, const instance &, point_2d *pos);
+    bool getPinPosition(const pin &p, point_2d *pos);
     bool getInstBBox(const int inst_id, point_2d *bBox);
 
-    bool getInstance(const int &, instance *&);
+    //bool getInstance(const int &, instance *&);
     bool getInstance(const std::string &, instance *&);
     bool getComponent(const std::string &, component *&);
     bool getNet(const std::string &, net *&);
+
+    component &getComponent(const int id) { return components.at(id); }
+    instance &getInstance(const int id) { return instances.at(id); }
+    net &getNet(const int id) { return nets.at(id); }
+    netclass &getNetclass(const int id) { return netclasses.at(id); }
 
     std::string getFileName() { return m_fileName; }
     std::vector<instance> &getInstances() { return instances; }
@@ -62,14 +70,18 @@ public:
     bool isInstanceId(const int id) { return id < instances.size() ? true : false; }
     bool isComponentId(const int id) { return id < components.size() ? true : false; }
     bool isNetId(const int id) { return id < nets.size() ? true : false; }
+    bool isNetclassId(const int id) { return id < netclasses.size() ? true : false; }
+
+    // TODO: All layers are copper in the "layer_to_index_map" and "index_to_layer_map"
+    int getNumCopperLayers() { return index_to_layer_map.size(); }
+    bool isCopperLayer(const int);
+    bool isCopperLayer(const std::string &);
+
+    // TODO: Get design boundary based on rotated pin shape
+    void getBoardBoundaryByPinLocation(double &minX, double &maxX, double &minY, double &maxY);
 
 private:
     net &getNet(const std::string &);
-    component &getComponent(const int id) { return components.at(id); }
-    instance &getInstance(const int id) { return instances.at(id); }
-    net &getNet(const int id) { return nets.at(id); }
-
-    void getPinPosition(const padstack &, const instance &, point_2d *pos);
 
 private:
     // Input
@@ -77,7 +89,7 @@ private:
 
     // Index map
     std::unordered_map<std::string, int> layer_to_index_map;   //<layer name, layer id>
-    std::unordered_map<int, std::string> index_to_layer_map;   //<layer name, layer id>
+    std::unordered_map<int, std::string> index_to_layer_map;   //<layer id, layer name>
     std::unordered_map<std::string, int> net_name_to_id;       //<net name, net id>
     std::unordered_map<int, std::string> net_id_to_name;       //<net id, net name>
     std::unordered_map<std::string, int> instance_name_to_id;  //<instance name, instance int>

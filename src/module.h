@@ -20,8 +20,23 @@ public:
 
     int getId() { return m_id; }
     std::string &getName() { return m_name; }
-    std::vector<padstack> &getPads() { return m_pads; }
+    std::vector<padstack> &getPadstacks() { return m_pads; }
     bool isPadstackId(const int id) { return id < m_pads.size() ? true : false; }
+
+    bool getPadstackId(const std::string &name, int *id)
+    {
+        const auto padIte = m_pad_name_to_id.find(name);
+        if (padIte != m_pad_name_to_id.end())
+        {
+            *id = padIte->second;
+            return true;
+        }
+        else
+        {
+            *id = -1;
+            return false;
+        }
+    }
 
     bool getPadstack(const std::string &name, padstack *&pad)
     {

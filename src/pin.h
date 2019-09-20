@@ -19,7 +19,7 @@ enum class padType
 //TOOD: Change to int id based recording
 struct pin
 {
-    std::string m_name;
+    int m_padstack_id;
     int m_comp_id;
     int m_inst_id;
 };

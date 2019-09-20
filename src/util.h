@@ -9,6 +9,9 @@
 #include "tree.h"
 #include "mymath.h"
 
+#define MIN_COPPER_LAYER_ID 0
+#define MAX_COPPER_LAYER_ID 31
+
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
 std::vector<std::string> split(const std::string &s, char delim);
 void ss_reset(std::stringstream &ss, const std::string &s);

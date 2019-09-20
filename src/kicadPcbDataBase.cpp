@@ -27,6 +27,7 @@ bool kicadPcbDataBase::buildKicadPcb()
                 //auto layer_index = 0;
                 auto layer_name = layer_node.m_branches[0].m_value;
                 auto layer_type = layer_node.m_branches[1].m_value;
+                //Use "signal" to decide
                 if (layer_type == "signal")
                 {
                     layer_to_index_map[layer_name] = std::stoi(layer_node.m_value);
@@ -316,7 +317,21 @@ bool kicadPcbDataBase::buildKicadPcb()
                             net_name = net_node.m_branches[1].m_value;
                             get_value(ss, begin(net_node.m_branches), net_index);
 
-                            auto the_pin = pin{pin_name, comp_id, the_instance.m_id};
+                            if (!isComponentId(comp_id))
+                            {
+                                std::cerr << __FUNCTION__ << "() ilegal component id: " << comp_id << std::endl;
+                                continue;
+                            }
+
+                            auto &comp = getComponent(comp_id);
+                            int padstack_id = -1;
+                            if (!comp.getPadstackId(pin_name, &padstack_id))
+                            {
+                                std::cerr << __FUNCTION__ << "() ilegal pin name: " << pin_name << std::endl;
+                                continue;
+                            }
+
+                            auto the_pin = pin{padstack_id, comp_id, the_instance.m_id};
                             the_instance.m_pin_net_map[pin_name] = net_index;
                             auto &the_net = getNet(net_name);
                             the_net.addPin(the_pin);
@@ -399,26 +414,25 @@ bool kicadPcbDataBase::buildKicadPcb()
     auto maxx = double(-1000000.0);
     auto maxy = double(-1000000.0);
 
-    /*
-    for (auto &&inst : name_to_instance_map)
+    for (auto &inst : instances)
     {
-        auto instance = inst.second;
-        auto component = name_to_component_map[instance.m_comp];
-        for (auto &&p : component.m_pin_map)
+        auto comp = components.at(inst.getComponentId());
+        for (auto &padstack : comp.getPadstacks())
         {
-            auto pin = p.second;
-            auto m_x = pin.m_pos.m_x;
-            auto m_y = pin.m_pos.m_y;
-            auto s = sin(instance.m_angle * -M_PI / 180);
-            auto c = cos(instance.m_angle * -M_PI / 180);
-            auto px = double((c * m_x - s * m_y) + instance.m_x);
-            auto py = double((s * m_x + c * m_y) + instance.m_y);
+            auto m_x = padstack.m_pos.m_x;
+            auto m_y = padstack.m_pos.m_y;
+            auto s = sin(inst.m_angle * -M_PI / 180);
+            auto c = cos(inst.m_angle * -M_PI / 180);
+            auto px = double((c * m_x - s * m_y) + inst.m_x);
+            auto py = double((s * m_x + c * m_y) + inst.m_y);
             auto layerId = 0.0;
-            for (auto &&layer : pin.m_layers)
+            for (auto &&layer : padstack.m_layers)
             {
                 layerId = (double)layer_to_index_map[layer];
                 auto tp = point_3d{px, py, layerId}; // x, y, layer
-                auto cords = rotateShapeCoordsByAngles(pin.m_shape, pin.m_angle, instance.m_angle);
+
+                // TODO: doesn't count CIRCLE
+                auto cords = rotateShapeCoordsByAngles(padstack.m_shape_coords, padstack.m_angle, inst.m_angle);
                 //shape_to_cords(pin.m_size, pin.m_pos, pin.m_form, pin.m_angle, instance.m_angle, pin.m_roundrect_ratio);
 
                 // //TEST
@@ -433,27 +447,29 @@ bool kicadPcbDataBase::buildKicadPcb()
                 // std::cout << std::endl;
                 // }
 
-                all_pads.push_back(pad{p.second.m_rule.m_radius, p.second.m_rule.m_clearance, tp, cords, pin.m_size});
+                all_pads.push_back(pad{padstack.m_rule.m_radius, padstack.m_rule.m_clearance, tp, cords, padstack.m_size});
 
                 for (auto &&p1 : cords)
                 {
                     auto x = p1.m_x + px;
                     auto y = p1.m_y + py;
-                    minx = std::min(x - p.second.m_rule.m_radius - p.second.m_rule.m_clearance, minx);
-                    maxx = std::max(x + p.second.m_rule.m_radius + p.second.m_rule.m_clearance, maxx);
-                    miny = std::min(y - p.second.m_rule.m_radius - p.second.m_rule.m_clearance, miny);
-                    maxy = std::max(y + p.second.m_rule.m_radius + p.second.m_rule.m_clearance, maxy);
+                    minx = std::min(x - padstack.m_rule.m_radius - padstack.m_rule.m_clearance, minx);
+                    maxx = std::max(x + padstack.m_rule.m_radius + padstack.m_rule.m_clearance, maxx);
+                    miny = std::min(y - padstack.m_rule.m_radius - padstack.m_rule.m_clearance, miny);
+                    maxy = std::max(y + padstack.m_rule.m_radius + padstack.m_rule.m_clearance, maxy);
                 }
 
-                minx = std::min(px - p.second.m_rule.m_radius - p.second.m_rule.m_clearance, minx);
-                maxx = std::max(px + p.second.m_rule.m_radius + p.second.m_rule.m_clearance, maxx);
-                miny = std::min(py - p.second.m_rule.m_radius - p.second.m_rule.m_clearance, miny);
-                maxy = std::max(py + p.second.m_rule.m_radius + p.second.m_rule.m_clearance, maxy);
+                minx = std::min(px - padstack.m_rule.m_radius - padstack.m_rule.m_clearance, minx);
+                maxx = std::max(px + padstack.m_rule.m_radius + padstack.m_rule.m_clearance, maxx);
+                miny = std::min(py - padstack.m_rule.m_radius - padstack.m_rule.m_clearance, miny);
+                maxy = std::max(py + padstack.m_rule.m_radius + padstack.m_rule.m_clearance, maxy);
             }
         }
     }
 
-    //std::cout << "MINX: " << minx << " MAXX: " << maxx <<std::endl;
+    std::cout << "MINX: " << minx << " MAXX: " << maxx << std::endl;
+    std::cout << "MINY: " << miny << " MAXY: " << maxy << std::endl;
+    /*
     auto track_id = 0;
     //auto the_tracks = tracks{};
     for (net_it = name_to_net_map.begin(); net_it != name_to_net_map.end(); ++net_it)
@@ -565,6 +581,29 @@ bool kicadPcbDataBase::buildKicadPcb()
     return true;
 }
 
+void kicadPcbDataBase::getBoardBoundaryByPinLocation(double &minX, double &maxX, double &minY, double &maxY)
+{
+    minX = std::numeric_limits<double>::max();
+    maxX = std::numeric_limits<double>::min();
+    minY = std::numeric_limits<double>::max();
+    maxY = std::numeric_limits<double>::min();
+
+    for (auto &inst : instances)
+    {
+        auto &comp = getComponent(inst.getComponentId());
+        auto &pads = comp.getPadstacks();
+        for (auto &pad : pads)
+        {
+            point_2d pinLocation;
+            getPinPosition(pad, inst, &pinLocation);
+            minX = std::min(pinLocation.m_x, minX);
+            maxX = std::max(pinLocation.m_x, maxX);
+            minY = std::min(pinLocation.m_y, minY);
+            maxY = std::max(pinLocation.m_y, maxY);
+        }
+    }
+}
+
 void kicadPcbDataBase::printSegment()
 {
     for (auto &&s : net_to_segments_map)
@@ -575,6 +614,37 @@ void kicadPcbDataBase::printSegment()
             for (auto &&point : path)
                 std::cout << "(" << point.m_x << "," << point.m_y << "," << point.m_z << ")" << std::endl;
         }
+    }
+}
+
+bool kicadPcbDataBase::isCopperLayer(const int id)
+{
+    if (id <= MAX_COPPER_LAYER_ID && id >= MIN_COPPER_LAYER_ID)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool kicadPcbDataBase::isCopperLayer(const std::string &name)
+{
+    const auto &layerIte = layer_to_index_map.find(name);
+    if (layerIte == layer_to_index_map.end())
+    {
+        std::cerr << __FUNCTION__ << "() No layer named: " << name << std::endl;
+        return false;
+    }
+
+    if (layerIte->second <= MAX_COPPER_LAYER_ID && layerIte->second >= MIN_COPPER_LAYER_ID)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }
 
@@ -602,6 +672,23 @@ void kicadPcbDataBase::printComp()
             std::cout << "\tpad: " << pad.m_name << ", padId: " << pad.m_id << " (" << pad.m_pos.m_x << "," << pad.m_pos.m_y << ") " << pad.m_angle << std::endl;
             std::cout << "\t\tsize: " << (int)pad.m_shape << " (" << pad.m_size.m_x << "," << pad.m_size.m_y << ")" << std::endl;
         }
+    }
+}
+
+void kicadPcbDataBase::printLayer()
+{
+    std::cout << std::endl;
+    std::cout << "#####################################" << std::endl;
+    std::cout << "###                               ###" << std::endl;
+    std::cout << "###             LAYER             ###" << std::endl;
+    std::cout << "###                               ###" << std::endl;
+    std::cout << "#####################################" << std::endl;
+    for (const auto &layerIte : index_to_layer_map)
+    {
+        std::cout << layerIte.first << " " << layerIte.second;
+        std::cout << " " << isCopperLayer(layerIte.first);
+        std::cout << " " << isCopperLayer(layerIte.second);
+        std::cout << std::endl;
     }
 }
 
@@ -662,9 +749,9 @@ void kicadPcbDataBase::printNet()
         {
             auto &inst = getInstance(pin.m_inst_id);
             auto &comp = getComponent(pin.m_comp_id);
-
             point_2d pos;
-            getPinPosition(inst.m_name, pin.m_name, &pos);
+            //getPinPosition(inst.m_name, pin.m_name, &pos);
+            getPinPosition(pin, &pos);
 
             /*
             padstack *pPad;
@@ -674,9 +761,9 @@ void kicadPcbDataBase::printNet()
             }
             */
 
-            auto &pad = comp.getPadstack(pin.m_name);
+            auto &pad = comp.getPadstack(pin.m_padstack_id);
             auto angle = inst.m_angle + pad.m_angle;
-            std::cout << "\tinst name: " << inst.m_name << " pin name: " << pin.m_name << " comp name: " << comp.m_name << " pos: (" << pos.m_x << "," << pos.m_y << ")";
+            std::cout << "\tinst name: " << inst.m_name << " pin name: " << pad.m_name << " comp name: " << comp.m_name << " pos: (" << pos.m_x << "," << pos.m_y << ")";
             if (angle == 0 || angle == 180)
                 std::cout << " width: " << pad.m_size.m_x << " height: " << pad.m_size.m_y << std::endl;
             else
@@ -702,13 +789,13 @@ void kicadPcbDataBase::printFile()
         for (auto &&pin : pins)
         {
             auto &comp = getComponent(pin.m_comp_id);
-            auto &pad = comp.getPadstack(pin.m_name);
+            auto &pad = comp.getPadstack(pin.m_padstack_id);
             auto &inst = getInstance(pin.m_inst_id);
             point_2d pos;
 
-            getPinPosition(inst.m_name, pin.m_name, &pos);
+            getPinPosition(pin, &pos);
             auto angle = inst.m_angle + pad.m_angle;
-            std::cout << net.getId() << " " << inst.m_name << " " << pin.m_name << " " << pos.m_x << " " << pos.m_y << " ";
+            std::cout << net.getId() << " " << inst.m_name << " " << pad.m_name << " " << pos.m_x << " " << pos.m_y << " ";
             if (angle == 0 || angle == 180)
                 std::cout << pad.m_size.m_x << " " << pad.m_size.m_y;
             else
@@ -777,15 +864,15 @@ void kicadPcbDataBase::printPcbRouterInfo()
         for (auto &pin : pins)
         {
             auto &comp = getComponent(pin.m_comp_id);
-            auto &pad = comp.getPadstack(pin.m_name);
+            auto &pad = comp.getPadstack(pin.m_padstack_id);
             auto &inst = getInstance(pin.m_inst_id);
             point_2d pinLocation;
 
-            getPinPosition(inst.getName(), pin.m_name, &pinLocation);
+            getPinPosition(pin, &pinLocation);
 
             std::cout << "   inst name: " << inst.getName() << " (" << inst.m_x << " " << inst.m_y << ")"
                       << ", Rot: " << inst.m_angle
-                      << " pin name: " << pin.m_name << " Rel. Loc:(" << pad.m_pos.m_x << " " << pad.m_pos.m_y << ")"
+                      << " pin name: " << pad.m_name << " Rel. Loc:(" << pad.m_pos.m_x << " " << pad.m_pos.m_y << ")"
                       << ", Rot: " << pad.m_angle << ", Abs. Pin Loc:(" << pinLocation.m_x << ", " << pinLocation.m_y << ")"
                       << " comp name: " << comp.getName() << std::endl;
         }
@@ -847,7 +934,7 @@ bool kicadPcbDataBase::getPcbRouterInfo(std::vector<std::set<std::pair<double, d
 
             point_2d pinLocation;
             auto &inst = getInstance(pin.m_inst_id);
-            getPinPosition(inst.getName(), pin.m_name, &pinLocation);
+            getPinPosition(pin, &pinLocation);
             //routerInfo->at(netCounter).insert(std::pair<double, double>(pinLocation.m_x, pinLocation.m_y));
             routerInfo->at(net.getId()).insert(std::pair<double, double>(pinLocation.m_x, pinLocation.m_y));
 
@@ -981,6 +1068,15 @@ void kicadPcbDataBase::getPinPosition(const padstack &pad, const instance &inst,
     pos->m_y = double((s * padX + c * padY) + inst.m_y);
 }
 
+bool kicadPcbDataBase::getPinPosition(const pin &p, point_2d *pos)
+{
+    auto &inst = getInstance(p.m_inst_id);
+    auto &comp = getComponent(p.m_comp_id);
+    auto &pad = comp.getPadstack(p.m_padstack_id);
+    getPinPosition(pad, inst, pos);
+    return true;
+}
+
 bool kicadPcbDataBase::getInstBBox(const int inst_id, point_2d *bBox)
 {
     if (!bBox)
@@ -1056,7 +1152,7 @@ bool kicadPcbDataBase::getInstBBox(const int inst_id, point_2d *bBox)
         maxy = std::max(end.m_y + width, maxy);
     }
 
-    auto pads = comp.getPads();
+    auto pads = comp.getPadstacks();
     for (auto &pad : pads)
     {
         auto pad_x = pad.m_pos.m_x;
