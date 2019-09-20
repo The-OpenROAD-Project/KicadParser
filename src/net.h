@@ -4,6 +4,8 @@
 #include "mymath.h"
 #include "pin.h"
 #include "rule.h"
+#include "segment.h"
+#include "via.h"
 #include <map>
 #include <set>
 #include <cmath>
@@ -77,6 +79,10 @@ public:
     int getNetclassId() { return m_netclass_id; }
     void addPin(const pin &_pin) { m_pins.push_back(_pin); }
     std::vector<pin> &getPins() { return m_pins; }
+    std::vector<Segment> &getSegments() { return m_segments; }
+    std::vector<Via> &getVias() { return m_vias; }
+    void addSegment(const Segment &_segment) { m_segments.push_back(_segment); }
+    void addVia(const Via &_via) { m_vias.push_back(_via); }
 
     bool isDiffPair()
     {
@@ -100,6 +106,8 @@ private:
     std::string m_name;
     int m_netclass_id;
 
+    std::vector<Segment> m_segments;
+    std::vector<Via> m_vias;
     std::pair<int, int> m_diff_pair;
     std::vector<pin> m_pins;
 };
