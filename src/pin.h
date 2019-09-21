@@ -12,8 +12,8 @@ enum class padType
 {
     SMD,
     THRU_HOLE,
-    CONNECT,
-    NP_THRU_HOLE
+    CONNECT,     // ???? Does not see in any of current testcases
+    NP_THRU_HOLE // Similar to THRU_HOLE
 };
 
 //TOOD: Change to int id based recording
@@ -49,6 +49,11 @@ public:
 
     int getId() { return m_id; }
     std::string &getName() { return m_name; }
+    double getWidth() const { return m_size.m_x; }
+    double getHeight() const { return m_size.m_y; }
+    double getHalfWidth() const { return m_size.m_x / 2.0; }
+    double getHalfHeight() const { return m_size.m_y / 2.0; }
+    const std::vector<std::string> &getLayers() const { return m_layers; }
 
     friend class kicadPcbDataBase;
 
@@ -57,12 +62,12 @@ private:
     std::string m_name;
     padShape m_shape;
     padType m_type;
-    point_2d m_pos;           //Relative position to Instance's position
-    double m_angle;           //Relative angle to Instance's angles
-    point_2d m_size;          //All shapes has (width, height) from KiCad
-    rule m_rule;              //{m_radius (CIRCLE only), m_clearance}
-    double m_roundrect_ratio; //ROUNDRECT only
-    std::vector<std::string> m_layers;
+    point_2d m_pos;                    // Relative position to Instance's position
+    double m_angle;                    // Relative angle to Instance's angles
+    point_2d m_size;                   // All shapes has (width, height) from KiCad
+    rule m_rule;                       // {m_radius (CIRCLE only), m_clearance}
+    double m_roundrect_ratio;          // ROUNDRECT only
+    std::vector<std::string> m_layers; // THRU_HOLE: All CopperLayers, SMD: TOP or BOTTOM
 
     // Derived
     points_2d m_shape_coords; //Transformed

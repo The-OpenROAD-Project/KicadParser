@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <tuple>
+#include <math.h>
 
 //public math structures
 
@@ -21,6 +22,10 @@ struct point_2d
 	bool operator<(const point_2d &p) const
 	{
 		return std::tie(m_x, m_y) < std::tie(p.m_x, p.m_y);
+	}
+	static double getDistance(const point_2d &a, const point_2d &b)
+	{
+		return sqrt(pow(a.m_x - b.m_x, 2.0) + pow(a.m_y - b.m_x, 2.0));
 	}
 	double m_x;
 	double m_y;

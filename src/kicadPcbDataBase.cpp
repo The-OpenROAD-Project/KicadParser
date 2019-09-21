@@ -717,7 +717,7 @@ void kicadPcbDataBase::printNetclass()
     std::cout << std::endl;
     std::cout << "#####################################" << std::endl;
     std::cout << "###                               ###" << std::endl;
-    std::cout << "###            NET CLAS           ###" << std::endl;
+    std::cout << "###           NET CLASS           ###" << std::endl;
     std::cout << "###                               ###" << std::endl;
     std::cout << "#####################################" << std::endl;
     for (auto &netclass : netclasses)
