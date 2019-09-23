@@ -9,10 +9,10 @@ class Segment
 {
 public:
     Segment(const int id = -1,
-            const int netId = -1,
-            const std::string layer = "",
-            const double width = 0)
-        : m_id(id), m_netId(netId), m_layer(layer), m_width(width) {}
+            const int netId = -1,        
+            const double width = 0,
+            const std::string layer = "")
+        : m_id(id), m_netId(netId), m_width(width), m_layer(layer) {}
 
     int getId() { return m_id; }
     int getNetId() { return m_netId; }

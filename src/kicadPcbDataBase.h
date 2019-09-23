@@ -7,6 +7,8 @@
 #include "util.h"
 #include "module.h"
 #include "pin.h"
+#include "segment.h"
+#include "via.h"
 #include <cmath>
 #include <math.h>
 #include <stdio.h>
@@ -74,6 +76,7 @@ public:
 
     // TODO: All layers are copper in the "layer_to_index_map" and "index_to_layer_map"
     int getNumCopperLayers() { return index_to_layer_map.size(); }
+    int getLayerId(const std::string &layerName);
     std::map<int, std::string> &getCopperLayers() { return index_to_layer_map; }
     bool isCopperLayer(const int);
     bool isCopperLayer(const std::string &);

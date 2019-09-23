@@ -54,6 +54,10 @@ points_2d rotateShapeCoordsByAngles(const points_2d &shape, double instAngle, do
 points_2d roundrect_to_shape_coords(const point_2d &size, const double &ratio);
 
 // Ongoing work
-points_2d shape_to_cords(const point_2d &size, point_2d &pos, padShape shape, double a1, double a2, const double &ratio);
+points_2d shape_to_cords(const point_2d &size, const point_2d &pos, padShape shape, const double a1, const double a2, const double &ratio);
+
+points_2d segment_to_rect(const points_2d &point, const double &width);
+
+points_2d via_to_circle(const point_2d &pos, const double &size);
 
 #endif

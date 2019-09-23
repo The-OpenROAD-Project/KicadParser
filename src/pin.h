@@ -39,6 +39,7 @@ struct pad
 };
 typedef std::vector<pad> pads;
 
+//TODO: Move layer to pin
 class padstack
 {
 public:
@@ -49,6 +50,9 @@ public:
 
     int getId() { return m_id; }
     const std::string &getName() const { return m_name; }
+    point_2d getSize() const { return m_size; }
+    point_2d getPos() const { return m_pos; }
+    double getAngle() const { return m_angle; }
     double getWidth() const { return m_size.m_x; }
     double getHeight() const { return m_size.m_y; }
     double getHalfWidth() const { return m_size.m_x / 2.0; }

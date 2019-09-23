@@ -112,6 +112,7 @@ public:
     const std::string &getName() const { return m_name; }
     int getComponentId() const { return m_comp_id; }
     int getId() const { return m_id; }
+    double getAngle() const { return m_angle; }
 
     friend class kicadPcbDataBase;
 

@@ -350,6 +350,7 @@ bool kicadPcbDataBase::buildKicadPcb()
         // TODO: belongs to Net Instance
         else if (sub_node.m_value == "segment")
         {
+            /*
             auto x = 0.0, y = 0.0, z = 0.0;
             auto width = 0.0;
             auto net = 0;
@@ -363,11 +364,33 @@ bool kicadPcbDataBase::buildKicadPcb()
             get_value(ss, begin(sub_node.m_branches[2].m_branches), width);
             get_value(ss, begin(sub_node.m_branches[4].m_branches), net);
             net_to_segments_map[net].emplace_back(std::move(segment));
+            */
+
+            //put segment into net
+            
+            int netId;
+            double width;
+            auto p = point_2d{};
+            auto points = points_2d{};
+            auto layer = sub_node.m_branches[3].m_branches[0].m_value;
+            get_value(ss, begin(sub_node.m_branches[2].m_branches), width);
+            get_2d(ss, begin(sub_node.m_branches[0].m_branches), p.m_x, p.m_y);
+            points.push_back(p);
+            get_2d(ss, begin(sub_node.m_branches[1].m_branches), p.m_x, p.m_y);
+            points.push_back(p);
+            get_value(ss, begin(sub_node.m_branches[4].m_branches), netId);
+            auto &net = nets[netId];
+            auto id = net.getSegmentCount();
+            Segment s(id, netId, width, layer);
+            s.setPosition(points);
+            net.addSegment(s);
+
         }
-        /*
+        
         // TODO: belongs to Net Instance
         else if (sub_node.m_value == "via")
         {
+            /*
             auto x = 0.0, y = 0.0;
             auto net = 0;
             get_2d(ss, begin(sub_node.m_branches[0].m_branches), x, y);
@@ -378,8 +401,27 @@ bool kicadPcbDataBase::buildKicadPcb()
             auto z1 = layer_it->second;
             net_to_segments_map[net].emplace_back(
                 path{point_3d{x, y, double(z0)}, point_3d{x, y, double(z1)}});
+                */
+
+            int netId;
+            double size;
+            auto p = point_2d{};
+            std::vector<std::string> layers;
+            layers.resize(2);
+            get_2d(ss, begin(sub_node.m_branches[0].m_branches), p.m_x, p.m_y);
+            get_value(ss, begin(sub_node.m_branches[1].m_branches), size);
+            get_value(ss, begin(sub_node.m_branches[4].m_branches), netId);
+            layers[0] = sub_node.m_branches[3].m_branches[0].m_value;
+            layers[1] = sub_node.m_branches[3].m_branches[1].m_value;
+
+            auto &net = nets[netId];
+            auto id = net.getViaCount();
+            Via via(id, netId, size);
+            via.setPosition(p);
+            via.setLayer(layers);
+            net.addVia(via);
         }
-        */
+        
         //TODO: Copper Pours
         else if (sub_node.m_value == "zone")
         {
@@ -768,6 +810,21 @@ void kicadPcbDataBase::printNet()
                 std::cout << " width: " << pad.m_size.m_x << " height: " << pad.m_size.m_y << std::endl;
             else
                 std::cout << " height: " << pad.m_size.m_x << " width: " << pad.m_size.m_y << std::endl;
+        }
+
+        for (auto &segment : net.m_segments)
+        {
+            points_2d p = segment.getPos();
+            std::cout << "\tsegment id: " << segment.getId() << " pos start: (" << p[0].m_x << "," << p[0].m_y << ") end: (" << p[1].m_x << "," << p[1].m_y << ")";
+            std::cout << " width: " << segment.getWidth() << " layer: " << segment.getLayer() << std::endl;
+        }
+
+        for (auto &via : net.m_vias)
+        {
+            point_2d p = via.getPos();
+            std::vector<std::string> layers = via.getLayers();
+            std::cout << "\tvia id: " << via.getId() << " pos : (" << p.m_x << "," << p.m_y << ") ";
+            std::cout << " size: " << via.getSize() << " layer: " << layers[0] << " " << layers[1] << std::endl;
         }
     }
 }
@@ -1193,4 +1250,16 @@ bool kicadPcbDataBase::getInstBBox(const int inst_id, point_2d *bBox)
     }
 
     return true;
+}
+
+
+
+
+int kicadPcbDataBase:: getLayerId(const std::string &layerName) 
+{ 
+    auto layerIte = layer_to_index_map.find(layerName);
+    if (layerIte != layer_to_index_map.end()) {
+        return layerIte->second;
+    }
+    return -1;
 }
