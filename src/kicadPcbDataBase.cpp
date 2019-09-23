@@ -759,7 +759,7 @@ void kicadPcbDataBase::printNetclass()
     std::cout << std::endl;
     std::cout << "#####################################" << std::endl;
     std::cout << "###                               ###" << std::endl;
-    std::cout << "###            NET CLAS           ###" << std::endl;
+    std::cout << "###           NET CLASS           ###" << std::endl;
     std::cout << "###                               ###" << std::endl;
     std::cout << "#####################################" << std::endl;
     for (auto &netclass : netclasses)
@@ -1250,4 +1250,16 @@ bool kicadPcbDataBase::getInstBBox(const int inst_id, point_2d *bBox)
     }
 
     return true;
+}
+
+
+
+
+int kicadPcbDataBase:: getLayerId(const std::string &layerName) 
+{ 
+    auto layerIte = layer_to_index_map.find(layerName);
+    if (layerIte != layer_to_index_map.end()) {
+        return layerIte->second;
+    }
+    return -1;
 }

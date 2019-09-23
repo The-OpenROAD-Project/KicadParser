@@ -76,7 +76,8 @@ public:
 
     // TODO: All layers are copper in the "layer_to_index_map" and "index_to_layer_map"
     int getNumCopperLayers() { return index_to_layer_map.size(); }
-    int getLayerId(const std::string &layerName) { return layer_to_index_map[layerName]; }
+    int getLayerId(const std::string &layerName);
+    std::map<int, std::string> &getCopperLayers() { return index_to_layer_map; }
     bool isCopperLayer(const int);
     bool isCopperLayer(const std::string &);
 
@@ -92,7 +93,7 @@ private:
 
     // Index map
     std::unordered_map<std::string, int> layer_to_index_map;   //<layer name, layer id>
-    std::unordered_map<int, std::string> index_to_layer_map;   //<layer id, layer name>
+    std::map<int, std::string> index_to_layer_map;             //<layer id, layer name>
     std::unordered_map<std::string, int> net_name_to_id;       //<net name, net id>
     std::unordered_map<int, std::string> net_id_to_name;       //<net id, net name>
     std::unordered_map<std::string, int> instance_name_to_id;  //<instance name, instance int>

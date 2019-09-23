@@ -23,6 +23,7 @@ public:
     std::vector<padstack> &getPadstacks() { return m_pads; }
     bool isPadstackId(const int id) { return id < m_pads.size() ? true : false; }
 
+    padstack &getPadstack(const int id) { return m_pads.at(id); }
     bool getPadstackId(const std::string &name, int *id)
     {
         const auto padIte = m_pad_name_to_id.find(name);
@@ -66,7 +67,6 @@ public:
         }
     }
 
-    padstack &getPadstack(const int id) { return m_pads.at(id); }
     friend class kicadPcbDataBase;
 
 private:
@@ -88,7 +88,6 @@ private:
         auto ite = m_pad_name_to_id.find(name);
         return m_pads.at(ite->second);
     }
-    
 
 private:
     int m_id;
