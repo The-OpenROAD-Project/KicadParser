@@ -48,7 +48,7 @@ public:
     ~padstack() {}
 
     int getId() { return m_id; }
-    std::string &getName() { return m_name; }
+    const std::string &getName() const { return m_name; }
     double getWidth() const { return m_size.m_x; }
     double getHeight() const { return m_size.m_y; }
     double getHalfWidth() const { return m_size.m_x / 2.0; }
