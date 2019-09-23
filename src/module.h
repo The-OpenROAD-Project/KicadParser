@@ -66,6 +66,7 @@ public:
         }
     }
 
+    padstack &getPadstack(const int id) { return m_pads.at(id); }
     friend class kicadPcbDataBase;
 
 private:
@@ -87,7 +88,7 @@ private:
         auto ite = m_pad_name_to_id.find(name);
         return m_pads.at(ite->second);
     }
-    padstack &getPadstack(const int id) { return m_pads.at(id); }
+    
 
 private:
     int m_id;
@@ -112,6 +113,7 @@ public:
     std::string &getName() { return m_name; }
     int getComponentId() { return m_comp_id; }
     int getId() { return m_id; }
+    double getAngle() { return m_angle;}
 
     friend class kicadPcbDataBase;
 

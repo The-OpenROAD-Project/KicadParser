@@ -17,7 +17,7 @@ public:
     int getNetId() { return m_netId; }
     double getSize() { return m_size; }
     point_2d &getPos() { return m_pos; }
-    std::vector<std::string> &getLayer() { return m_layers; }
+    std::vector<std::string> &getLayers() { return m_layers; }  //layers[0] start layer; layers[1] end layer
     void setPosition(const point_2d &_pos) { m_pos = std::move(_pos); }
     void setLayer(const std::vector<std::string> &_layers) { m_layers = std::move(_layers); }
 

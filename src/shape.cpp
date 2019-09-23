@@ -62,7 +62,7 @@ points_2d roundrect_to_shape_coords(const point_2d &size, const double &ratio)
 // Ongoing work
 // TODO: all coords in CW or CCW
 // TODO: parameters for #points to Circle
-points_2d shape_to_cords(const point_2d &size, point_2d &pos, padShape shape, double a1, double a2, const double &ratio)
+points_2d shape_to_cords(const point_2d &size, const point_2d &pos, padShape shape, const double a1, const double a2, const double &ratio)
 {
     auto cords = points_2d{};
     switch (shape)
@@ -102,8 +102,22 @@ points_2d shape_to_cords(const point_2d &size, point_2d &pos, padShape shape, do
     {
         auto width = size.m_x / 2;
         auto height = size.m_y / 2;
-        cords.push_back(point_2d{-1 * width, -1 * height});
-        cords.push_back(point_2d{width, height});
+        auto point = point_2d{};
+        point.m_x = pos.m_x + width;
+        point.m_y = pos.m_y + height;
+        cords.push_back(point);
+
+        point.m_y = pos.m_y - height;
+        cords.push_back(point);
+
+        point.m_x = pos.m_x - width;
+        cords.push_back(point);
+
+        point.m_y = pos.m_y + height;
+        cords.push_back(point);
+
+        //cords.push_back(point_2d{-1 * width, -1 * height});
+        //cords.push_back(point_2d{width, height});
         break;
     }
     case padShape::ROUNDRECT:
@@ -154,4 +168,182 @@ points_2d shape_to_cords(const point_2d &size, point_2d &pos, padShape shape, do
     }
 
     return rotateShapeCoordsByAngles(cords, a1, a2);
+}
+
+
+
+/////////////////////////////////
+//      [1]    [0]
+//      |--------|
+//      |    s   |
+//      |        |
+//      |________|
+//      [2]    [3]
+///////////////////////////////// 
+
+points_2d segment_to_rect(const points_2d &point, const double &w)
+{
+    auto cords = points_2d{};
+    auto p = point_2d{};
+    auto width = w/2;
+
+    //vertical
+    if (point[0].m_x == point[1].m_x) 
+    {
+        if (point[0].m_y > point[1].m_y) 
+        {
+            p.m_x = point[0].m_x + width;
+            p.m_y = point[0].m_y + width;
+            cords.push_back(p);
+            p.m_x = point[0].m_x - width;
+            cords.push_back(p);
+
+            p.m_x = point[0].m_x - width;
+            p.m_y = point[0].m_y - width;
+            cords.push_back(p);
+            p.m_x = point[0].m_x - width;
+            cords.push_back(p);
+        }
+        else
+        {
+            p.m_x = point[0].m_x + width;
+            p.m_y = point[1].m_y + width;
+            cords.push_back(p);
+            p.m_x = point[0].m_x - width;
+            cords.push_back(p);
+
+            p.m_x = point[0].m_x - width;
+            p.m_y = point[0].m_y - width;
+            cords.push_back(p);
+            p.m_x = point[0].m_x + width;
+            cords.push_back(p);
+        }
+    }
+    //horizontal
+    else if (point[0].m_y == point[1].m_y)
+    {
+
+        if (point[0].m_x > point[1].m_x) 
+        {
+            p.m_x = point[0].m_x + width;
+            p.m_y = point[0].m_y + width;
+            cords.push_back(p);
+            p.m_x = point[1].m_x - width;
+            cords.push_back(p);
+
+            p.m_y = point[0].m_y - width;
+            cords.push_back(p);
+            p.m_x = point[0].m_x + width;
+            cords.push_back(p);
+        }
+        else
+        {
+            p.m_x = point[1].m_x + width;
+            p.m_y = point[0].m_y + width;
+            cords.push_back(p);
+            p.m_x = point[0].m_x - width;
+            cords.push_back(p);
+
+            p.m_y = point[0].m_y - width;
+            cords.push_back(p);
+            p.m_x = point[1].m_x + width;
+            cords.push_back(p);
+        }
+    }
+    //45degree
+    else if ((point[0].m_x>point[1].m_x)&&(point[0].m_y>point[1].m_y))     
+    {
+          
+        p.m_x = point[0].m_x + sqrt(2)*width;
+        p.m_y = point[0].m_y;
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x;
+        p.m_y = point[0].m_y + sqrt(2)*width;
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x - sqrt(2)*width;
+        p.m_y = point[1].m_y;
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x;
+        p.m_y = point[1].m_y + sqrt(2)*width;
+        cords.push_back(p);
+    }
+    else if ((point[0].m_x<point[1].m_x)&&(point[0].m_y<point[1].m_y))     
+    {
+
+        p.m_x = point[1].m_x + sqrt(2)*width;
+        p.m_y = point[1].m_y;
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x;
+        p.m_y = point[1].m_y + sqrt(2)*width;
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x - sqrt(2)*width;
+        p.m_y = point[0].m_y;
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x;
+        p.m_y = point[0].m_y + sqrt(2)*width;
+        cords.push_back(p);
+
+    }
+    //135degree
+    else if ((point[1].m_x<point[0].m_x)&&(point[1].m_y>point[0].m_y))
+    {
+        p.m_x = point[1].m_x;
+        p.m_y = point[1].m_y + sqrt(2)*width;
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x - sqrt(2)*width;
+        p.m_y = point[1].m_y;
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x;
+        p.m_y = point[0].m_y - sqrt(2)*width;
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x + sqrt(2)*width;
+        p.m_y = point[0].m_y;
+        cords.push_back(p);
+    }
+    else if ((point[1].m_x>point[0].m_x)&&(point[1].m_y<point[0].m_y))
+    {
+        p.m_x = point[0].m_x;
+        p.m_y = point[0].m_y + sqrt(2)*width;
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x - sqrt(2)*width;
+        p.m_y = point[0].m_y;
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x;
+        p.m_y = point[1].m_y - sqrt(2)*width;
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x + sqrt(2)*width;
+        p.m_y = point[1].m_y;
+        cords.push_back(p);
+    }
+    return cords;
+}
+
+
+points_2d via_to_circle(const point_2d &pos, const double &size)
+{
+    auto radius = size / 2;
+    auto coords = points_2d{};
+    auto point = point_2d{};
+    for (int i = 0; i < 40; ++i)
+    { //40 points
+        point.m_x = pos.m_x + radius * cos(-9 * i * M_PI / 180);
+        point.m_y = pos.m_y + radius * sin(-9 * i * M_PI / 180);
+        coords.push_back(point);
+    }
+    point.m_x = pos.m_x + radius * cos(0 * M_PI / 180);
+    point.m_y = pos.m_y + radius * sin(0 * M_PI / 180);
+    coords.push_back(point);
+    return coords;
 }
