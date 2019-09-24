@@ -956,7 +956,7 @@ void kicadPcbDataBase::printPcbRouterInfo()
     for (unsigned int i = 0; i < all_pads.size(); ++i)
     {
         auto &pin = all_pads.at(i);
-        std::cout << i << " " << pin.m_pos.m_x << " " << pin.m_pos.m_y << " " << pin.m_size.m_x << " " << pin.m_size.m_y;
+        std::cout << i << " " << pin.m_pos << " " << pin.m_size.m_x << " " << pin.m_size.m_y;
         std::cout << " " << pin.m_pos.m_z << " " << index_to_layer_map[pin.m_pos.m_z] << std::endl;
     }
 }

@@ -5,7 +5,7 @@
 #include <math.h>
 #include <string>
 #include <iostream>
-#include "mymath.h"
+#include "point.h"
 
 enum class padShape
 {

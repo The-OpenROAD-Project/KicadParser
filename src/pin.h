@@ -1,7 +1,7 @@
 #ifndef KICAD_PCB_PIN_H
 #define KICAD_PCB_PIN_H
 
-#include "mymath.h"
+#include "point.h"
 #include "shape.h"
 #include "rule.h"
 #include <vector>

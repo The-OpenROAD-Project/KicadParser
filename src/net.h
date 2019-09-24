@@ -1,7 +1,7 @@
 #ifndef KICAD_PCB_NET_H
 #define KICAD_PCB_NET_H
 
-#include "mymath.h"
+#include "point.h"
 #include "pin.h"
 #include "rule.h"
 #include "segment.h"
@@ -81,11 +81,10 @@ public:
     std::vector<pin> &getPins() { return m_pins; }
     std::vector<Segment> &getSegments() { return m_segments; }
     std::vector<Via> &getVias() { return m_vias; }
-    int getSegmentCount() { return (int)m_segments.size();}
+    int getSegmentCount() { return (int)m_segments.size(); }
     void addSegment(const Segment &_segment) { m_segments.push_back(_segment); }
-    int getViaCount() { return (int) m_vias.size();}
+    int getViaCount() { return (int)m_vias.size(); }
     void addVia(const Via &_via) { m_vias.push_back(_via); }
-  
 
     bool isDiffPair()
     {
