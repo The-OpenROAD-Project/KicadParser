@@ -367,7 +367,7 @@ bool kicadPcbDataBase::buildKicadPcb()
             */
 
             //put segment into net
-            
+
             int netId;
             double width;
             auto p = point_2d{};
@@ -384,9 +384,8 @@ bool kicadPcbDataBase::buildKicadPcb()
             Segment s(id, netId, width, layer);
             s.setPosition(points);
             net.addSegment(s);
-
         }
-        
+
         // TODO: belongs to Net Instance
         else if (sub_node.m_value == "via")
         {
@@ -421,7 +420,7 @@ bool kicadPcbDataBase::buildKicadPcb()
             via.setLayer(layers);
             net.addVia(via);
         }
-        
+
         //TODO: Copper Pours
         else if (sub_node.m_value == "zone")
         {
@@ -990,7 +989,7 @@ bool kicadPcbDataBase::getPcbRouterInfo(std::vector<std::set<std::pair<double, d
             */
 
             point_2d pinLocation;
-            auto &inst = getInstance(pin.m_inst_id);
+            //auto &inst = getInstance(pin.m_inst_id);
             getPinPosition(pin, &pinLocation);
             //routerInfo->at(netCounter).insert(std::pair<double, double>(pinLocation.m_x, pinLocation.m_y));
             routerInfo->at(net.getId()).insert(std::pair<double, double>(pinLocation.m_x, pinLocation.m_y));
@@ -1252,13 +1251,26 @@ bool kicadPcbDataBase::getInstBBox(const int inst_id, point_2d *bBox)
     return true;
 }
 
+void kicadPcbDataBase::getPadstackRotatedWidthAndHeight(const instance &inst, const padstack &pad, double &width, double &height)
+{
+    double overallRot = inst.getAngle() + pad.getAngle();
+    if ((int)(overallRot / 90.0) % 2 == 0)
+    {
+        width = pad.getSize().m_x;
+        height = pad.getSize().m_y;
+    }
+    else
+    {
+        width = pad.getSize().m_y;
+        height = pad.getSize().m_x;
+    }
+}
 
-
-
-int kicadPcbDataBase:: getLayerId(const std::string &layerName) 
-{ 
+int kicadPcbDataBase::getLayerId(const std::string &layerName)
+{
     auto layerIte = layer_to_index_map.find(layerName);
-    if (layerIte != layer_to_index_map.end()) {
+    if (layerIte != layer_to_index_map.end())
+    {
         return layerIte->second;
     }
     return -1;
