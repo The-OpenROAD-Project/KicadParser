@@ -29,10 +29,20 @@ public:
 	{
 		return std::tie(m_x, m_y) < std::tie(p.m_x, p.m_y);
 	}
+    void operator=(const Point_2D &p){
+        m_x = p.m_x;
+        m_y = p.m_y;
+    }
     const Point_2D& operator+=(const Point_2D &p) {
         m_x += p.m_x;
         m_y += p.m_y;
         return *this;
+    }
+	Point_2D operator-(const Point_2D &p) const{
+        return Point_2D(m_x - p.m_x, m_y - p.m_y);
+    }
+	Point_2D operator+(const Point_2D &p) const{
+        return Point_2D(m_x + p.m_x, m_y + p.m_y);
     }
 	static T getDistance(const Point_2D &a, const Point_2D &b)
 	{
@@ -73,6 +83,17 @@ public:
 	{
 		return std::tie(m_x, m_y, m_z) < std::tie(p.m_x, p.m_y, p.m_z);
 	}
+    void operator=(const Point_3D &p){
+        m_x = p.m_x;
+        m_y = p.m_y;
+		m_z = p.m_z;
+    }
+	Point_3D operator-(const Point_3D &p) const{
+        return Point_3D(m_x - p.m_x, m_y - p.m_y, m_z - p.m_z);
+    }
+	Point_3D operator+(const Point_3D &p) const{
+        return Point_3D(m_x + p.m_x, m_y + p.m_y, m_z + p.m_z);
+    }
     const Point_3D& operator+=(const Point_3D &p) {
         m_x += p.m_x;
         m_y += p.m_y;

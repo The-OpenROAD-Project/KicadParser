@@ -53,9 +53,9 @@ public:
     void getPinPosition(const padstack &, const instance &, point_2d *pos);
     bool getPinPosition(const pin &p, point_2d *pos);
     bool getInstBBox(const int inst_id, point_2d *bBox);
+    // TODO:: Move this to instance or overloaded this to Instance
     void getPadstackRotatedWidthAndHeight(const instance &inst, const padstack &pad, double &width, double &height);
 
-    //bool getInstance(const int &, instance *&);
     bool getInstance(const std::string &, instance *&);
     bool getComponent(const std::string &, component *&);
     bool getNet(const std::string &, net *&);
