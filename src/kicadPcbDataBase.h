@@ -44,6 +44,7 @@ public:
     void printPcbRouterInfo();
     void printFile();
     void printSegment();
+    void printUnconnectedPins();
 
     bool buildKicadPcb();
 
@@ -68,6 +69,7 @@ public:
     std::vector<instance> &getInstances() { return instances; }
     std::vector<component> &getComponents() { return components; }
     std::vector<net> &getNets() { return nets; }
+    std::vector<pin> &getUnconnectedPins() { return unconnectedPins;}
 
     bool isInstanceId(const int id) { return id < instances.size() ? true : false; }
     bool isComponentId(const int id) { return id < components.size() ? true : false; }
@@ -104,10 +106,12 @@ private:
     std::vector<component> components;
     std::vector<net> nets;
     std::vector<netclass> netclasses;
+    
 
     // Keepouts
     std::map<std::string, paths> layer_to_keepout_map; // keepout zones <layer name, polygon>
     paths all_keepouts;                                // All keepout zones in polygon
+    std::vector <pin> unconnectedPins;
 
     // TODO: Move to Net Instance and Consider the usage of DRC checking
     std::map<int, paths> net_to_segments_map;

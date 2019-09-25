@@ -22,6 +22,10 @@ struct pin
     int m_padstack_id;
     int m_comp_id;
     int m_inst_id;
+    bool operator==(const pin &p) const
+    {
+        return std::tie(m_padstack_id, m_comp_id, m_inst_id) == std::tie(p.m_padstack_id, p.m_comp_id, p.m_inst_id);
+    }
 };
 
 struct pad

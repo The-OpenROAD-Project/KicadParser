@@ -15,7 +15,6 @@ bool kicadPcbDataBase::buildKicadPcb()
         return false;
     std::stringstream ss;
     auto default_rule = rule{0.25, 0.25};
-    int noNameId = 0;
     for (auto &&sub_node : tree.m_branches)
     {
         //layer part
@@ -141,7 +140,7 @@ bool kicadPcbDataBase::buildKicadPcb()
                 comp_id = comp_it->second;
             }
             component the_comp{comp_id, component_name};
-
+            int noNameId = 0;
             for (auto &&module_node : sub_node.m_branches)
             {
                 //TODO:: Handle (fp_text value ...)
@@ -303,40 +302,55 @@ bool kicadPcbDataBase::buildKicadPcb()
             }
 
             //Find the connection of the pad
+            noNameId = 0;
             for (auto &&pad_node : sub_node.m_branches)
             {
                 if (pad_node.m_value == "pad")
                 {
                     auto pin_name = pad_node.m_branches[0].m_value;
+                    if(pin_name == "\"\"") {
+                        pin_name = "Unnamed" + std::to_string(noNameId);
+                        ++noNameId;
+                    }
                     int net_index = 0;
                     std::string net_name = "";
+                    bool connected = false;
                     for (auto &&net_node : pad_node.m_branches)
                     {
                         if (net_node.m_value == "net")
                         {
+                            connected = true;
                             net_name = net_node.m_branches[1].m_value;
                             get_value(ss, begin(net_node.m_branches), net_index);
-
-                            if (!isComponentId(comp_id))
-                            {
-                                std::cerr << __FUNCTION__ << "() ilegal component id: " << comp_id << std::endl;
-                                continue;
-                            }
-
-                            auto &comp = getComponent(comp_id);
-                            int padstack_id = -1;
-                            if (!comp.getPadstackId(pin_name, &padstack_id))
-                            {
-                                std::cerr << __FUNCTION__ << "() ilegal pin name: " << pin_name << std::endl;
-                                continue;
-                            }
-
-                            auto the_pin = pin{padstack_id, comp_id, the_instance.m_id};
-                            the_instance.m_pin_net_map[pin_name] = net_index;
-                            auto &the_net = getNet(net_name);
-                            the_net.addPin(the_pin);
+                            break;
                         }
                     }
+
+                    if (!isComponentId(comp_id))
+                    {
+                        std::cerr << __FUNCTION__ << "() ilegal component id: " << comp_id << std::endl;
+                        continue;
+                    }
+
+                    auto &comp = getComponent(comp_id);
+                    int padstack_id = -1;
+                    if (!comp.getPadstackId(pin_name, &padstack_id))
+                    {
+                        std::cerr << __FUNCTION__ << "() ilegal pin name: " << pin_name << std::endl;
+                        continue;
+                    }
+
+                    auto the_pin = pin{padstack_id, comp_id, the_instance.m_id};
+
+                    
+                    if(connected == true) {
+                        the_instance.m_pin_net_map[pin_name] = net_index;
+                        auto &the_net = getNet(net_name);
+                        the_net.addPin(the_pin);
+                    } else {
+                        the_instance.m_pin_net_map[pin_name] = -1;
+                        unconnectedPins.push_back(the_pin);
+                    }  
                 }
             }
             the_instance.m_comp_id = comp_id;
@@ -656,6 +670,17 @@ void kicadPcbDataBase::printSegment()
             for (auto &&point : path)
                 std::cout << "(" << point.m_x << "," << point.m_y << "," << point.m_z << ")" << std::endl;
         }
+    }
+}
+
+void kicadPcbDataBase::printUnconnectedPins()
+{
+    for (auto &&pin : unconnectedPins)
+    {
+        auto &&inst = instances[pin.m_inst_id];
+        auto &&comp = components[pin.m_comp_id];
+        padstack pad = comp.getPadstack(pin.m_padstack_id);
+        std::cout << "comp: " << comp.getName() << " inst: " << inst.getName() << " pad: " << pad.getName() << std::endl;
     }
 }
 
