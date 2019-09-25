@@ -22,7 +22,7 @@ set (KICADPCB_SRC
 
 set (KICADPCB_HEADER
   src/kicadPcbDataBase.h
-  src/mymath.h
+  src/point.h
   src/net.h
   src/kicadParser.h
   src/tree.h

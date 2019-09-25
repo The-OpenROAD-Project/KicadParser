@@ -7,7 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include "tree.h"
-#include "mymath.h"
+#include "point.h"
 
 #define MIN_COPPER_LAYER_ID 0
 #define MAX_COPPER_LAYER_ID 31

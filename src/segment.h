@@ -3,13 +3,13 @@
 
 #include <string>
 #include <vector>
-#include "mymath.h"
+#include "point.h"
 
 class Segment
 {
 public:
     Segment(const int id = -1,
-            const int netId = -1,        
+            const int netId = -1,
             const double width = 0,
             const std::string layer = "")
         : m_id(id), m_netId(netId), m_width(width), m_layer(layer) {}
@@ -19,8 +19,7 @@ public:
     double getWidth() { return m_width; }
     points_2d &getPos() { return m_pos; }
     std::string &getLayer() { return m_layer; }
-    void setPosition(const points_2d &_pos) { m_pos = std::move(_pos);}
-    
+    void setPosition(const points_2d &_pos) { m_pos = std::move(_pos); }
 
 private:
     int m_id;

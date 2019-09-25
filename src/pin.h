@@ -1,7 +1,7 @@
 #ifndef KICAD_PCB_PIN_H
 #define KICAD_PCB_PIN_H
 
-#include "mymath.h"
+#include "point.h"
 #include "shape.h"
 #include "rule.h"
 #include <vector>
@@ -53,17 +53,20 @@ public:
     ~padstack() {}
 
     int getId() { return m_id; }
-    std::string &getName() { return m_name; }
-    point_2d getSize() const {return m_size;}
-    point_2d getPos() const {return m_pos;}
-    double getAngle() const {return m_angle;}
-    double getWidth() const { return m_size.m_x; }
-    double getHeight() const { return m_size.m_y; }
-    double getHalfWidth() const { return m_size.m_x / 2.0; }
-    double getHalfHeight() const { return m_size.m_y / 2.0; }
+    const std::string &getName() const { return m_name; }
+    point_2d getSize() const { return m_size; }
+    point_2d getPos() const { return m_pos; }
+    double getAngle() const { return m_angle; }
+
     const std::vector<std::string> &getLayers() const { return m_layers; }
 
     friend class kicadPcbDataBase;
+
+private:
+    [[deprecated]] double getWidth() const { return m_size.m_x; }
+        [[deprecated]] double getHeight() const { return m_size.m_y; }
+    [[deprecated]] double getHalfWidth() const { return m_size.m_x / 2.0; }
+        [[deprecated]] double getHalfHeight() const { return m_size.m_y / 2.0; }
 
 private:
     int m_id;
