@@ -524,6 +524,8 @@ bool kicadPcbDataBase::buildKicadPcb()
 
     std::cout << "MINX: " << minx << " MAXX: " << maxx << std::endl;
     std::cout << "MINY: " << miny << " MAXY: " << maxy << std::endl;
+    m_boundary.push_back(point_2d{minx,miny});
+    m_boundary.push_back(point_2d{maxx,maxy});
     /*
     auto track_id = 0;
     //auto the_tracks = tracks{};

@@ -347,3 +347,449 @@ points_2d via_to_circle(const point_2d &pos, const double &size)
     coords.push_back(point);
     return coords;
 }
+
+points_2d viaToOctagon(const double &size, const point_2d &pos, const double &clearance)
+{
+    auto _size = point_2d{size,size};
+
+    auto coords = points_2d{};
+    auto point = point_2d{};
+
+    //[0]
+    point.m_x = pos.m_x + _size.m_x + (clearance * tan(22.5 * M_PI / 180));
+    point.m_y = pos.m_y + _size.m_y + clearance;
+    coords.push_back(point);
+
+    //[1]
+    point.m_x = pos.m_x + _size.m_x + clearance;
+    point.m_y = pos.m_y + _size.m_y + (clearance * tan(22.5 * M_PI / 180));
+    coords.push_back(point);
+
+    //[2]
+    point.m_x = pos.m_x + _size.m_x + clearance;
+    point.m_y = pos.m_y - _size.m_y - (clearance * tan(22.5 * M_PI / 180));
+    coords.push_back(point);
+
+    //[3]
+    point.m_x = pos.m_x + _size.m_x + (clearance * tan(22.5 * M_PI / 180));
+    point.m_y = pos.m_y - _size.m_y - clearance;
+    coords.push_back(point);
+
+    //[4]
+    point.m_x = pos.m_x - _size.m_x - (clearance * tan(22.5 * M_PI / 180));
+    point.m_y = pos.m_y - _size.m_y - clearance;
+    coords.push_back(point);
+
+    //[5]
+    point.m_x = pos.m_x - _size.m_x - clearance;
+    point.m_y = pos.m_y - _size.m_y - (clearance * tan(22.5 * M_PI / 180));
+    coords.push_back(point);
+
+    //[6]
+    point.m_x = pos.m_x - _size.m_x - clearance;
+    point.m_y = pos.m_y + _size.m_y + (clearance * tan(22.5 * M_PI / 180));
+    coords.push_back(point);
+
+    //[7]
+    point.m_x = pos.m_x - _size.m_x - (clearance * tan(22.5 * M_PI / 180));
+    point.m_y = pos.m_y + _size.m_y + clearance;
+    coords.push_back(point);
+
+    //[0]
+    point.m_x = pos.m_x + _size.m_x + (clearance * tan(22.5 * M_PI / 180));
+    point.m_y = pos.m_y + _size.m_y + clearance;
+    coords.push_back(point);    
+
+    return coords;
+}
+
+/////////////////////////////////
+//      [7]    [0]
+//    [6] /------\  [1]
+//       |  pin   |
+//    [5] \______/ [2]
+//      [4]    [3]
+///////////////////////////////// 
+
+points_2d pinShapeToOctagon(const point_2d &size, const point_2d &pos, const double &clearance, const double &instAngle, const double &pinAngle)
+{
+    auto coords = points_2d{};
+    auto point = point_2d{};
+
+    //[0]
+    point.m_x = pos.m_x + size.m_x + (clearance * tan(22.5 * M_PI / 180));
+    point.m_y = pos.m_y + size.m_y + clearance;
+    coords.push_back(point);
+
+    //[1]
+    point.m_x = pos.m_x + size.m_x + clearance;
+    point.m_y = pos.m_y + size.m_y + (clearance * tan(22.5 * M_PI / 180));
+    coords.push_back(point);
+
+    //[2]
+    point.m_x = pos.m_x + size.m_x + clearance;
+    point.m_y = pos.m_y - size.m_y - (clearance * tan(22.5 * M_PI / 180));
+    coords.push_back(point);
+
+    //[3]
+    point.m_x = pos.m_x + size.m_x + (clearance * tan(22.5 * M_PI / 180));
+    point.m_y = pos.m_y - size.m_y - clearance;
+    coords.push_back(point);
+
+    //[4]
+    point.m_x = pos.m_x - size.m_x - (clearance * tan(22.5 * M_PI / 180));
+    point.m_y = pos.m_y - size.m_y - clearance;
+    coords.push_back(point);
+
+    //[5]
+    point.m_x = pos.m_x - size.m_x - clearance;
+    point.m_y = pos.m_y - size.m_y - (clearance * tan(22.5 * M_PI / 180));
+    coords.push_back(point);
+
+    //[6]
+    point.m_x = pos.m_x - size.m_x - clearance;
+    point.m_y = pos.m_y + size.m_y + (clearance * tan(22.5 * M_PI / 180));
+    coords.push_back(point);
+
+    //[7]
+    point.m_x = pos.m_x - size.m_x - (clearance * tan(22.5 * M_PI / 180));
+    point.m_y = pos.m_y + size.m_y + clearance;
+    coords.push_back(point);
+
+    //[0]
+    point.m_x = pos.m_x + size.m_x + (clearance * tan(22.5 * M_PI / 180));
+    point.m_y = pos.m_y + size.m_y + clearance;
+    coords.push_back(point);    
+
+    return rotateShapeCoordsByAngles(coords, instAngle, pinAngle);
+}
+
+
+points_2d segmentToOctagon(const points_2d &point, const double &w, const double &clearance)
+{
+
+    auto cords = points_2d{};
+    auto p = point_2d{};
+    auto width = w/2;
+
+    //vertical
+    if (point[0].m_x == point[1].m_x) 
+    {
+        if (point[0].m_y > point[1].m_y) 
+        {
+            p.m_x = point[0].m_x + width + (clearance * tan(22.5 * M_PI / 180));
+            p.m_y = point[0].m_y + width + clearance;
+            cords.push_back(p);
+
+            p.m_x = point[0].m_x + width + clearance; 
+            p.m_y = point[0].m_y + width + (clearance * tan(22.5 * M_PI / 180));
+            cords.push_back(p);
+
+            p.m_x = point[1].m_x + width + clearance; 
+            p.m_y = point[1].m_y - width - (clearance * tan(22.5 * M_PI / 180));
+            cords.push_back(p);
+
+            p.m_x = point[1].m_x + width + (clearance * tan(22.5 * M_PI / 180));
+            p.m_y = point[1].m_y - width - clearance; 
+            cords.push_back(p);
+
+            p.m_x = point[1].m_x - width - (clearance * tan(22.5 * M_PI / 180)); 
+            p.m_y = point[1].m_y - width - clearance;
+            cords.push_back(p);
+
+            p.m_x = point[1].m_x - width - clearance;
+            p.m_y = point[1].m_y - width - (clearance * tan(22.5 * M_PI / 180));
+            cords.push_back(p);
+
+            p.m_x = point[0].m_x - width - clearance;
+            p.m_y = point[0].m_y + width + (clearance * tan(22.5 * M_PI / 180));
+            cords.push_back(p);
+
+            p.m_x = point[0].m_x - width + (clearance * tan(22.5 * M_PI / 180)); 
+            p.m_y = point[0].m_y + width + clearance; 
+            cords.push_back(p);
+
+            p.m_x = point[0].m_x + width + (clearance * tan(22.5 * M_PI / 180));
+            p.m_y = point[0].m_y + width + clearance;
+            cords.push_back(p);
+        }
+        else
+        {
+            p.m_x = point[1].m_x + width + (clearance * tan(22.5 * M_PI / 180));
+            p.m_y = point[1].m_y + width + clearance;
+            cords.push_back(p);
+
+            p.m_x = point[1].m_x + width + clearance; 
+            p.m_y = point[1].m_y + width + (clearance * tan(22.5 * M_PI / 180));
+            cords.push_back(p);
+
+            p.m_x = point[0].m_x + width + clearance; 
+            p.m_y = point[0].m_y - width - (clearance * tan(22.5 * M_PI / 180));
+            cords.push_back(p);
+
+            p.m_x = point[0].m_x + width + (clearance * tan(22.5 * M_PI / 180));
+            p.m_y = point[0].m_y - width - clearance; 
+            cords.push_back(p);
+
+            p.m_x = point[0].m_x - width - (clearance * tan(22.5 * M_PI / 180)); 
+            p.m_y = point[0].m_y - width - clearance;
+            cords.push_back(p);
+
+            p.m_x = point[0].m_x - width - clearance;
+            p.m_y = point[0].m_y - width - (clearance * tan(22.5 * M_PI / 180));
+            cords.push_back(p);
+
+            p.m_x = point[1].m_x - width - clearance;
+            p.m_y = point[1].m_y + width + (clearance * tan(22.5 * M_PI / 180));
+            cords.push_back(p);
+
+            p.m_x = point[1].m_x - width + (clearance * tan(22.5 * M_PI / 180)); 
+            p.m_y = point[1].m_y + width + clearance; 
+            cords.push_back(p);
+
+            p.m_x = point[1].m_x + width + (clearance * tan(22.5 * M_PI / 180));
+            p.m_y = point[1].m_y + width + clearance;
+            cords.push_back(p);
+        }
+    }
+    //horizontal
+    else if (point[0].m_y == point[1].m_y)
+    {
+
+        if (point[0].m_x > point[1].m_x) 
+        {
+            p.m_x = point[0].m_x + width + (clearance * tan(22.5 * M_PI / 180));
+            p.m_y = point[0].m_y + width + clearance;
+            cords.push_back(p);
+            
+            p.m_x = point[0].m_x + width + clearance;
+            p.m_y = point[0].m_y + width + (clearance * tan(22.5 * M_PI / 180));
+            cords.push_back(p);
+
+            p.m_x = point[0].m_x + width + clearance;
+            p.m_y = point[0].m_y - width - (clearance * tan(22.5 * M_PI / 180));
+            cords.push_back(p);
+
+            p.m_x = point[0].m_x + width + (clearance * tan(22.5 * M_PI / 180));
+            p.m_y = point[0].m_y - width - clearance;
+            cords.push_back(p);
+
+            p.m_x = point[1].m_x - width - (clearance * tan(22.5 * M_PI / 180));
+            p.m_y = point[1].m_y - width - clearance;
+            cords.push_back(p);
+
+            p.m_x = point[1].m_x - width - clearance;
+            p.m_y = point[1].m_y - width - (clearance * tan(22.5 * M_PI / 180));
+            cords.push_back(p);
+
+            p.m_x = point[1].m_x - width - clearance;
+            p.m_y = point[1].m_y + width + (clearance * tan(22.5 * M_PI / 180));
+            cords.push_back(p);
+
+            p.m_x = point[1].m_x - width - (clearance * tan(22.5 * M_PI / 180));
+            p.m_y = point[1].m_y + width + clearance;
+            cords.push_back(p);
+
+            p.m_x = point[0].m_x + width + (clearance * tan(22.5 * M_PI / 180));
+            p.m_y = point[0].m_y + width + clearance;
+            cords.push_back(p);
+        }
+        else
+        {
+            p.m_x = point[1].m_x + width + (clearance * tan(22.5 * M_PI / 180));
+            p.m_y = point[1].m_y + width + clearance;
+            cords.push_back(p);
+            
+            p.m_x = point[1].m_x + width + clearance;
+            p.m_y = point[1].m_y + width + (clearance * tan(22.5 * M_PI / 180));
+            cords.push_back(p);
+
+            p.m_x = point[1].m_x + width + clearance;
+            p.m_y = point[1].m_y - width - (clearance * tan(22.5 * M_PI / 180));
+            cords.push_back(p);
+
+            p.m_x = point[1].m_x + width + (clearance * tan(22.5 * M_PI / 180));
+            p.m_y = point[1].m_y - width - clearance;
+            cords.push_back(p);
+
+            p.m_x = point[0].m_x - width - (clearance * tan(22.5 * M_PI / 180));
+            p.m_y = point[0].m_y - width - clearance;
+            cords.push_back(p);
+
+            p.m_x = point[0].m_x - width - clearance;
+            p.m_y = point[0].m_y - width - (clearance * tan(22.5 * M_PI / 180));
+            cords.push_back(p);
+
+            p.m_x = point[0].m_x - width - clearance;
+            p.m_y = point[0].m_y + width + (clearance * tan(22.5 * M_PI / 180));
+            cords.push_back(p);
+
+            p.m_x = point[0].m_x - width - (clearance * tan(22.5 * M_PI / 180));
+            p.m_y = point[0].m_y + width + clearance;
+            cords.push_back(p);
+
+            p.m_x = point[1].m_x + width + (clearance * tan(22.5 * M_PI / 180));
+            p.m_y = point[1
+            ].m_y + width + clearance;
+            cords.push_back(p);
+        }
+    }
+    //45degree
+    else if ((point[0].m_x>point[1].m_x)&&(point[0].m_y>point[1].m_y))     
+    {   
+        p.m_x = point[0].m_x + sqrt(2)* + clearance;
+        p.m_y = point[0].m_y + (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x + sqrt(2)* + clearance;
+        p.m_y = point[0].m_y - (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x + sqrt(2)*width + (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[1].m_y - sqrt(2)*width - clearance;
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x + sqrt(2)*width - (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[1].m_y - sqrt(2)*width - clearance;
+        cords.push_back(p);
+        
+        p.m_x = point[1].m_x - sqrt(2)*width - clearance;
+        p.m_y = point[1].m_y - (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x - sqrt(2)*width - clearance;
+        p.m_y = point[1].m_y + (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x + (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[0].m_y + sqrt(2)*width + clearance;
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x - (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[0].m_y + sqrt(2)*width + clearance;
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x + sqrt(2)* + clearance;
+        p.m_y = point[0].m_y + (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+    }
+    else if ((point[0].m_x<point[1].m_x)&&(point[0].m_y<point[1].m_y))     
+    {
+        p.m_x = point[1].m_x + sqrt(2)* + clearance;
+        p.m_y = point[1].m_y + (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x + sqrt(2)* + clearance;
+        p.m_y = point[1].m_y - (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x + sqrt(2)*width + (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[0].m_y - sqrt(2)*width - clearance;
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x + sqrt(2)*width - (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[0].m_y - sqrt(2)*width - clearance;
+        cords.push_back(p);
+        
+        p.m_x = point[0].m_x - sqrt(2)*width - clearance;
+        p.m_y = point[0].m_y - (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x - sqrt(2)*width - clearance;
+        p.m_y = point[0].m_y + (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x + (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[1].m_y + sqrt(2)*width + clearance;
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x - (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[1].m_y + sqrt(2)*width + clearance;
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x + sqrt(2)* + clearance;
+        p.m_y = point[1].m_y + (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+
+    }
+    //135degree
+    else if ((point[1].m_x<point[0].m_x)&&(point[1].m_y>point[0].m_y))
+    {
+        p.m_x = point[1].m_x - (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[1].m_y + sqrt(2)*width + clearance;
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x + (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[1].m_y + sqrt(2)*width + clearance;
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x + sqrt(2)*width + clearance;
+        p.m_y = point[0].m_y + (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x + sqrt(2)*width + clearance;
+        p.m_y = point[0].m_y - (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x + (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[0].m_y - sqrt(2)*width - clearance;
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x - (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[0].m_y - sqrt(2)*width - clearance;
+        cords.push_back(p);
+  
+        p.m_x = point[1].m_x - sqrt(2)*width - clearance;
+        p.m_y = point[1].m_y - (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x - sqrt(2)*width - clearance;
+        p.m_y = point[1].m_y + (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x - (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[1].m_y + sqrt(2)*width + clearance;
+        cords.push_back(p);
+
+    }
+    else if ((point[1].m_x>point[0].m_x)&&(point[1].m_y<point[0].m_y))
+    {
+        p.m_x = point[1].m_x - (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[1].m_y + sqrt(2)*width + clearance;
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x + (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[1].m_y + sqrt(2)*width + clearance;
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x + sqrt(2)*width + clearance;
+        p.m_y = point[0].m_y + (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x + sqrt(2)*width + clearance;
+        p.m_y = point[0].m_y - (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x + (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[0].m_y - sqrt(2)*width - clearance;
+        cords.push_back(p);
+
+        p.m_x = point[0].m_x - (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[0].m_y - sqrt(2)*width - clearance;
+        cords.push_back(p);
+  
+        p.m_x = point[1].m_x - sqrt(2)*width - clearance;
+        p.m_y = point[1].m_y - (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x - sqrt(2)*width - clearance;
+        p.m_y = point[1].m_y + (clearance * tan(22.5 * M_PI / 180));
+        cords.push_back(p);
+
+        p.m_x = point[1].m_x - (clearance * tan(22.5 * M_PI / 180));
+        p.m_y = point[1].m_y + sqrt(2)*width + clearance;
+        cords.push_back(p);
+
+    }
+    return cords;
+}

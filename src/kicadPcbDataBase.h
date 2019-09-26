@@ -84,8 +84,10 @@ public:
     bool isCopperLayer(const int);
     bool isCopperLayer(const std::string &);
 
+
     // TODO: Get design boundary based on rotated pin shape
     void getBoardBoundaryByPinLocation(double &minX, double &maxX, double &minY, double &maxY);
+    points_2d &getBoardBoundary() {return m_boundary;}
 
 private:
     net &getNet(const std::string &);
@@ -108,6 +110,7 @@ private:
     std::vector<net> nets;
     std::vector<netclass> netclasses;
     
+    points_2d m_boundary; //(minx,miny) (maxx,maxy)
 
     // Keepouts
     std::map<std::string, paths> layer_to_keepout_map; // keepout zones <layer name, polygon>

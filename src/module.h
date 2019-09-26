@@ -112,7 +112,7 @@ public:
     std::string &getName() { return m_name; }
     int getComponentId() { return m_comp_id; }
     int getId() { return m_id;}
-    double getAngle() { return m_angle;}
+    double getAngle() const { return m_angle;}
     double getX() { return m_x;}
     double getY() { return m_y;}
 
