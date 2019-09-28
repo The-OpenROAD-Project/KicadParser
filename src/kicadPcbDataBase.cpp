@@ -11,8 +11,8 @@ bool kicadPcbDataBase::buildKicadPcb()
     }
 
     kicadParser parser(m_fileName);
-    if (!parser.parseKicadPcb(&tree))
-        return false;
+    if (!parser.parseKicadPcb(&tree)) return false;
+
     std::stringstream ss;
     auto default_rule = rule{0.25, 0.25};
     for (auto &&sub_node : tree.m_branches)
@@ -435,11 +435,21 @@ bool kicadPcbDataBase::buildKicadPcb()
             auto p = point_2d{};
             std::vector<std::string> layers;
             layers.resize(2);
-            get_2d(ss, begin(sub_node.m_branches[0].m_branches), p.m_x, p.m_y);
-            get_value(ss, begin(sub_node.m_branches[1].m_branches), size);
-            get_value(ss, begin(sub_node.m_branches[4].m_branches), netId);
-            layers[0] = sub_node.m_branches[3].m_branches[0].m_value;
-            layers[1] = sub_node.m_branches[3].m_branches[1].m_value;
+            for (auto &&via_node : sub_node.m_branches) {
+                if(via_node.m_value == "at") {
+                    get_2d(ss, begin(via_node.m_branches), p.m_x, p.m_y);
+                }
+                else if(via_node.m_value == "size") {
+                    get_value(ss, begin(via_node.m_branches), size);
+                }
+                else if(via_node.m_value == "net") {
+                    get_value(ss, begin(via_node.m_branches), netId);
+                }
+                else if(via_node.m_value == "layer") {
+                    layers[0] = via_node.m_branches[0].m_value;
+                    layers[1] = via_node.m_branches[1].m_value;
+                }
+            }
 
             auto &net = nets[netId];
             auto id = net.getViaCount();
@@ -541,7 +551,7 @@ bool kicadPcbDataBase::buildKicadPcb()
     m_boundary.push_back(point_2d{minx,miny});
     m_boundary.push_back(point_2d{maxx,maxy});
 
-    
+    /*
     auto track_id = 0;
     //auto the_tracks = tracks{};
     //for (net_it = name_to_net_map.begin(); net_it != name_to_net_map.end(); ++net_it)
