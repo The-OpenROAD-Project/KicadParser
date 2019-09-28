@@ -1323,3 +1323,50 @@ int kicadPcbDataBase::getLayerId(const std::string &layerName)
     }
     return -1;
 }
+
+/*
+void kicadPcbDataBase::printKiCad()
+{
+    std::string instName;
+    for(auto &&sub_node : tree.m_branches)
+    {
+        
+        if(sub_node.m_value == "module") {
+            for(auto &&module_node : sub_node) {
+                if (module_node.m_value == "fp_text" && module_node.m_branches[0].m_value == "reference")
+                {
+                    instName = module_node.m_branches[1].m_value;
+                }
+            }
+            
+            instance *inst;
+            getInstance(instName, inst);
+
+            if(sub_node.m_branches[1].m_value == "locked") {
+                sub_node.m_branches[2].m_branches[0].m_value = inst->//layer
+                
+                the_instance.m_id = (int)instances.size();
+                get_2d(ss, begin(sub_node.m_branches[5].m_branches), the_instance.m_x, the_instance.m_y);
+                if (int(sub_node.m_branches[5].m_branches.size()) == 3)
+                    get_value(ss, begin(sub_node.m_branches[5].m_branches) + 2, the_instance.m_angle);
+                else
+                    the_instance.m_angle = 0;
+            }
+            else {
+                // Get Instance X, Y, Rot
+                layer = sub_node.m_branches[1].m_branches[0].m_value;
+                the_instance.m_id = (int)instances.size();
+                get_2d(ss, begin(sub_node.m_branches[4].m_branches), the_instance.m_x, the_instance.m_y);
+                if (int(sub_node.m_branches[4].m_branches.size()) == 3)
+                    get_value(ss, begin(sub_node.m_branches[4].m_branches) + 2, the_instance.m_angle);
+                else
+                    the_instance.m_angle = 0;
+            }
+
+
+        }
+
+    } 
+}
+*/
+
