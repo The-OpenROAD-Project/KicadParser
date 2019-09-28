@@ -57,6 +57,8 @@ public:
     point_2d getSize() const { return m_size; }
     point_2d getPos() const { return m_pos; }
     double getAngle() const { return m_angle; }
+    points_2d getShapeCoords() const { return m_shape_coords;}
+    
 
     const std::vector<std::string> &getLayers() const { return m_layers; }
 

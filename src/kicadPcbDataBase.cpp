@@ -118,16 +118,30 @@ bool kicadPcbDataBase::buildKicadPcb()
             else
                 component_name = name[0];
 
-            // Get Instance X, Y, Rot
-            auto layer = sub_node.m_branches[1].m_branches[0].m_value;
+            // Check if inst locked
+            //TODO: refactor
             instance the_instance{};
-            the_instance.m_id = (int)instances.size();
-            get_2d(ss, begin(sub_node.m_branches[4].m_branches), the_instance.m_x, the_instance.m_y);
-            if (int(sub_node.m_branches[4].m_branches.size()) == 3)
-                get_value(ss, begin(sub_node.m_branches[4].m_branches) + 2, the_instance.m_angle);
-            else
-                the_instance.m_angle = 0;
-
+            std::string layer = "";
+            if(sub_node.m_branches[1].m_value == "locked") {
+                layer = sub_node.m_branches[2].m_branches[0].m_value;
+                
+                the_instance.m_id = (int)instances.size();
+                get_2d(ss, begin(sub_node.m_branches[5].m_branches), the_instance.m_x, the_instance.m_y);
+                if (int(sub_node.m_branches[5].m_branches.size()) == 3)
+                    get_value(ss, begin(sub_node.m_branches[5].m_branches) + 2, the_instance.m_angle);
+                else
+                    the_instance.m_angle = 0;
+            }
+            else {
+                // Get Instance X, Y, Rot
+                layer = sub_node.m_branches[1].m_branches[0].m_value;
+                the_instance.m_id = (int)instances.size();
+                get_2d(ss, begin(sub_node.m_branches[4].m_branches), the_instance.m_x, the_instance.m_y);
+                if (int(sub_node.m_branches[4].m_branches.size()) == 3)
+                    get_value(ss, begin(sub_node.m_branches[4].m_branches) + 2, the_instance.m_angle);
+                else
+                    the_instance.m_angle = 0;
+            }
             // See if the component is created
             auto comp_it = component_name_to_id.find(component_name);
             int comp_id = -1;
@@ -522,25 +536,30 @@ bool kicadPcbDataBase::buildKicadPcb()
         }
     }
 
-    std::cout << "MINX: " << minx << " MAXX: " << maxx << std::endl;
-    std::cout << "MINY: " << miny << " MAXY: " << maxy << std::endl;
+    //std::cout << "MINX: " << minx << " MAXX: " << maxx << std::endl;
+    //std::cout << "MINY: " << miny << " MAXY: " << maxy << std::endl;
     m_boundary.push_back(point_2d{minx,miny});
     m_boundary.push_back(point_2d{maxx,maxy});
-    /*
+
+    
     auto track_id = 0;
     //auto the_tracks = tracks{};
-    for (net_it = name_to_net_map.begin(); net_it != name_to_net_map.end(); ++net_it)
+    //for (net_it = name_to_net_map.begin(); net_it != name_to_net_map.end(); ++net_it)
+    for (auto &&net : nets)
     {
-
-        auto net = net_it->second;
+        if(net.getId() == -1) continue;
+       // auto net = net_it->second;
         //std::cout << "Net: " << net.getId() << std::endl;
         auto the_pads = pads{};
-        for (size_t i = 0; i < net.pins.size(); ++i)
+        std::vector<pin> pins = net.getPins();
+        auto netClassId = net.getNetclassId();
+        auto netClass = getNetclass(netClassId);
+        for (size_t i = 0; i < pins.size(); ++i)
         {
-            auto pin = net.pins[i];
-            auto &&comp = name_to_component_map[pin.m_comp_name];
-            auto &&p = comp.m_pin_map[pin.m_name];
-            auto &&instance = name_to_instance_map[pin.m_instance_name];
+            auto pin = pins[i];
+            auto &&comp = getComponent(pin.m_comp_id);
+            auto &&p = comp.getPadstack(pin.m_padstack_id);
+            auto &&instance = getInstance(pin.m_inst_id);
             auto m_x = p.m_pos.m_x;
             auto m_y = p.m_pos.m_y;
 
@@ -550,11 +569,11 @@ bool kicadPcbDataBase::buildKicadPcb()
             auto py = double((s * m_x + c * m_y) + instance.m_y);
 
             auto layerId = 0.0;
-            for (auto &&layer : p.m_layers)
+            for (auto &&layer : p.getLayers())
             {
-                layerId = (double)layer_to_index_map[layer];
+                layerId = (double)getLayerId(layer);
                 auto tp = point_3d{px, py, layerId}; // x, y, layer
-                auto cords = shape_to_cords(p.m_shape, p.m_angle, instance.m_angle);
+                auto cords = rotateShapeCoordsByAngles(p.getShapeCoords(), p.getAngle(), instance.getAngle());
                 // auto cords = shape_to_cords(p.m_size, p.m_pos, p.m_form, p.m_angle, instance.m_angle, p.m_roundrect_ratio);
                 auto term = pad{p.m_rule.m_radius, p.m_rule.m_clearance, tp, cords, p.m_size};
                 the_pads.push_back(term);
@@ -565,25 +584,27 @@ bool kicadPcbDataBase::buildKicadPcb()
                 all_pads.erase(std::find(begin(all_pads), end(all_pads), term));
             }
         }
-        the_tracks.push_back(track{std::to_string(track_id++), net.getTraceWidth() / 2, net.getViaDia() / 2, net.getClearance() / 2,
-                                   the_pads, net_to_segments_map[net.getId()]});
+        auto seg = paths{};
+        the_tracks.push_back(track{std::to_string(track_id++), netClass.getTraceWidth() / 2, netClass.getViaDia() / 2, netClass.getClearance() / 2,
+                                   the_pads, seg});
     }
-    */
+    
 
-    /*for (auto &&pad : all_pads）
+    for (auto &&pad : all_pads) {
       auto p = path{};
       auto point = point_3d{};
       for (auto &&cord : pad.m_shape) {
-      point.m_x = pad.m_pos.m_x+cord.m_x;
-      point.m_y = pad.m_pos.m_y+cord.m_y;
-      point.m_z = pad.m_pos.m_z;
-      p.push_back(point);
+        
+        point.m_x = pad.m_pos.m_x+cord.m_x;
+        point.m_y = pad.m_pos.m_y+cord.m_y;
+        point.m_z = pad.m_pos.m_z;
+        p.push_back(point);
       }
-      auto layer_name = index_to_layer_map[point.m_z];
-      layer_to_keepout_map[layer_name].push_back(p);
-      }*/
+      //auto layer_name = index_to_layer_map[point.m_z];
+      //layer_to_keepout_map[layer_name].push_back(p);
+    }
 
-    //the_tracks.push_back(track{std::to_string(track_id++), 0.0, 0.0, 0.0, all_pads, all_keepouts});
+    the_tracks.push_back(track{std::to_string(track_id++), 0.0, 0.0, 0.0, all_pads, all_keepouts});
 
     /*Test
   for (auto &&pad : all_pads) {
