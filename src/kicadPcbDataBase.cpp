@@ -322,7 +322,8 @@ bool kicadPcbDataBase::buildKicadPcb()
                 if (pad_node.m_value == "pad")
                 {
                     auto pin_name = pad_node.m_branches[0].m_value;
-                    if(pin_name == "\"\"") {
+                    if (pin_name == "\"\"")
+                    {
                         pin_name = "Unnamed" + std::to_string(noNameId);
                         ++noNameId;
                     }
@@ -356,15 +357,17 @@ bool kicadPcbDataBase::buildKicadPcb()
 
                     auto the_pin = pin{padstack_id, comp_id, the_instance.m_id};
 
-                    
-                    if(connected == true) {
+                    if (connected == true)
+                    {
                         the_instance.m_pin_net_map[pin_name] = net_index;
                         auto &the_net = getNet(net_name);
                         the_net.addPin(the_pin);
-                    } else {
+                    }
+                    else
+                    {
                         the_instance.m_pin_net_map[pin_name] = -1;
                         unconnectedPins.push_back(the_pin);
-                    }  
+                    }
                 }
             }
             the_instance.m_comp_id = comp_id;
@@ -1184,6 +1187,7 @@ void kicadPcbDataBase::getPinPosition(const padstack &pad, const instance &inst,
 
 bool kicadPcbDataBase::getPinPosition(const pin &p, point_2d *pos)
 {
+    //TODO: range checking
     auto &inst = getInstance(p.m_inst_id);
     auto &comp = getComponent(p.m_comp_id);
     auto &pad = comp.getPadstack(p.m_padstack_id);

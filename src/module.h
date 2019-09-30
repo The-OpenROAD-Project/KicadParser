@@ -109,12 +109,12 @@ public:
     //dtor
     ~instance() {}
 
-    std::string &getName() { return m_name; }
-    int getComponentId() { return m_comp_id; }
-    int getId() { return m_id;}
-    double getAngle() const { return m_angle;}
-    double getX() { return m_x;}
-    double getY() { return m_y;}
+    const std::string &getName() const { return m_name; }
+    int getComponentId() const { return m_comp_id; }
+    int getId() const { return m_id; }
+    double getAngle() const { return m_angle; }
+    double getX() const { return m_x; }
+    double getY() const { return m_y; }
 
     friend class kicadPcbDataBase;
 

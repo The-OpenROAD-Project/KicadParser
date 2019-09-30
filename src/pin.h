@@ -16,7 +16,6 @@ enum class padType
     NP_THRU_HOLE // Similar to THRU_HOLE
 };
 
-//TOOD: Change to int id based recording
 struct pin
 {
     int m_padstack_id;
