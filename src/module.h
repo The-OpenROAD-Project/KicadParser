@@ -98,7 +98,6 @@ private:
     std::vector<circle> m_circles;
     std::vector<poly> m_polys;
     std::vector<arc> m_arcs;
-    int m_layer;
 };
 
 class instance
@@ -115,6 +114,7 @@ public:
     double getAngle() const { return m_angle; }
     double getX() const { return m_x; }
     double getY() const { return m_y; }
+    int getLayer() const { return m_layer; }
 
     friend class kicadPcbDataBase;
 
@@ -128,6 +128,7 @@ private:
     double m_angle;
     double m_width;
     double m_height;
+    int m_layer = -1;                         //Layer ID
     std::map<std::string, int> m_pin_net_map; //<pin name, netId>
 };
 
