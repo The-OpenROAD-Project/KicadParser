@@ -33,7 +33,8 @@ public:
     int getPadstackId() const { return m_padstack_id; }
     int getCompId() const { return m_comp_id; }
     int getInstId() const { return m_inst_id; }
-    const std::vector<int> &getLayers() const { return m_layers; }
+    // Should use Instance's layer and Padstack's padtype to decide
+    [[deprecated]] const std::vector<int> &getLayers() const { return m_layers; }
 
     friend class kicadPcbDataBase;
 
@@ -41,7 +42,7 @@ private:
     int m_padstack_id = -1;
     int m_comp_id = -1;
     int m_inst_id = -1;
-    std::vector<int> m_layers; // THRU_HOLE: All CopperLayers, SMD: TOP or BOTTOM
+    [[deprecated]] std::vector<int> m_layers; // THRU_HOLE: All CopperLayers, SMD: TOP or BOTTOM
 };
 
 struct pad
@@ -89,7 +90,7 @@ private:
         [[deprecated]] double getHalfHeight() const { return m_size.m_y / 2.0; }
 
 private:
-    int m_id;
+    int m_id; // Local Id to a Component
     std::string m_name;
     padShape m_shape;
     padType m_type;
