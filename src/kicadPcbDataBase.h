@@ -52,7 +52,7 @@ public:
     bool getPinPosition(const std::string &inst_name, const std::string &pin_name, point_2d *pos);
     bool getPinPosition(const int inst_id, const int &pin_id, point_2d *pos);
     void getPinPosition(const padstack &, const instance &, point_2d *pos);
-    bool getPinPosition(const pin &p, point_2d *pos);
+    bool getPinPosition(const Pin &p, point_2d *pos);
     bool getInstBBox(const int inst_id, point_2d *bBox);
     // TODO:: Move this to instance or overloaded this to Instance
     void getPadstackRotatedWidthAndHeight(const instance &inst, const padstack &pad, double &width, double &height);
@@ -70,7 +70,7 @@ public:
     std::vector<instance> &getInstances() { return instances; }
     std::vector<component> &getComponents() { return components; }
     std::vector<net> &getNets() { return nets; }
-    std::vector<pin> &getUnconnectedPins() { return unconnectedPins;}
+    std::vector<Pin> &getUnconnectedPins() { return unconnectedPins; }
 
     bool isInstanceId(const int id) { return id < instances.size() ? true : false; }
     bool isComponentId(const int id) { return id < components.size() ? true : false; }
@@ -80,14 +80,14 @@ public:
     // TODO: All layers are copper in the "layer_to_index_map" and "index_to_layer_map"
     int getNumCopperLayers() { return index_to_layer_map.size(); }
     int getLayerId(const std::string &layerName);
+    std::string getLayerName(const int layerId);
     std::map<int, std::string> &getCopperLayers() { return index_to_layer_map; }
     bool isCopperLayer(const int);
     bool isCopperLayer(const std::string &);
 
-
     // TODO: Get design boundary based on rotated pin shape
     void getBoardBoundaryByPinLocation(double &minX, double &maxX, double &minY, double &maxY);
-    points_2d &getBoardBoundary() {return m_boundary;}
+    points_2d &getBoardBoundary() { return m_boundary; }
 
 private:
     net &getNet(const std::string &);
@@ -109,13 +109,13 @@ private:
     std::vector<component> components;
     std::vector<net> nets;
     std::vector<netclass> netclasses;
-    
+
     points_2d m_boundary; //(minx,miny) (maxx,maxy)
 
     // Keepouts
     std::map<std::string, paths> layer_to_keepout_map; // keepout zones <layer name, polygon>
     paths all_keepouts;                                // All keepout zones in polygon
-    std::vector <pin> unconnectedPins;
+    std::vector<Pin> unconnectedPins;
 
     // TODO: Move to Net Instance and Consider the usage of DRC checking
     std::map<int, paths> net_to_segments_map;

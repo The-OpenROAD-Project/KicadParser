@@ -77,8 +77,8 @@ public:
     int getId() { return m_id; }
     std::string &getName() { return m_name; }
     int getNetclassId() { return m_netclass_id; }
-    void addPin(const pin &_pin) { m_pins.push_back(_pin); }
-    std::vector<pin> &getPins() { return m_pins; }
+    void addPin(const Pin &_pin) { m_pins.push_back(_pin); }
+    std::vector<Pin> &getPins() { return m_pins; }
     std::vector<Segment> &getSegments() { return m_segments; }
     std::vector<Via> &getVias() { return m_vias; }
     int getSegmentCount() { return (int)m_segments.size(); }
@@ -111,7 +111,7 @@ private:
     std::vector<Segment> m_segments;
     std::vector<Via> m_vias;
     std::pair<int, int> m_diff_pair;
-    std::vector<pin> m_pins;
+    std::vector<Pin> m_pins;
 };
 
 #endif

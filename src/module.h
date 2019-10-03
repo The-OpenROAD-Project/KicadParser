@@ -98,7 +98,6 @@ private:
     std::vector<circle> m_circles;
     std::vector<poly> m_polys;
     std::vector<arc> m_arcs;
-    int m_layer;
 };
 
 class instance
@@ -109,12 +108,13 @@ public:
     //dtor
     ~instance() {}
 
-    std::string &getName() { return m_name; }
-    int getComponentId() { return m_comp_id; }
-    int getId() { return m_id;}
-    double getAngle() const { return m_angle;}
-    double getX() { return m_x;}
-    double getY() { return m_y;}
+    const std::string &getName() const { return m_name; }
+    int getComponentId() const { return m_comp_id; }
+    int getId() const { return m_id; }
+    double getAngle() const { return m_angle; }
+    double getX() const { return m_x; }
+    double getY() const { return m_y; }
+    int getLayer() const { return m_layer; }
 
     friend class kicadPcbDataBase;
 
@@ -128,6 +128,7 @@ private:
     double m_angle;
     double m_width;
     double m_height;
+    int m_layer = -1;                         //Layer ID
     std::map<std::string, int> m_pin_net_map; //<pin name, netId>
 };
 
