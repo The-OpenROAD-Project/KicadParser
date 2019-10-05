@@ -40,8 +40,8 @@ class Point_2D {
     Point_2D operator+(const Point_2D &p) const {
         return Point_2D(m_x + p.m_x, m_y + p.m_y);
     }
-    static T getDistance(const Point_2D &a, const Point_2D &b) {
-        return sqrt(pow(a.m_x - b.m_x, 2.0) + pow(a.m_y - b.m_x, 2.0));
+    static double getDistance(const Point_2D &a, const Point_2D &b) {
+        return sqrt(pow(a.m_x - b.m_x, 2.0) + pow(a.m_y - b.m_y, 2.0));
     }
     T x() const { return m_x; }
     T y() const { return m_y; }
@@ -91,7 +91,7 @@ class Point_3D {
         return *this;
     }
     static double getDistance2D(const Point_3D &a, const Point_3D &b) {
-        return sqrt(pow(a.m_x - b.m_x, 2.0) + pow(a.m_y - b.m_x, 2.0));
+        return sqrt(pow(a.m_x - b.m_x, 2.0) + pow(a.m_y - b.m_y, 2.0));
     }
     T x() const { return m_x; }
     T y() const { return m_y; }
