@@ -110,6 +110,6 @@ inline ostream &operator<<(ostream &out, const Point_3D<T> &p) {
 
 using point_3d = Point_3D<double>;
 using points_3d = std::vector<Point_3D<double>>;
-//using Location = Point_3D<int>;
+using Location = Point_3D<int>;
 
 #endif
