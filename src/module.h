@@ -111,6 +111,9 @@ public:
     const std::string &getName() const { return m_name; }
     int getComponentId() const { return m_comp_id; }
     int getId() const { return m_id; }
+    void setAngle(double &angle) { m_angle = angle; }
+    void setX(double &x) {m_x = x;}
+    void setY(double &y) {m_y = y;}
     double getAngle() const { return m_angle; }
     double getX() const { return m_x; }
     double getY() const { return m_y; }
