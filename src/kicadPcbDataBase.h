@@ -45,6 +45,7 @@ public:
     void printFile();
     void printSegment();
     void printUnconnectedPins();
+    void printKiCad();
 
     bool buildKicadPcb();
 
@@ -54,6 +55,7 @@ public:
     void getPinPosition(const padstack &, const instance &, point_2d *pos);
     bool getPinPosition(const Pin &p, point_2d *pos);
     bool getInstBBox(const int inst_id, point_2d *bBox);
+    std::vector<int> getPinLayer(const int &instId, const int &padStackId);
     // TODO:: Move this to instance or overloaded this to Instance
     void getPadstackRotatedWidthAndHeight(const instance &inst, const padstack &pad, double &width, double &height);
 
@@ -129,7 +131,7 @@ private:
     std::map<std::string, std::pair<int, int>> name_to_diff_pair_net_map; // <net name, <netId1, netId2>>
 
     // Misc.
-    tree tree;
+    Tree tree;
 };
 
 #endif

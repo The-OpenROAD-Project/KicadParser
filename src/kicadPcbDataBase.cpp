@@ -488,7 +488,7 @@ bool kicadPcbDataBase::buildKicadPcb()
                 {
                     get_value(ss, begin(via_node.m_branches), netId);
                 }
-                else if (via_node.m_value == "layer")
+                else if (via_node.m_value == "layers")
                 {
                     layers[0] = via_node.m_branches[0].m_value;
                     layers[1] = via_node.m_branches[1].m_value;
@@ -1386,15 +1386,35 @@ std::string kicadPcbDataBase::getLayerName(const int layerId)
     return "NO_THIS_LAYER";
 }
 
-/*
+std::vector<int> kicadPcbDataBase::getPinLayer(const int &instId, const int &padStackId)
+{
+    auto &&inst = instances[instId];
+    int compId = inst.getComponentId();
+    auto &&comp = components[compId];
+    auto &&pad = comp.getPadstack(padStackId);
+    std::vector<int> layers;
+    if(pad.getType() == padType::SMD) {
+        layers.push_back(inst.getLayer());
+        return layers;
+    }
+    else {
+        for(auto &&layer : layer_to_index_map)
+        {
+            layers.push_back(layer.second);
+        }
+        return layers;
+    }
+}
+
+
 void kicadPcbDataBase::printKiCad()
 {
     std::string instName;
-    for(auto &&sub_node : tree.m_branches)
-    {
-        
+    for(size_t i = 0; i < tree.m_branches.size(); ++i)
+    { 
+        auto &sub_node = tree.m_branches[i];
         if(sub_node.m_value == "module") {
-            for(auto &&module_node : sub_node) {
+            for(auto &&module_node : sub_node.m_branches) {
                 if (module_node.m_value == "fp_text" && module_node.m_branches[0].m_value == "reference")
                 {
                     instName = module_node.m_branches[1].m_value;
@@ -1405,29 +1425,111 @@ void kicadPcbDataBase::printKiCad()
             getInstance(instName, inst);
 
             if(sub_node.m_branches[1].m_value == "locked") {
-                sub_node.m_branches[2].m_branches[0].m_value = inst->//layer
-                
-                the_instance.m_id = (int)instances.size();
-                get_2d(ss, begin(sub_node.m_branches[5].m_branches), the_instance.m_x, the_instance.m_y);
-                if (int(sub_node.m_branches[5].m_branches.size()) == 3)
-                    get_value(ss, begin(sub_node.m_branches[5].m_branches) + 2, the_instance.m_angle);
-                else
-                    the_instance.m_angle = 0;
+                int l = inst->getLayer();
+                std::string layer = getLayerName(l);
+                sub_node.m_branches[2].m_branches[0].m_value = layer;
+                sub_node.m_branches[5].m_branches[0].m_value = std::to_string(inst->getX());
+                sub_node.m_branches[5].m_branches[1].m_value = std::to_string(inst->getY());
+                if (int(sub_node.m_branches[5].m_branches.size()) == 3) {
+                    if (inst->getAngle() == 0) sub_node.m_branches[5].m_branches[2].m_value = "";
+                    else sub_node.m_branches[5].m_branches[2].m_value = std::to_string(inst->getAngle());
+                }
+                else {
+                    if (inst->getAngle() != 0) {
+                        auto t = Tree{std::to_string(inst->getAngle()),{}}; 
+                        sub_node.m_branches[5].m_branches.push_back(t);
+                    }
+                }           
             }
             else {
-                // Get Instance X, Y, Rot
-                layer = sub_node.m_branches[1].m_branches[0].m_value;
-                the_instance.m_id = (int)instances.size();
-                get_2d(ss, begin(sub_node.m_branches[4].m_branches), the_instance.m_x, the_instance.m_y);
-                if (int(sub_node.m_branches[4].m_branches.size()) == 3)
-                    get_value(ss, begin(sub_node.m_branches[4].m_branches) + 2, the_instance.m_angle);
-                else
-                    the_instance.m_angle = 0;
+                int l = inst->getLayer();
+                std::string layer = getLayerName(l);
+                sub_node.m_branches[1].m_branches[0].m_value = layer;
+                sub_node.m_branches[4].m_branches[0].m_value = std::to_string(inst->getX());
+                sub_node.m_branches[4].m_branches[1].m_value = std::to_string(inst->getY());
+                if (int(sub_node.m_branches[4].m_branches.size()) == 3) {
+                    if (inst->getAngle() == 0) sub_node.m_branches[4].m_branches[2].m_value = "";
+                    else sub_node.m_branches[4].m_branches[2].m_value = std::to_string(inst->getAngle());
+                }
+                else {     
+                    if (inst->getAngle() != 0) {
+                        auto t = Tree{std::to_string(inst->getAngle()),{}}; 
+                        sub_node.m_branches[4].m_branches.push_back(t);
+                    }
+                }
             }
-
-
         }
 
+        if(sub_node.m_value == "segment" || sub_node.m_value == "via") {
+
+            tree.m_branches.erase(tree.m_branches.begin()+i);
+            --i;
+        }
     } 
+
+    for (auto &net : nets) {
+        for (auto &segment : net.m_segments)
+        {
+            points_2d p = segment.getPos();
+            auto seg = Tree{"segment",{}};
+            auto start = Tree{"start", {}};
+            start.m_branches.push_back(Tree{std::to_string(p[0].m_x), {}});
+            start.m_branches.push_back(Tree{std::to_string(p[0].m_y), {}});
+            auto end = Tree{"end", {}};
+            end.m_branches.push_back(Tree{std::to_string(p[1].m_x), {}});
+            end.m_branches.push_back(Tree{std::to_string(p[1].m_y), {}});
+            auto width = Tree{"width", {}};
+            width.m_branches.push_back(Tree{std::to_string(segment.getWidth()), {}});
+            auto layer = Tree{"layer", {}};
+            layer.m_branches.push_back(Tree{segment.getLayer(), {}});
+            auto n = Tree{"net", {}};
+            n.m_branches.push_back(Tree{std::to_string(net.getId()), {}});
+            //auto tstamp = Tree {"tstamp", {}};
+            //tstamp.m_branches.push_back(Tree{"1C6BE40", {}});
+
+            seg.m_branches.push_back(start);
+            seg.m_branches.push_back(end);
+            seg.m_branches.push_back(width);
+            seg.m_branches.push_back(layer);
+            seg.m_branches.push_back(n);
+            //seg.m_branches.push_back(tstamp);
+            tree.m_branches.push_back(seg);
+        }
+
+        for (auto &via : net.m_vias)
+        {
+            point_2d p = via.getPos();
+
+            auto v = Tree{"via",{}};
+            auto at = Tree{"at", {}};
+            at.m_branches.push_back(Tree{std::to_string(p.m_x), {}});
+            at.m_branches.push_back(Tree{std::to_string(p.m_y), {}});
+            
+            auto size = Tree{"size", {}};
+            size.m_branches.push_back(Tree{std::to_string(via.getSize()), {}});
+            //auto drill = Tree{"drill", {}};
+            //drill.m_branches.push_back(Tree{"0.3937", {}}); 
+            auto layer = Tree{"layers", {}};
+            std::vector<std::string> layers = via.getLayers();
+            layer.m_branches.push_back(Tree{layers[0], {}});
+            layer.m_branches.push_back(Tree{layers[1], {}});
+            auto n = Tree{"net", {}};
+            n.m_branches.push_back(Tree{std::to_string(net.getId()), {}});
+    
+            v.m_branches.push_back(at);
+            v.m_branches.push_back(size);
+            //v.m_branches.push_back(drill);
+            v.m_branches.push_back(layer);
+            v.m_branches.push_back(n);
+            tree.m_branches.push_back(v);
+        }
+    }
+
+    std::string file = utilParser::getFileName(m_fileName);
+    std::string fileName = "output." + file;
+    kicadParser writer(fileName);
+
+    std::cout << fileName << std::endl;
+    writer.writeKicadPcb(tree);
+   
 }
-*/

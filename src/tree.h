@@ -4,10 +4,10 @@
 #include <vector>
 #include <string>
 
-struct tree
+struct Tree
 {
     std::string m_value;
-    std::vector<tree> m_branches;
+    std::vector<Tree> m_branches;
 };
 
 #endif

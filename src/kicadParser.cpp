@@ -14,7 +14,7 @@ kicadParser::~kicadParser()
 {
 }
 
-bool kicadParser::parseKicadPcb(tree *tree)
+bool kicadParser::parseKicadPcb(Tree *tree)
 {
     std::ifstream file;
     file.open(fileName_, std::ifstream::in);
@@ -68,7 +68,7 @@ std::string kicadParser::readNodeName(std::istream &in)
     return s;
 }
 
-tree kicadParser::readString(std::istream &in)
+Tree kicadParser::readString(std::istream &in)
 {
     std::string s;
     for (;;)
@@ -80,10 +80,10 @@ tree kicadParser::readString(std::istream &in)
         in.get(c);
         s.push_back(c);
     }
-    return tree{s, {}};
+    return Tree{s, {}};
 }
 
-tree kicadParser::readQuotedString(std::istream &in)
+Tree kicadParser::readQuotedString(std::istream &in)
 {
     std::string s;
     s.push_back('"');
@@ -99,14 +99,14 @@ tree kicadParser::readQuotedString(std::istream &in)
         a = b;
     }
     s.push_back('"');
-    return tree{s, {}};
+    return Tree{s, {}};
 }
 
-tree kicadParser::readTree(std::istream &in)
+Tree kicadParser::readTree(std::istream &in)
 {
     readUntil(in, '(');
     readWhitespace(in);
-    auto t = tree{readNodeName(in), {}};
+    auto t = Tree{readNodeName(in), {}};
     for (;;)
     {
         readWhitespace(in);
@@ -139,7 +139,7 @@ tree kicadParser::readTree(std::istream &in)
     return t;
 }
 
-void kicadParser::printTree(const tree &t, int indent)
+void kicadParser::printTree(const Tree &t, int indent)
 {
     if (!t.m_value.empty())
     {
@@ -153,26 +153,72 @@ void kicadParser::printTree(const tree &t, int indent)
     }
 }
 
-void kicadParser::printKicadPcb(const tree &t, int indent)
+void kicadParser::printKicadPcb(const Tree &t, int indent)
 {
-
     if (!t.m_value.empty())
     {
         for (auto i = 1; i < indent; ++i)
             std::cout << " ";
         if (!t.m_branches.empty())
-            std::cout << "(";
-        std::cout << t.m_value;
-        //	if (t.m_branches.empty() && isYoungest) std::cout << ")";
+            std::cout << " ( ";
+        std::cout << t.m_value << " ";
+        
     }
-    //if (t.m_branches.empty()) std::cout << ")\n";
-    //else
+
     if (!t.m_branches.empty())
     {
         for (auto &ct : t.m_branches)
         {
-            printTree(ct, indent + 1);
+            printKicadPcb(ct, indent);
         }
         std::cout << ")" << std::endl;
+    }
+}
+
+void kicadParser::writeKicadPcb(const Tree &t)
+{
+    std::ofstream file;
+    file.open(fileName_);
+    if (!t.m_value.empty())
+    {
+        for (auto i = 1; i < 0; ++i)
+            file << " ";
+        if (!t.m_branches.empty())
+            file << " ( ";
+        file << t.m_value << " ";   
+    }
+
+    if (!t.m_branches.empty())
+    {
+        for (auto &ct : t.m_branches)
+        {
+            writeKicadPcb(ct, 0, file);
+        }
+        file << ")" << std::endl;
+    }
+
+    file.close();
+
+}
+void kicadParser::writeKicadPcb(const Tree &t, int indent, std::ofstream &file)
+{
+    
+    if (!t.m_value.empty())
+    {
+        for (auto i = 1; i < indent; ++i)
+            file << " ";
+        if (!t.m_branches.empty())
+            file << " ( ";
+        file << t.m_value << " ";
+        
+    }
+
+    if (!t.m_branches.empty())
+    {
+        for (auto &ct : t.m_branches)
+        {
+            writeKicadPcb(ct, indent, file);
+        }
+        file << ")" << std::endl;
     }
 }
