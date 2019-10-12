@@ -114,6 +114,7 @@ public:
     void setAngle(double &angle) { m_angle = angle; }
     void setX(double &x) {m_x = x;}
     void setY(double &y) {m_y = y;}
+    void setLayer(int &layer) {m_layer = layer;}
     double getAngle() const { return m_angle; }
     double getX() const { return m_x; }
     double getY() const { return m_y; }
