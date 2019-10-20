@@ -395,11 +395,6 @@ points_2d viaToOctagon(const double &size, const point_2d &pos, const double &cl
     point.m_y = pos.m_y + _size.m_y + clearance;
     coords.push_back(point);
 
-    //[0]
-    point.m_x = pos.m_x + _size.m_x + (clearance * tan(22.5 * M_PI / 180));
-    point.m_y = pos.m_y + _size.m_y + clearance;
-    coords.push_back(point);    
-
     return coords;
 }
 
@@ -456,11 +451,6 @@ points_2d pinShapeToOctagon(const point_2d &size, const point_2d &pos, const dou
     point.m_y =  size.m_y/2 + clearance;
     coords.push_back(point);
 
-    //[0]
-    point.m_x =  size.m_x/2 + (clearance * tan(22.5 * M_PI / 180));
-    point.m_y =  size.m_y/2 + clearance;
-    coords.push_back(point);    
-
     return rotateShapeCoordsByAngles(coords, instAngle, pinAngle);
 }
 
@@ -509,9 +499,6 @@ points_2d segmentToOctagon(const points_2d &point, const double &w, const double
             p.m_y = point[0].m_y + width + clearance; 
             cords.push_back(p);
 
-            p.m_x = point[0].m_x + width + (clearance * tan(22.5 * M_PI / 180));
-            p.m_y = point[0].m_y + width + clearance;
-            cords.push_back(p);
         }
         else
         {
@@ -545,10 +532,6 @@ points_2d segmentToOctagon(const points_2d &point, const double &w, const double
 
             p.m_x = point[1].m_x - width - (clearance * tan(22.5 * M_PI / 180)); 
             p.m_y = point[1].m_y + width + clearance; 
-            cords.push_back(p);
-
-            p.m_x = point[1].m_x + width + (clearance * tan(22.5 * M_PI / 180));
-            p.m_y = point[1].m_y + width + clearance;
             cords.push_back(p);
         }
     }
@@ -590,10 +573,6 @@ points_2d segmentToOctagon(const points_2d &point, const double &w, const double
             p.m_x = point[1].m_x - width - (clearance * tan(22.5 * M_PI / 180));
             p.m_y = point[1].m_y + width + clearance;
             cords.push_back(p);
-
-            p.m_x = point[0].m_x + width + (clearance * tan(22.5 * M_PI / 180));
-            p.m_y = point[0].m_y + width + clearance;
-            cords.push_back(p);
         }
         else
         {
@@ -627,11 +606,6 @@ points_2d segmentToOctagon(const points_2d &point, const double &w, const double
 
             p.m_x = point[0].m_x - width - (clearance * tan(22.5 * M_PI / 180));
             p.m_y = point[0].m_y + width + clearance;
-            cords.push_back(p);
-
-            p.m_x = point[1].m_x + width + (clearance * tan(22.5 * M_PI / 180));
-            p.m_y = point[1
-            ].m_y + width + clearance;
             cords.push_back(p);
         }
     }
@@ -672,10 +646,6 @@ points_2d segmentToOctagon(const points_2d &point, const double &w, const double
         p.m_x = point[0].m_x + (clearance * tan(22.5 * M_PI / 180));
         p.m_y = point[0].m_y + sqrt(2)*width + clearance;
         cords.push_back(p);
-
-        p.m_x = point[0].m_x + sqrt(2)*width + clearance;
-        p.m_y = point[0].m_y + (clearance * tan(22.5 * M_PI / 180));
-        cords.push_back(p);
     }
     
     else if ((point[0].m_x<point[1].m_x)&&(point[0].m_y<point[1].m_y))     
@@ -711,10 +681,6 @@ points_2d segmentToOctagon(const points_2d &point, const double &w, const double
 
         p.m_x = point[1].m_x + (clearance * tan(22.5 * M_PI / 180));
         p.m_y = point[1].m_y + sqrt(2)*width + clearance;
-        cords.push_back(p);
-
-        p.m_x = point[1].m_x + sqrt(2)*width + clearance;
-        p.m_y = point[1].m_y + (clearance * tan(22.5 * M_PI / 180));
         cords.push_back(p);
         
     }
@@ -754,10 +720,6 @@ points_2d segmentToOctagon(const points_2d &point, const double &w, const double
         p.m_y = point[1].m_y + (clearance * tan(22.5 * M_PI / 180));
         cords.push_back(p);
 
-        p.m_x = point[1].m_x - (clearance * tan(22.5 * M_PI / 180));
-        p.m_y = point[1].m_y + sqrt(2)*width + clearance;
-        cords.push_back(p);
-
     }
     
     else if ((point[1].m_x>point[0].m_x)&&(point[1].m_y<point[0].m_y))
@@ -792,10 +754,6 @@ points_2d segmentToOctagon(const points_2d &point, const double &w, const double
 
         p.m_x = point[0].m_x - sqrt(2)*width - clearance;
         p.m_y = point[0].m_y + (clearance * tan(22.5 * M_PI / 180));
-        cords.push_back(p);
-
-        p.m_x = point[0].m_x - (clearance * tan(22.5 * M_PI / 180));
-        p.m_y = point[0].m_y + sqrt(2)*width + clearance;
         cords.push_back(p);
     }
     return cords;
