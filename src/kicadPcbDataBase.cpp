@@ -1393,12 +1393,14 @@ std::vector<int> kicadPcbDataBase::getPinLayer(const int &instId, const int &pad
     auto &&comp = components[compId];
     auto &&pad = comp.getPadstack(padStackId);
     std::vector<int> layers;
-    if(pad.getType() == padType::SMD) {
+    if (pad.getType() == padType::SMD)
+    {
         layers.push_back(inst.getLayer());
         return layers;
     }
-    else {
-        for(auto &&layer : layer_to_index_map)
+    else
+    {
+        for (auto &&layer : layer_to_index_map)
         {
             layers.push_back(layer.second);
         }
@@ -1406,72 +1408,87 @@ std::vector<int> kicadPcbDataBase::getPinLayer(const int &instId, const int &pad
     }
 }
 
-
 void kicadPcbDataBase::printKiCad()
 {
     std::string instName;
-    for(size_t i = 0; i < tree.m_branches.size(); ++i)
-    { 
+    for (size_t i = 0; i < tree.m_branches.size(); ++i)
+    {
         auto &sub_node = tree.m_branches[i];
-        if(sub_node.m_value == "module") {
-            for(auto &&module_node : sub_node.m_branches) {
+        if (sub_node.m_value == "module")
+        {
+            for (auto &&module_node : sub_node.m_branches)
+            {
                 if (module_node.m_value == "fp_text" && module_node.m_branches[0].m_value == "reference")
                 {
                     instName = module_node.m_branches[1].m_value;
                 }
             }
-            
+
             instance *inst;
             getInstance(instName, inst);
 
-            if(sub_node.m_branches[1].m_value == "locked") {
+            if (sub_node.m_branches[1].m_value == "locked")
+            {
                 int l = inst->getLayer();
                 std::string layer = getLayerName(l);
                 sub_node.m_branches[2].m_branches[0].m_value = layer;
                 sub_node.m_branches[5].m_branches[0].m_value = std::to_string(inst->getX());
                 sub_node.m_branches[5].m_branches[1].m_value = std::to_string(inst->getY());
-                if (int(sub_node.m_branches[5].m_branches.size()) == 3) {
-                    if (inst->getAngle() == 0) sub_node.m_branches[5].m_branches[2].m_value = "";
-                    else sub_node.m_branches[5].m_branches[2].m_value = std::to_string(inst->getAngle());
+                if (int(sub_node.m_branches[5].m_branches.size()) == 3)
+                {
+                    if (inst->getAngle() == 0)
+                        sub_node.m_branches[5].m_branches[2].m_value = "";
+                    else
+                        sub_node.m_branches[5].m_branches[2].m_value = std::to_string(inst->getAngle());
                 }
-                else {
-                    if (inst->getAngle() != 0) {
-                        auto t = Tree{std::to_string(inst->getAngle()),{}}; 
+                else
+                {
+                    if (inst->getAngle() != 0)
+                    {
+                        auto t = Tree{std::to_string(inst->getAngle()), {}};
                         sub_node.m_branches[5].m_branches.push_back(t);
                     }
-                }           
+                }
             }
-            else {
+            else
+            {
                 int l = inst->getLayer();
                 std::string layer = getLayerName(l);
                 sub_node.m_branches[1].m_branches[0].m_value = layer;
                 sub_node.m_branches[4].m_branches[0].m_value = std::to_string(inst->getX());
                 sub_node.m_branches[4].m_branches[1].m_value = std::to_string(inst->getY());
-                if (int(sub_node.m_branches[4].m_branches.size()) == 3) {
-                    if (inst->getAngle() == 0) sub_node.m_branches[4].m_branches[2].m_value = "";
-                    else sub_node.m_branches[4].m_branches[2].m_value = std::to_string(inst->getAngle());
+                if (int(sub_node.m_branches[4].m_branches.size()) == 3)
+                {
+                    if (inst->getAngle() == 0)
+                        sub_node.m_branches[4].m_branches[2].m_value = "";
+                    else
+                        sub_node.m_branches[4].m_branches[2].m_value = std::to_string(inst->getAngle());
                 }
-                else {     
-                    if (inst->getAngle() != 0) {
-                        auto t = Tree{std::to_string(inst->getAngle()),{}}; 
+                else
+                {
+                    if (inst->getAngle() != 0)
+                    {
+                        auto t = Tree{std::to_string(inst->getAngle()), {}};
                         sub_node.m_branches[4].m_branches.push_back(t);
                     }
                 }
             }
         }
 
-        if(sub_node.m_value == "segment" || sub_node.m_value == "via") {
+        if (sub_node.m_value == "segment" || sub_node.m_value == "via")
+        {
 
-            tree.m_branches.erase(tree.m_branches.begin()+i);
+            tree.m_branches.erase(tree.m_branches.begin() + i);
             --i;
         }
-    } 
+    }
 
-    for (auto &net : nets) {
+    for (auto &net : nets)
+    {
         for (auto &segment : net.m_segments)
         {
             points_2d p = segment.getPos();
-            auto seg = Tree{"segment",{}};
+            auto seg = Tree{"segment", {}};
             auto start = Tree{"start", {}};
             start.m_branches.push_back(Tree{std::to_string(p[0].m_x), {}});
             start.m_branches.push_back(Tree{std::to_string(p[0].m_y), {}});
@@ -1500,22 +1517,22 @@ void kicadPcbDataBase::printKiCad()
         {
             point_2d p = via.getPos();
 
-            auto v = Tree{"via",{}};
+            auto v = Tree{"via", {}};
             auto at = Tree{"at", {}};
             at.m_branches.push_back(Tree{std::to_string(p.m_x), {}});
             at.m_branches.push_back(Tree{std::to_string(p.m_y), {}});
-            
+
             auto size = Tree{"size", {}};
             size.m_branches.push_back(Tree{std::to_string(via.getSize()), {}});
             //auto drill = Tree{"drill", {}};
-            //drill.m_branches.push_back(Tree{"0.3937", {}}); 
+            //drill.m_branches.push_back(Tree{"0.3937", {}});
             auto layer = Tree{"layers", {}};
             std::vector<std::string> layers = via.getLayers();
             layer.m_branches.push_back(Tree{layers[0], {}});
             layer.m_branches.push_back(Tree{layers[1], {}});
             auto n = Tree{"net", {}};
             n.m_branches.push_back(Tree{std::to_string(net.getId()), {}});
-    
+
             v.m_branches.push_back(at);
             v.m_branches.push_back(size);
             //v.m_branches.push_back(drill);
@@ -1531,5 +1548,95 @@ void kicadPcbDataBase::printKiCad()
 
     std::cout << fileName << std::endl;
     writer.writeKicadPcb(tree);
-   
+}
+
+void kicadPcbDataBase::addClearanceDrc(Object &obj1, Object &obj2)
+{
+    int id1 = obj1.getId(), id2 = obj2.getId();
+    for (auto &&drc : clearanceDrcs)
+    {
+        if (drc.first.getId() == id1 && drc.second.getId() == id2)
+            return;
+        else if (drc.first.getId() == id2 && drc.second.getId() == id1)
+            return;
+    }
+    clearanceDrcs.push_back(std::make_pair(obj1, obj2));
+}
+
+void kicadPcbDataBase::printClearanceDrc()
+{
+    std::cout << std::endl;
+    std::cout << "#####################################" << std::endl;
+    std::cout << "###                               ###" << std::endl;
+    std::cout << "###           DRC INFO            ###" << std::endl;
+    std::cout << "###                               ###" << std::endl;
+    std::cout << "#####################################" << std::endl;
+    for (auto &&drc : clearanceDrcs)
+    {
+        Object &obj1 = drc.first;
+        Object &obj2 = drc.second;
+        std::cout << "----------CONFLICT---------- " << std::endl;
+        std::cout << "obj1 id: " << obj1.getId() << ", obj2 id: " << obj2.getId() << std::endl;
+        if (obj1.getType() == ObjectType::PIN)
+        {
+            auto compId = obj1.getCompId();
+            auto instId = obj1.getInstId();
+            auto padId = obj1.getDBId();
+            component &comp = getComponent(compId);
+            instance &inst = getInstance(instId);
+            auto &pad = comp.getPadstack(padId);
+            std::cout << "Component: " << comp.getName() << " Instance: " << inst.getName();
+            std::cout << " Pad: " << pad.getName() << std::endl;
+        }
+        else if (obj1.getType() == ObjectType::SEGMENT)
+        {
+            auto dbId = obj1.getDBId();
+            points_2d pos = obj1.getPos();
+            std::cout << "segment: ";
+            for (auto &&p : pos)
+            {
+                std::cout << "(" << p.m_x << "," << p.m_y << ") ";
+            }
+            std::cout << std::endl;
+        }
+        else if (obj1.getType() == ObjectType::VIA)
+        {
+            auto dbId = obj1.getDBId();
+            points_2d pos = obj1.getPos();
+            std::cout << "via: (" << pos[0].m_x << "," << pos[0].m_y << ")" << std::endl;
+        }
+
+        if (obj2.getType() == ObjectType::PIN)
+        {
+            auto compId = obj2.getCompId();
+            auto instId = obj2.getInstId();
+            auto padId = obj2.getDBId();
+            component &comp = getComponent(compId);
+            instance &inst = getInstance(instId);
+            auto &pad = comp.getPadstack(padId);
+            std::cout << "Component: " << comp.getName() << " Instance: " << inst.getName();
+            std::cout << " Pad: " << pad.getName() << std::endl;
+        }
+
+        else if (obj2.getType() == ObjectType::SEGMENT)
+        {
+            auto dbId = obj2.getDBId();
+            points_2d pos = obj2.getPos();
+            std::cout << "segment: ";
+            for (auto &&p : pos)
+            {
+                std::cout << "(" << p.m_x << "," << p.m_y << ") ";
+            }
+            std::cout << std::endl;
+        }
+        else if (obj2.getType() == ObjectType::VIA)
+        {
+            auto dbId = obj2.getDBId();
+            points_2d pos = obj2.getPos();
+            std::cout << "via: (" << pos[0].m_x << "," << pos[0].m_y << ")" << std::endl;
+        }
+    }
+
+    std::cout << "##########SUMMARY##########" << std::endl;
+    std::cout << "DRC Count: " << clearanceDrcs.size() << std::endl;
 }

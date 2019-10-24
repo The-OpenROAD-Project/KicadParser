@@ -10,6 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS_DEBUG "-g -ggdb")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
+find_package(Boost REQUIRED)
 
 set(KICADPCB_HOME ${PROJECT_SOURCE_DIR} )
 
@@ -31,12 +32,14 @@ set (KICADPCB_HEADER
   src/pin.h
   src/rule.h
   src/module.h
+  src/object.h
   )
 
 ############################################################
 # include directories 
 ############################################################
 include_directories(
+    ${Boost_INCLUDE_DIR}
   )
 
 ############################################################
