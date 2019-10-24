@@ -31,6 +31,7 @@ set (KICADPCB_HEADER
   src/pin.h
   src/rule.h
   src/module.h
+  src/object.h
   )
 
 ############################################################
