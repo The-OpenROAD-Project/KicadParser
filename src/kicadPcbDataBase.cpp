@@ -173,8 +173,13 @@ bool kicadPcbDataBase::buildKicadPcb()
                     if (module_node.m_value == "fp_line")
                     {
                         auto the_line = line{};
-                        get_2d(ss, begin(module_node.m_branches[0].m_branches), the_line.m_start.m_x, the_line.m_start.m_y);
-                        get_2d(ss, begin(module_node.m_branches[1].m_branches), the_line.m_end.m_x, the_line.m_end.m_y);
+                        if (the_instance.m_angle == 0 || the_instance.m_angle == 180) {
+                            get_2d(ss, begin(module_node.m_branches[0].m_branches), the_line.m_start.m_x, the_line.m_start.m_y);
+                            get_2d(ss, begin(module_node.m_branches[1].m_branches), the_line.m_end.m_x, the_line.m_end.m_y);
+                        } else {
+                            get_2d(ss, begin(module_node.m_branches[0].m_branches), the_line.m_start.m_y, the_line.m_start.m_x);
+                            get_2d(ss, begin(module_node.m_branches[1].m_branches), the_line.m_end.m_y, the_line.m_end.m_x);
+                        }
                         get_value(ss, begin(module_node.m_branches[3].m_branches), the_line.m_width);
                         the_comp.m_lines.push_back(the_line);
                     }
@@ -803,13 +808,27 @@ void kicadPcbDataBase::printComp()
     {
         std::cout << comp.getName() << ", Id:" << comp.getId()
                   << "====================== " << std::endl;
-
+        std::cout << "\t-----LINE-----" << std::endl;
         for (size_t i = 0; i < comp.m_lines.size(); ++i)
         {
-            std::cout << "\tstart: (" << comp.m_lines[i].m_start.m_x << "," << comp.m_lines[i].m_start.m_y << ")" << std::endl;
-            std::cout << "\tend: (" << comp.m_lines[i].m_end.m_x << "," << comp.m_lines[i].m_end.m_y << ")" << std::endl;
+            std::cout << "\tstart: (" << comp.m_lines[i].m_start.m_x << "," << comp.m_lines[i].m_start.m_y << "), ";
+            std::cout << "\tend: (" << comp.m_lines[i].m_end.m_x << "," << comp.m_lines[i].m_end.m_y << "), ";
             std::cout << "\twidth: " << comp.m_lines[i].m_width << std::endl;
         }
+
+        std::cout << "\t-----CIRCLE-----" << std::endl;
+        for (auto &c : comp.m_circles) {
+            std::cout << "center: "<< c.m_center << ", end: " << c.m_end << ", width: " << c.m_width << std::endl;
+        
+        }
+        std::cout << "\t-----POLY-----" << std::endl;
+        for(auto & p : comp.m_polys) {
+            for(auto &po : p.m_shape) {
+                std::cout << "point: " << po << ", ";
+            }
+            std::cout << "width: " << p.m_width << std::endl;
+        }
+
         for (auto &pad : comp.m_pads)
         {
             std::cout << "\tpad: " << pad.m_name << ", padId: " << pad.m_id << " (" << pad.m_pos.m_x << "," << pad.m_pos.m_y << ") , angle: " << pad.m_angle << ", Type: " << (int)pad.getType() << std::endl;
@@ -845,14 +864,37 @@ void kicadPcbDataBase::printInst()
     std::cout << "#####################################" << std::endl;
     for (auto &inst : instances)
     {
+        point_2d instSize;
+        getCompBBox(inst.getComponentId(), &instSize);
         std::cout << inst.getName() << ", instId: " << inst.getId() << ", compId: " << inst.getComponentId()
                   << ", layer: " << inst.getLayer()
+                  << ", Bbox: " << instSize.m_x << " " << instSize.m_y
                   << "====================== " << std::endl;
         //TODO: API for below loop access
         for (auto &pin_it : inst.m_pin_net_map)
         {
             std::cout << "\tpinName: " << pin_it.first << " netId: " << pin_it.second << std::endl;
         }
+    }
+}
+
+///// Bookshelf nodes format
+void kicadPcbDataBase::printNodes()
+{
+    /*std::cout << "UCLA nodes 1.0" << std::endl;
+    std::cout << std::endl;
+    std::cout << "# Created    :" << std::endl;
+    std::cout << "# Created by :" << std::endl;
+    std::endl;
+    std::cout << "NumNodes : " << instances.size() << std::endl
+    std::cout << "NumTerminals : 0" << std::endl;*/
+
+    for (auto &inst : instances)
+    {
+        point_2d instSize;
+        getCompBBox(inst.getComponentId(), &instSize);
+        std::cout << inst.getName()
+                  << "          " << instSize.m_x << "          " << instSize.m_y << std::endl;
     }
 }
 
@@ -1233,29 +1275,25 @@ bool kicadPcbDataBase::getPinPosition(const Pin &p, point_2d *pos)
     return true;
 }
 
-bool kicadPcbDataBase::getInstBBox(const int inst_id, point_2d *bBox)
+bool kicadPcbDataBase::getCompBBox(const int compId, point_2d *bBox)
 {
     if (!bBox)
         return false;
-    if (!isInstanceId(inst_id))
+
+    if (!isComponentId(compId))
         return false;
 
-    auto &inst = getInstance(inst_id);
-
-    if (!isComponentId(inst.getComponentId()))
-        return false;
-
-    auto &comp = getComponent(inst.getComponentId());
-    auto angle = inst.m_angle;
+    auto &comp = getComponent(compId);
     auto minx = double(1000000.0);
     auto miny = double(1000000.0);
     auto maxx = double(-1000000.0);
     auto maxy = double(-1000000.0);
+    
     for (size_t i = 0; i < comp.m_lines.size(); ++i)
     {
         auto start = comp.m_lines[i].m_start;
         auto end = comp.m_lines[i].m_end;
-        auto width = comp.m_lines[i].m_width / 2;
+        auto width = comp.m_lines[i].m_width;
         minx = std::min(start.m_x - width, minx);
         maxx = std::max(start.m_x + width, maxx);
         minx = std::min(end.m_x - width, minx);
@@ -1271,7 +1309,7 @@ bool kicadPcbDataBase::getInstBBox(const int inst_id, point_2d *bBox)
     {
         auto center = comp.m_circles[i].m_center;
         auto end = comp.m_circles[i].m_end;
-        auto width = comp.m_circles[i].m_width / 2;
+        auto width = comp.m_circles[i].m_width;
         minx = std::min(center.m_x - end.m_x - width, minx);
         maxx = std::max(center.m_x + width + end.m_x, maxx);
 
@@ -1279,24 +1317,26 @@ bool kicadPcbDataBase::getInstBBox(const int inst_id, point_2d *bBox)
         maxy = std::max(center.m_y + end.m_y + width, maxy);
     }
 
+/*
     for (size_t i = 0; i < comp.m_polys.size(); ++i)
     {
         for (size_t j = 0; j < comp.m_polys[i].m_shape.size(); ++j)
         {
             auto point = comp.m_polys[i].m_shape[j];
-            auto width = comp.m_polys[i].m_width / 2;
+            auto width = comp.m_polys[i].m_width;
             minx = std::min(point.m_x - width, minx);
             maxx = std::max(point.m_x + width, maxx);
             miny = std::min(point.m_y - width, miny);
             maxy = std::max(point.m_y + width, maxy);
         }
     }
-
+    */
+/*
     for (size_t i = 0; i < comp.m_arcs.size(); ++i)
     {
         auto start = comp.m_arcs[i].m_start;
         auto end = comp.m_arcs[i].m_end;
-        auto width = comp.m_arcs[i].m_width / 2;
+        auto width = comp.m_arcs[i].m_width;
         minx = std::min(start.m_x - width, minx);
         maxx = std::max(start.m_x + width, maxx);
         minx = std::min(end.m_x - width, minx);
@@ -1307,6 +1347,7 @@ bool kicadPcbDataBase::getInstBBox(const int inst_id, point_2d *bBox)
         miny = std::min(end.m_y - width, miny);
         maxy = std::max(end.m_y + width, maxy);
     }
+    */
 
     auto pads = comp.getPadstacks();
     for (auto &pad : pads)
@@ -1315,38 +1356,33 @@ bool kicadPcbDataBase::getInstBBox(const int inst_id, point_2d *bBox)
         auto pad_y = pad.m_pos.m_y;
         auto size = pad.m_size;
         auto pad_angle = pad.m_angle;
+        double w = size.m_x;
+        double h = size.m_y;
+
 
         if (pad_angle == 0 || pad_angle == 180)
         {
-            minx = std::min(pad_x - size.m_x / 2, minx);
-            maxx = std::max(pad_x + size.m_x / 2, maxx);
+            minx = std::min(pad_x - size.m_x, minx);
+            maxx = std::max(pad_x + size.m_x, maxx);
 
-            miny = std::min(pad_y - size.m_y / 2, miny);
-            maxy = std::max(pad_y + size.m_y / 2, maxy);
+            miny = std::min(pad_y - size.m_y, miny);
+            maxy = std::max(pad_y + size.m_y, maxy);
         }
 
         if (pad_angle == 90 || pad_angle == 270)
         {
-            miny = std::min(pad_x - size.m_x / 2, miny);
-            maxy = std::max(pad_x + size.m_x / 2, maxy);
+            miny = std::min(pad_y - size.m_x, miny);
+            maxy = std::max(pad_y + size.m_x, maxy);
 
-            minx = std::min(pad_y - size.m_y / 2, minx);
-            maxx = std::max(pad_y + size.m_y / 2, maxx);
+            minx = std::min(pad_x - size.m_y, minx);
+            maxx = std::max(pad_x + size.m_y, maxx);
         }
     }
 
     double width = abs(maxx - minx);
     double height = abs(maxy - miny);
-    if (angle == 90 || angle == 270)
-    {
-        bBox->m_x = height;
-        bBox->m_y = width;
-    }
-    else
-    {
-        bBox->m_x = width;
-        bBox->m_y = height;
-    }
+    bBox->m_x = width;
+    bBox->m_y = height;
 
     return true;
 }
