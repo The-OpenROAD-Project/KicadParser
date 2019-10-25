@@ -5,9 +5,8 @@
 #include <vector>
 #include "point.h"
 
-class Via
-{
-public:
+class Via {
+   public:
     Via(const int id = -1,
         const int netId = -1,
         const double size = 0)
@@ -21,10 +20,10 @@ public:
     void setPosition(const point_2d &_pos) { m_pos = std::move(_pos); }
     void setLayer(const std::vector<std::string> &_layers) { m_layers = std::move(_layers); }
 
-private:
+   private:
     int m_id;
     int m_netId;
-    double m_size;
+    double m_size;  //Drill or Diameter?
     std::vector<std::string> m_layers;
     point_2d m_pos;
 };

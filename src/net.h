@@ -82,7 +82,7 @@ public:
     std::vector<Segment> &getSegments() { return m_segments; }
     std::vector<Via> &getVias() { return m_vias; }
     void clearSegments() { m_segments.clear();}
-    void clearVia() { m_vias.clear();}
+    void clearVias() { m_vias.clear();}
     int getSegmentCount() { return (int)m_segments.size(); }
     void addSegment(const Segment &_segment) { m_segments.push_back(_segment); }
     int getViaCount() { return (int)m_vias.size(); }
