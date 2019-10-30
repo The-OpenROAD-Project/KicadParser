@@ -1519,6 +1519,60 @@ void kicadPcbDataBase::printKiCad()
         }
     }
 
+    int num = 0;
+    for (auto &&drc : clearanceDrcs) {
+        auto &&obj1 = drc.first;
+        auto &&obj2 = drc.second;
+        polygon_t poly1 = obj1.getPoly();
+        polygon_t poly2 = obj2.getPoly();
+        std::deque<polygon_t> output;
+        boost::geometry::intersection(poly1, poly2, output);
+
+        auto &p = output.front();
+        //BOOST_FOREACH (polygon_t const &p, output)
+       // {
+        int i = 0;
+        double x = 0.0, y = 0.0;
+        for(auto it = boost::begin(boost::geometry::exterior_ring(p)); it != boost::end(boost::geometry::exterior_ring(p)); ++it)
+        {    
+            
+            x += bg::get<0>(*it);
+            y += bg::get<1>(*it);
+            std::cout <<  "\t" << bg::get<0>(*it) << ", " << bg::get<1>(*it) << std::endl;
+            if (i == 3) break;   
+            ++i;        
+            
+        }
+        x = x/4; y = y/4;
+
+        std::cout << num << ":   x: " << x << ", y: " << y << ", area: " << boost::geometry::area(p) << std::endl;
+        auto size = Tree{"size", {}};
+        size.m_branches.push_back(Tree{"0.8", {}});
+        size.m_branches.push_back(Tree{"0.8", {}});
+        auto thickness = Tree{"thickness", {}};
+        thickness.m_branches.push_back(Tree{"0.1", {}});
+        auto font = Tree{"font", {}};
+        font.m_branches.push_back(size);
+        font.m_branches.push_back(thickness);
+        auto effects = Tree{"effects", {}};
+        effects.m_branches.push_back(font);
+        auto layer = Tree{"layer", {}};
+        layer.m_branches.push_back(Tree{"Dwgs.User",{}});
+        auto at = Tree{"at", {}};
+        at.m_branches.push_back(Tree{std::to_string(x), {}});
+        at.m_branches.push_back(Tree{std::to_string(y), {}});        
+
+        auto gr = Tree{"gr_text", {}};
+        gr.m_branches.push_back(Tree{std::to_string(num), {}});
+        ++num;
+        gr.m_branches.push_back(at);
+        gr.m_branches.push_back(layer);
+        gr.m_branches.push_back(effects);
+       // }
+
+        tree.m_branches.push_back(gr);
+    }
+
     for (auto &net : nets)
     {
         for (auto &segment : net.m_segments)
@@ -1577,6 +1631,7 @@ void kicadPcbDataBase::printKiCad()
             tree.m_branches.push_back(v);
         }
     }
+
 
     std::string file = utilParser::getFileName(m_fileName);
     std::string fileName = "output." + file;

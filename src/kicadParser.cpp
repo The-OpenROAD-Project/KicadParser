@@ -25,6 +25,7 @@ bool kicadParser::parseKicadPcb(Tree *tree)
     //create tree from input
     *tree = readTree(in);
     //printTree(tree, 0);
+    file.close();
     return true;
 }
 
