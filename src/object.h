@@ -1,12 +1,7 @@
 #ifndef PCBDRC_OBJECT_H
 #define PCBDRC_OBJECT_H
 
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
-#include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
-#include <boost/mpl/string.hpp>
+#include "pcbBoost.h"
 #include "kicadPcbDataBase.h"
 #include "module.h"
 #include "net.h"
@@ -15,27 +10,17 @@
 #include "shape.h"
 #include "via.h"
 
-#include <boost/foreach.hpp>
-#include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/index/indexable.hpp>
-#include <boost/geometry/index/rtree.hpp>
-
-namespace bg = boost::geometry;
-namespace bgi = boost::geometry::index;
-typedef bg::model::point<double, 2, bg::cs::cartesian> point;
-typedef bg::model::box<point> box;
-typedef std::pair<box, int> value;
-typedef bg::model::polygon<point> polygon_t;
-
-enum class ObjectType {
+enum class ObjectType
+{
     PIN,
     VIA,
     SEGMENT,
     NONE
 };
 
-class Object {
-   public:
+class Object
+{
+public:
     Object(const ObjectType type = ObjectType::NONE,
            const int dbId = -1,
            const int netId = -1,
@@ -60,16 +45,17 @@ class Object {
     polygon_t &getPoly() { return m_poly; }
     int &getNetId() { return m_netId; }
     int &getLayer() { return m_layer; }
-    std::vector<std::pair<int, int> > &getRtreeId() { return m_ids; }
+    std::vector<std::pair<int, int>> &getRtreeId() { return m_ids; }
 
     int &getId() { return m_ids[0].second; }
-    bool operator==(const Object &obj) const {
+    bool operator==(const Object &obj) const
+    {
         return std::tie(m_type, m_dbId, m_netId) == std::tie(obj.m_type, obj.m_dbId, obj.m_netId);
     }
 
-   private:
+private:
     ObjectType m_type;
-    int m_dbId;  // id in kicad database
+    int m_dbId; // id in kicad database
     int m_netId;
     int m_compId;
     int m_instId;
@@ -79,7 +65,7 @@ class Object {
     int m_layer;
 
     box m_bbox;
-    std::vector<std::pair<int, int> > m_ids;  //< the ith rtree, id in rtree >
+    std::vector<std::pair<int, int>> m_ids; //< the ith rtree, id in rtree >
 };
 
 #endif
