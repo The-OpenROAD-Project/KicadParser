@@ -30,6 +30,7 @@ set (KICADPCB_HEADER
   src/util.h
   src/shape.h
   src/pin.h
+  src/pcbBoost.h
   src/rule.h
   src/module.h
   src/object.h
