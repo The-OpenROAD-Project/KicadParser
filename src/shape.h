@@ -46,10 +46,15 @@ struct arc {
 points_2d rotateShapeCoordsByAngles(const points_2d &shape, double instAngle, double padAngle);
 
 // Initialize ROUNDRECT shape_coords
-points_2d roundrect_to_shape_coords(const point_2d &size, const double &ratio);
+[[deprecated]] points_2d roundrect_to_shape_coords(const point_2d &size, const double &ratio);
 
-// Ongoing work
-points_2d shape_to_coords(const point_2d &size, const point_2d &pos, padShape shape, const double a1, const double a2, const double &ratio);
+// TODO: Trapezoid
+points_2d shape_to_coords(const point_2d &size, const point_2d &pos, const padShape shape, const double a1, const double a2, const double ratio, const int pointsPerCircle);
+
+// Debugging helper
+void printPoint(point_2d &p);
+void printPolygon(points_2d &coord);
+void testShapeToCoords();
 
 // Helper for DRC checker
 // To points_2d polygon

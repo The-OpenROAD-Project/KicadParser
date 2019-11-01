@@ -14,9 +14,9 @@
 
 namespace bg = boost::geometry;
 namespace bgi = boost::geometry::index;
-typedef bg::model::point<double, 2, bg::cs::cartesian> point;
-typedef bg::model::box<point> box;
-typedef std::pair<box, int> value;
-typedef bg::model::polygon<point> polygon_t;
+using point = bg::model::point<double, 2, bg::cs::cartesian>;
+using box = bg::model::box<point>;
+using value = std::pair<box, int>;
+using polygon_t = bg::model::polygon<point>;
 
 #endif
