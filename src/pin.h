@@ -73,7 +73,8 @@ class padstack {
     double getRoundRectRatio() const { return m_roundrect_ratio; }
 
     points_2d getShapeCoords() const { return m_shape_coords; }
-    points_2d getPolygon() const { return m_shape_polygon; }
+    // Center at (0, 0)
+    const points_2d &getShapePolygon() const { return m_shape_polygon; }
 
     // Do not consider different instances
     [[deprecated]] const std::vector<std::string> &getLayers() const { return m_layers; }

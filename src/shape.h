@@ -5,6 +5,7 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include "pcbBoost.h"
 #include "point.h"
 
 enum class padShape {
@@ -53,7 +54,8 @@ points_2d shape_to_coords(const point_2d &size, const point_2d &pos, const padSh
 
 // Debugging helper
 void printPoint(point_2d &p);
-void printPolygon(points_2d &coord);
+void printPolygon(const points_2d &coord);
+void printPolygon(const polygon_t &poly);
 void testShapeToCoords();
 
 // Helper for DRC checker

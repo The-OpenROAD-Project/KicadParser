@@ -111,17 +111,17 @@ points_2d shape_to_coords(const point_2d &size, const point_2d &pos, const padSh
                 point.m_y = pos.m_y - deltaHeight + radius * sin(-angleShift * i * M_PI / 180);
                 coords.push_back(point);
             }
-            for (int i = pointsPerCorner; i < 2*pointsPerCorner; ++i) {
+            for (int i = pointsPerCorner; i < 2 * pointsPerCorner; ++i) {
                 point.m_x = pos.m_x - deltaWidth + radius * cos(-angleShift * i * M_PI / 180);
                 point.m_y = pos.m_y - deltaHeight + radius * sin(-angleShift * i * M_PI / 180);
                 coords.push_back(point);
             }
-            for (int i = 2*pointsPerCorner; i < 3*pointsPerCorner; ++i) {
+            for (int i = 2 * pointsPerCorner; i < 3 * pointsPerCorner; ++i) {
                 point.m_x = pos.m_x - deltaWidth + radius * cos(-angleShift * i * M_PI / 180);
                 point.m_y = pos.m_y + deltaHeight + radius * sin(-angleShift * i * M_PI / 180);
                 coords.push_back(point);
             }
-            for (int i = 3*pointsPerCorner; i < 4*pointsPerCorner; ++i) {
+            for (int i = 3 * pointsPerCorner; i < 4 * pointsPerCorner; ++i) {
                 point.m_x = pos.m_x + deltaWidth + radius * cos(-angleShift * i * M_PI / 180);
                 point.m_y = pos.m_y + deltaHeight + radius * sin(-angleShift * i * M_PI / 180);
                 coords.push_back(point);
@@ -162,12 +162,30 @@ points_2d shape_to_coords(const point_2d &size, const point_2d &pos, const padSh
     return rotateShapeCoordsByAngles(coords, a1, a2);
 }
 
-void printPolygon(points_2d &coord) {
+void printPolygon(const points_2d &coord) {
     std::cout << "Polygon(";
     for (size_t i = 0; i < coord.size(); ++i) {
         std::cout << coord[i];
         if (i < coord.size() - 1)
             std::cout << ", ";
+    }
+    std::cout << ")" << std::endl;
+}
+
+void printPolygon(const polygon_t &poly) {
+    std::cout << "Polygon(";
+    for (auto it = boost::begin(bg::exterior_ring(poly)); it != boost::end(bg::exterior_ring(poly)); ++it) {
+        auto x = bg::get<0>(*it);
+        auto y = bg::get<1>(*it);
+        //use the coordinates...
+        std::cout << "(" << x << ", " << y << ")";
+
+        if (++it == boost::end(bg::exterior_ring(poly))) {
+            break;
+        } else {
+            std::cout << ", ";
+        }
+        --it;
     }
     std::cout << ")" << std::endl;
 }

@@ -253,7 +253,7 @@ bool kicadPcbDataBase::buildKicadPcb() {
                             std::cout << std::endl;*/
                         }
 
-                        the_padstack.m_shape_polygon = shape_to_coords(the_padstack.getSize(), the_padstack.getPos(), the_padstack.getPadShape(), the_instance.getAngle(), the_padstack.getAngle(), the_padstack.getRoundRectRatio(), 32);
+                        the_padstack.m_shape_polygon = shape_to_coords(the_padstack.getSize(), point_2d{0, 0}, the_padstack.getPadShape(), the_instance.getAngle(), the_padstack.getAngle(), the_padstack.getRoundRectRatio(), 32);
                         the_padstack.m_rule.m_clearance = 0;  //TODO: double check
                         the_comp.m_pads.push_back(the_padstack);
                         the_comp.m_pad_name_to_id[the_padstack.m_name] = the_padstack.m_id;
