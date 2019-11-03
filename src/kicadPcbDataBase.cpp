@@ -1091,6 +1091,21 @@ bool kicadPcbDataBase::getPinPosition(const Pin &p, point_2d *pos) {
     return true;
 }
 
+void kicadPcbDataBase::getPinShapeRelativeCoordsToModule(const padstack &pad, const instance &inst, const points_2d &coords, points_2d *coordsRe)
+{
+    double padX = pad.m_pos.m_x, padY = pad.m_pos.m_y;
+    auto instAngle = inst.m_angle * (-M_PI / 180.0);
+
+    auto s = sin((float)instAngle);
+    auto c = cos((float)instAngle);
+    for (auto &&coor : coords){
+        auto p = point_2d{};
+        p.m_x = double((c * padX - s * padY) + coor.m_x);
+        p.m_y = double((s * padX + c * padY) + coor.m_y);
+        coordsRe->push_back(p);
+    }
+}
+
 bool kicadPcbDataBase::getCompBBox(const int compId, point_2d *bBox) {
     if (!bBox)
         return false;

@@ -31,6 +31,7 @@ public:
     void setRTreeId(const std::pair<int, int> &id) { m_ids.push_back(id); }
     void setBBox(const box &b) { m_bbox = b; }
     void setShape(const points_2d &s) { m_shape = s; }
+    void setRelativeShape(const points_2d &s) { m_relativeShape = s; }
     void setPoly(const polygon_t &poly) { m_poly = poly; }
     void setPos(const points_2d &pos) { m_pos = pos; }
     void setPos(const point_2d &pos) { m_pos.push_back(pos); }
@@ -40,8 +41,23 @@ public:
     int &getCompId() { return m_compId; }
     int &getInstId() { return m_instId; }
     points_2d &getShape() { return m_shape; }
+    points_2d &getRelativeShape() { return m_relativeShape; }
     //point_2d &getPos() { return m_pos[0];}
     points_2d &getPos() { return m_pos; }
+    point_2d getCenterPos()
+    {
+        auto p = point_2d{};
+        if (m_type == ObjectType::SEGMENT)
+        {
+            p.m_x = (m_pos[0].m_x + m_pos[1].m_x) / 2;
+            p.m_y = (m_pos[0].m_y + m_pos[1].m_y) / 2;
+        }
+        else
+        {
+            p = m_pos[0];
+        }
+        return p;
+    }
     polygon_t &getPoly() { return m_poly; }
     int &getNetId() { return m_netId; }
     int &getLayer() { return m_layer; }
@@ -60,6 +76,7 @@ private:
     int m_compId;
     int m_instId;
     points_2d m_shape;
+    points_2d m_relativeShape;
     polygon_t m_poly;
     points_2d m_pos;
     int m_layer;

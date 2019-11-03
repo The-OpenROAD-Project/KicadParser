@@ -55,6 +55,7 @@ public:
     bool getPinPosition(const std::string &inst_name, const std::string &pin_name, point_2d *pos);
     bool getPinPosition(const int inst_id, const int &pin_id, point_2d *pos);
     void getPinPosition(const padstack &, const instance &, point_2d *pos);
+    void getPinShapeRelativeCoordsToModule(const padstack &pad, const instance &inst, const points_2d &coords, points_2d *coordsRe);
     bool getPinPosition(const Pin &p, point_2d *pos);
     bool getCompBBox(const int compId, point_2d *bBox);
     std::vector<int> getPinLayer(const int &instId, const int &padStackId);

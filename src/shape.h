@@ -8,7 +8,8 @@
 #include "pcbBoost.h"
 #include "point.h"
 
-enum class padShape {
+enum class padShape
+{
     RECT,
     ROUNDRECT,
     CIRCLE,
@@ -16,27 +17,31 @@ enum class padShape {
     TRAPEZOID
 };
 
-struct line {
+struct line
+{
     point_2d m_start;
     point_2d m_end;
-    double m_width;  //2*radius
+    double m_width; //2*radius
     int m_layer;
 };
 
-struct circle {
+struct circle
+{
     point_2d m_center;
     point_2d m_end;
-    double m_width;  //2*radius
+    double m_width; //2*radius
     int m_layer;
 };
 
-struct poly {
+struct poly
+{
     points_2d m_shape;
     double m_width;
     int m_layer;
 };
 
-struct arc {
+struct arc
+{
     point_2d m_start;
     point_2d m_end;
     double m_angle;
@@ -66,5 +71,8 @@ points_2d via_to_circle(const point_2d &pos, const double &size);
 points_2d pinShapeToOctagon(const point_2d &size, const point_2d &pos, const double &clearance, const double &instAngle, const double &pinAngle);
 points_2d viaToOctagon(const double &size, const point_2d &pos, const double &clearance);
 points_2d segmentToOctagon(const points_2d &point, const double &w, const double &clearance);
+points_2d relativeStartEndPointsForSegment(const points_2d &p);
+points_2d segmentToRelativeOctagon(const points_2d &point, const double &w, const double &clearance);
+points_2d viaToRelativeOctagon(const double &size, const double &clearance);
 
 #endif
