@@ -1091,14 +1091,13 @@ bool kicadPcbDataBase::getPinPosition(const Pin &p, point_2d *pos) {
     return true;
 }
 
-void kicadPcbDataBase::getPinShapeRelativeCoordsToModule(const padstack &pad, const instance &inst, const points_2d &coords, points_2d *coordsRe)
-{
+void kicadPcbDataBase::getPinShapeRelativeCoordsToModule(const padstack &pad, const instance &inst, const points_2d &coords, points_2d *coordsRe) {
     double padX = pad.m_pos.m_x, padY = pad.m_pos.m_y;
     auto instAngle = inst.m_angle * (-M_PI / 180.0);
 
     auto s = sin((float)instAngle);
     auto c = cos((float)instAngle);
-    for (auto &&coor : coords){
+    for (auto &&coor : coords) {
         auto p = point_2d{};
         p.m_x = double((c * padX - s * padY) + coor.m_x);
         p.m_y = double((s * padX + c * padY) + coor.m_y);
@@ -1255,7 +1254,7 @@ std::vector<int> kicadPcbDataBase::getPinLayer(const int &instId, const int &pad
     }
 }
 
-void kicadPcbDataBase::printKiCad() {
+void kicadPcbDataBase::printKiCad(const std::string folderName, const std::string fileNameStamp) {
     std::string instName;
     for (size_t i = 0; i < tree.m_branches.size(); ++i) {
         auto &sub_node = tree.m_branches[i];
@@ -1421,11 +1420,20 @@ void kicadPcbDataBase::printKiCad() {
         }
     }
 
-    std::string file = utilParser::getFileName(m_fileName);
-    std::string fileName = "output." + file;
-    kicadParser writer(fileName);
+    // Handle output filename
+    std::string fileExtension = utilParser::getFileExtension(m_fileName);
+    std::string fileNameWoExtension = utilParser::getFileNameWoExtension(m_fileName);
+    std::string fileNameExtraTag;
+    if (!fileNameStamp.empty()) {
+        fileNameExtraTag = "output." + fileNameStamp;
+    } else {
+        fileNameExtraTag = "output";
+    }
+    std::string outputFileName = fileNameExtraTag + "." + fileNameWoExtension + "." + fileExtension;
+    outputFileName = utilParser::appendDirectory(folderName, outputFileName);
+    std::cout << __FUNCTION__ << "() outputFileName: " << outputFileName << std::endl;
 
-    std::cout << fileName << std::endl;
+    kicadParser writer(outputFileName);
     writer.writeKicadPcb(tree);
 }
 
