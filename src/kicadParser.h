@@ -25,6 +25,8 @@ public:
     void printKicadPcb(const Tree &, int);
     void writeKicadPcb(const Tree &, int, std::ofstream &);
     void writeKicadPcb(const Tree &);
+    void writeTree(const Tree &, std::string &);
+    void writeTree(const Tree &, int, std::ofstream &);
 
 private:
     std::string fileName_;

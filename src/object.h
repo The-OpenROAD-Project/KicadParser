@@ -69,6 +69,11 @@ public:
         return std::tie(m_type, m_dbId, m_netId) == std::tie(obj.m_type, obj.m_dbId, obj.m_netId);
     }
 
+    bool operator!=(const Object &obj) const
+    {
+        return std::tie(m_type, m_dbId, m_netId, m_ids[0].second) != std::tie(obj.m_type, obj.m_dbId, obj.m_netId, m_ids[0].second);
+    }
+
     void addEquation(std::vector<double> &equ)
     {
         m_equs.push_back(equ);
