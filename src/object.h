@@ -69,6 +69,15 @@ public:
         return std::tie(m_type, m_dbId, m_netId) == std::tie(obj.m_type, obj.m_dbId, obj.m_netId);
     }
 
+    void addEquation(std::vector<double> &equ)
+    {
+        m_equs.push_back(equ);
+    }
+    std::vector<std::vector<double>> &getEquations()
+    {
+        return m_equs;
+    }
+
 private:
     ObjectType m_type;
     int m_dbId; // id in kicad database
@@ -83,6 +92,8 @@ private:
 
     box m_bbox;
     std::vector<std::pair<int, int>> m_ids; //< the ith rtree, id in rtree >
+
+    std::vector<std::vector<double>> m_equs;
 };
 
 #endif
