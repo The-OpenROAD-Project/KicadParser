@@ -1430,7 +1430,9 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
         fileNameExtraTag = "output";
     }
     std::string outputFileName = fileNameExtraTag + "." + fileNameWoExtension + "." + fileExtension;
-    outputFileName = utilParser::appendDirectory(folderName, outputFileName);
+    if (!folderName.empty()) {
+        outputFileName = utilParser::appendDirectory(folderName, outputFileName);
+    }
     std::cout << __FUNCTION__ << "() outputFileName: " << outputFileName << std::endl;
 
     kicadParser writer(outputFileName);
