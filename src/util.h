@@ -60,6 +60,10 @@ inline std::string getFileExtension(const std::string filePathName)
         retStr = retStr.substr(pos + 1);
     return retStr;
 }
+inline string appendDirectory(const string dirName, const string fileName) {
+    string retStr = dirName + "/" + fileName;
+    return retStr;
+}
 } // namespace utilParser
 
 #endif

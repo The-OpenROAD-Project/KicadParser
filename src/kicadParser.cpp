@@ -140,6 +140,29 @@ Tree kicadParser::readTree(std::istream &in)
     return t;
 }
 
+void kicadParser::writeTree(const Tree &t, std::string &name)
+{
+    std::ofstream file;
+    file.open(name);
+    writeTree(t, 0, file);
+
+    file.close();
+}
+
+void kicadParser::writeTree(const Tree &t, int indent, std::ofstream &file)
+{
+    if (!t.m_value.empty())
+    {
+        for (auto i = 1; i < indent; ++i)
+            file << "  ";
+        file << t.m_value << "\n";
+    }
+    for (auto &ct : t.m_branches)
+    {
+        writeTree(ct, indent + 1, file);
+    }
+}
+
 void kicadParser::printTree(const Tree &t, int indent)
 {
     if (!t.m_value.empty())
@@ -163,7 +186,6 @@ void kicadParser::printKicadPcb(const Tree &t, int indent)
         if (!t.m_branches.empty())
             std::cout << " ( ";
         std::cout << t.m_value << " ";
-        
     }
 
     if (!t.m_branches.empty())
@@ -186,7 +208,7 @@ void kicadParser::writeKicadPcb(const Tree &t)
             file << " ";
         if (!t.m_branches.empty())
             file << " ( ";
-        file << t.m_value << " ";   
+        file << t.m_value << " ";
     }
 
     if (!t.m_branches.empty())
@@ -199,11 +221,10 @@ void kicadParser::writeKicadPcb(const Tree &t)
     }
 
     file.close();
-
 }
 void kicadParser::writeKicadPcb(const Tree &t, int indent, std::ofstream &file)
 {
-    
+
     if (!t.m_value.empty())
     {
         for (auto i = 1; i < indent; ++i)
@@ -211,7 +232,6 @@ void kicadParser::writeKicadPcb(const Tree &t, int indent, std::ofstream &file)
         if (!t.m_branches.empty())
             file << " ( ";
         file << t.m_value << " ";
-        
     }
 
     if (!t.m_branches.empty())

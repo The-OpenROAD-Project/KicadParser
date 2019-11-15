@@ -13,6 +13,8 @@ bool kicadPcbDataBase::buildKicadPcb()
     kicadParser parser(m_fileName);
     if (!parser.parseKicadPcb(&tree))
         return false;
+    std::string treeFile = "in";
+    parser.writeTree(tree, treeFile);
 
     std::stringstream ss;
     auto default_rule = rule{0.25, 0.25};
@@ -21,7 +23,6 @@ bool kicadPcbDataBase::buildKicadPcb()
         //layer part
         if (sub_node.m_value == "layers")
         {
-
             for (auto &&layer_node : sub_node.m_branches)
             {
                 //auto layer_index = 0;
@@ -173,10 +174,13 @@ bool kicadPcbDataBase::buildKicadPcb()
                     if (module_node.m_value == "fp_line")
                     {
                         auto the_line = line{};
-                        if (the_instance.m_angle == 0 || the_instance.m_angle == 180) {
+                        if (the_instance.m_angle == 0 || the_instance.m_angle == 180)
+                        {
                             get_2d(ss, begin(module_node.m_branches[0].m_branches), the_line.m_start.m_x, the_line.m_start.m_y);
                             get_2d(ss, begin(module_node.m_branches[1].m_branches), the_line.m_end.m_x, the_line.m_end.m_y);
-                        } else {
+                        }
+                        else
+                        {
                             get_2d(ss, begin(module_node.m_branches[0].m_branches), the_line.m_start.m_y, the_line.m_start.m_x);
                             get_2d(ss, begin(module_node.m_branches[1].m_branches), the_line.m_end.m_y, the_line.m_end.m_x);
                         }
@@ -312,6 +316,8 @@ bool kicadPcbDataBase::buildKicadPcb()
                             }
                             std::cout << std::endl;*/
                         }
+
+                        the_padstack.m_shape_polygon = shape_to_coords(the_padstack.getSize(), point_2d{0, 0}, the_padstack.getPadShape(), the_instance.getAngle(), the_padstack.getAngle(), the_padstack.getRoundRectRatio(), 32);
                         the_padstack.m_rule.m_clearance = 0; //TODO: double check
                         the_comp.m_pads.push_back(the_padstack);
                         the_comp.m_pad_name_to_id[the_padstack.m_name] = the_padstack.m_id;
@@ -817,13 +823,15 @@ void kicadPcbDataBase::printComp()
         }
 
         std::cout << "\t-----CIRCLE-----" << std::endl;
-        for (auto &c : comp.m_circles) {
-            std::cout << "center: "<< c.m_center << ", end: " << c.m_end << ", width: " << c.m_width << std::endl;
-        
+        for (auto &c : comp.m_circles)
+        {
+            std::cout << "center: " << c.m_center << ", end: " << c.m_end << ", width: " << c.m_width << std::endl;
         }
         std::cout << "\t-----POLY-----" << std::endl;
-        for(auto & p : comp.m_polys) {
-            for(auto &po : p.m_shape) {
+        for (auto &p : comp.m_polys)
+        {
+            for (auto &po : p.m_shape)
+            {
                 std::cout << "point: " << po << ", ";
             }
             std::cout << "width: " << p.m_width << std::endl;
@@ -1275,6 +1283,22 @@ bool kicadPcbDataBase::getPinPosition(const Pin &p, point_2d *pos)
     return true;
 }
 
+void kicadPcbDataBase::getPinShapeRelativeCoordsToModule(const padstack &pad, const instance &inst, const points_2d &coords, points_2d *coordsRe)
+{
+    double padX = pad.m_pos.m_x, padY = pad.m_pos.m_y;
+    auto instAngle = inst.m_angle * (-M_PI / 180.0);
+
+    auto s = sin((float)instAngle);
+    auto c = cos((float)instAngle);
+    for (auto &&coor : coords)
+    {
+        auto p = point_2d{};
+        p.m_x = double((c * padX - s * padY) + coor.m_x);
+        p.m_y = double((s * padX + c * padY) + coor.m_y);
+        coordsRe->push_back(p);
+    }
+}
+
 bool kicadPcbDataBase::getCompBBox(const int compId, point_2d *bBox)
 {
     if (!bBox)
@@ -1288,7 +1312,7 @@ bool kicadPcbDataBase::getCompBBox(const int compId, point_2d *bBox)
     auto miny = double(1000000.0);
     auto maxx = double(-1000000.0);
     auto maxy = double(-1000000.0);
-    
+
     for (size_t i = 0; i < comp.m_lines.size(); ++i)
     {
         auto start = comp.m_lines[i].m_start;
@@ -1317,7 +1341,7 @@ bool kicadPcbDataBase::getCompBBox(const int compId, point_2d *bBox)
         maxy = std::max(center.m_y + end.m_y + width, maxy);
     }
 
-/*
+    /*
     for (size_t i = 0; i < comp.m_polys.size(); ++i)
     {
         for (size_t j = 0; j < comp.m_polys[i].m_shape.size(); ++j)
@@ -1331,7 +1355,7 @@ bool kicadPcbDataBase::getCompBBox(const int compId, point_2d *bBox)
         }
     }
     */
-/*
+    /*
     for (size_t i = 0; i < comp.m_arcs.size(); ++i)
     {
         auto start = comp.m_arcs[i].m_start;
@@ -1358,7 +1382,6 @@ bool kicadPcbDataBase::getCompBBox(const int compId, point_2d *bBox)
         auto pad_angle = pad.m_angle;
         double w = size.m_x;
         double h = size.m_y;
-
 
         if (pad_angle == 0 || pad_angle == 180)
         {
@@ -1444,7 +1467,7 @@ std::vector<int> kicadPcbDataBase::getPinLayer(const int &instId, const int &pad
     }
 }
 
-void kicadPcbDataBase::printKiCad()
+void kicadPcbDataBase::printKiCad(const std::string folderName, const std::string fileNameStamp)
 {
     std::string instName;
     for (size_t i = 0; i < tree.m_branches.size(); ++i)
@@ -1513,14 +1536,14 @@ void kicadPcbDataBase::printKiCad()
 
         if (sub_node.m_value == "segment" || sub_node.m_value == "via")
         {
-
             tree.m_branches.erase(tree.m_branches.begin() + i);
             --i;
         }
     }
 
     int num = 0;
-    for (auto &&drc : clearanceDrcs) {
+    for (auto &&drc : clearanceDrcs)
+    {
         auto &&obj1 = drc.first;
         auto &&obj2 = drc.second;
         polygon_t poly1 = obj1.getPoly();
@@ -1530,37 +1553,37 @@ void kicadPcbDataBase::printKiCad()
 
         auto &p = output.front();
         //BOOST_FOREACH (polygon_t const &p, output)
-       // {
+        // {
         int i = 0;
         double x = 0.0, y = 0.0;
-        for(auto it = boost::begin(boost::geometry::exterior_ring(p)); it != boost::end(boost::geometry::exterior_ring(p)); ++it)
-        {    
-            
+        for (auto it = boost::begin(boost::geometry::exterior_ring(p)); it != boost::end(boost::geometry::exterior_ring(p)); ++it)
+        {
             x += bg::get<0>(*it);
             y += bg::get<1>(*it);
-            std::cout <<  "\t" << bg::get<0>(*it) << ", " << bg::get<1>(*it) << std::endl;
-            if (i == 3) break;   
-            ++i;        
-            
+            std::cout << "\t" << bg::get<0>(*it) << ", " << bg::get<1>(*it) << std::endl;
+            if (i == 3)
+                break;
+            ++i;
         }
-        x = x/4; y = y/4;
+        x = x / 4;
+        y = y / 4;
 
         std::cout << num << ":   x: " << x << ", y: " << y << ", area: " << boost::geometry::area(p) << std::endl;
         auto size = Tree{"size", {}};
-        size.m_branches.push_back(Tree{"0.8", {}});
-        size.m_branches.push_back(Tree{"0.8", {}});
+        size.m_branches.push_back(Tree{"0.3", {}});
+        size.m_branches.push_back(Tree{"0.3", {}});
         auto thickness = Tree{"thickness", {}};
-        thickness.m_branches.push_back(Tree{"0.1", {}});
+        thickness.m_branches.push_back(Tree{"0.05", {}});
         auto font = Tree{"font", {}};
         font.m_branches.push_back(size);
         font.m_branches.push_back(thickness);
         auto effects = Tree{"effects", {}};
         effects.m_branches.push_back(font);
         auto layer = Tree{"layer", {}};
-        layer.m_branches.push_back(Tree{"Dwgs.User",{}});
+        layer.m_branches.push_back(Tree{"Dwgs.User", {}});
         auto at = Tree{"at", {}};
         at.m_branches.push_back(Tree{std::to_string(x), {}});
-        at.m_branches.push_back(Tree{std::to_string(y), {}});        
+        at.m_branches.push_back(Tree{std::to_string(y), {}});
 
         auto gr = Tree{"gr_text", {}};
         gr.m_branches.push_back(Tree{std::to_string(num), {}});
@@ -1568,7 +1591,7 @@ void kicadPcbDataBase::printKiCad()
         gr.m_branches.push_back(at);
         gr.m_branches.push_back(layer);
         gr.m_branches.push_back(effects);
-       // }
+        // }
 
         tree.m_branches.push_back(gr);
     }
@@ -1632,12 +1655,28 @@ void kicadPcbDataBase::printKiCad()
         }
     }
 
+    // Handle output filename
+    std::string fileExtension = utilParser::getFileExtension(m_fileName);
+    std::string fileNameWoExtension = utilParser::getFileNameWoExtension(m_fileName);
+    std::string fileNameExtraTag;
+    if (!fileNameStamp.empty())
+    {
+        fileNameExtraTag = "output." + fileNameStamp;
+    }
+    else
+    {
+        fileNameExtraTag = "output";
+    }
+    std::string outputFileName = fileNameExtraTag + "." + fileNameWoExtension + "." + fileExtension;
+    if (!folderName.empty())
+    {
+        outputFileName = utilParser::appendDirectory(folderName, outputFileName);
+    }
+    std::cout << __FUNCTION__ << "() outputFileName: " << outputFileName << std::endl;
 
-    std::string file = utilParser::getFileName(m_fileName);
-    std::string fileName = "output." + file;
-    kicadParser writer(fileName);
-
-    std::cout << fileName << std::endl;
+    kicadParser writer(outputFileName);
+    std::string treeFile = "out";
+    writer.writeTree(tree, treeFile);
     writer.writeKicadPcb(tree);
 }
 
@@ -1662,11 +1701,12 @@ void kicadPcbDataBase::printClearanceDrc()
     std::cout << "###           DRC INFO            ###" << std::endl;
     std::cout << "###                               ###" << std::endl;
     std::cout << "#####################################" << std::endl;
+    int num = 0;
     for (auto &&drc : clearanceDrcs)
     {
         Object &obj1 = drc.first;
         Object &obj2 = drc.second;
-        std::cout << "----------CONFLICT---------- " << std::endl;
+        std::cout << "----------CONFLICT " << num << "---------- " << std::endl;
         std::cout << "obj1 id: " << obj1.getId() << ", obj2 id: " << obj2.getId() << std::endl;
         if (obj1.getType() == ObjectType::PIN)
         {
@@ -1726,6 +1766,7 @@ void kicadPcbDataBase::printClearanceDrc()
             points_2d pos = obj2.getPos();
             std::cout << "via: (" << pos[0].m_x << "," << pos[0].m_y << ")" << std::endl;
         }
+        ++num;
     }
 
     std::cout << "##########SUMMARY##########" << std::endl;
