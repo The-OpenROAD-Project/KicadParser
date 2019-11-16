@@ -81,6 +81,12 @@ public:
     std::vector<Pin> &getPins() { return m_pins; }
     std::vector<Segment> &getSegments() { return m_segments; }
     std::vector<Via> &getVias() { return m_vias; }
+    Segment &getSegment(int& _id) {
+        return m_segments[_id];
+    }
+    Via &getVia(int &_id) {
+        return m_vias[_id];
+    }
     void clearSegments() { m_segments.clear();}
     void clearVias() { m_vias.clear();}
     int getSegmentCount() { return (int)m_segments.size(); }
