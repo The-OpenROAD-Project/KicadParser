@@ -136,6 +136,8 @@ bool kicadPcbDataBase::buildKicadPcb()
                     get_value(ss, begin(sub_node.m_branches[5].m_branches) + 2, the_instance.m_angle);
                 else
                     the_instance.m_angle = 0;
+
+                the_instance.m_locked = true;
             }
             else
             {
@@ -147,6 +149,8 @@ bool kicadPcbDataBase::buildKicadPcb()
                     get_value(ss, begin(sub_node.m_branches[4].m_branches) + 2, the_instance.m_angle);
                 else
                     the_instance.m_angle = 0;
+
+                the_instance.m_locked = false;
             }
             // See if the component is created
             auto comp_it = component_name_to_id.find(component_name);

@@ -112,14 +112,14 @@ public:
     int getComponentId() const { return m_comp_id; }
     int getId() const { return m_id; }
     void setAngle(double &angle) { m_angle = angle; }
-    void setX(double &x) {m_x = x;}
-    void setY(double &y) {m_y = y;}
-    void setLayer(int &layer) {m_layer = layer;}
+    void setX(double &x) { m_x = x; }
+    void setY(double &y) { m_y = y; }
+    void setLayer(int &layer) { m_layer = layer; }
     double getAngle() const { return m_angle; }
     double getX() const { return m_x; }
     double getY() const { return m_y; }
     int getLayer() const { return m_layer; }
-
+    bool isLocked() const { return m_locked; }
     friend class kicadPcbDataBase;
 
 private:
@@ -132,7 +132,8 @@ private:
     double m_angle;
     double m_width;
     double m_height;
-    int m_layer = -1;                         //Layer ID
+    int m_layer = -1; //Layer ID
+    bool m_locked = 0;
     std::map<std::string, int> m_pin_net_map; //<pin name, netId>
 };
 
