@@ -901,7 +901,9 @@ void kicadPcbDataBase::printInst()
         getCompBBox(inst.getComponentId(), &instSize);
         std::cout << inst.getName() << ", instId: " << inst.getId() << ", compId: " << inst.getComponentId()
                   << ", layer: " << inst.getLayer()
+                  << ", locked: " << inst.isLocked()
                   << ", pos: (" << inst.getX() << "," << inst.getY() << ")"
+                  << ", angle: " << inst.getAngle()
                   << ", Bbox: " << instSize.m_x << " " << instSize.m_y
                   << "====================== " << std::endl;
         //TODO: API for below loop access
