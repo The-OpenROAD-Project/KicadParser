@@ -124,9 +124,11 @@ bool kicadPcbDataBase::buildKicadPcb()
             //TODO: refactor
             instance the_instance{};
             std::string layer = "";
+            the_instance.m_id = (int)instances.size();
+            the_instance.m_locked = false;
             //TODO: Refactor to use for-loop and Key...........
             // Get Instance X, Y, Rot
-            if (sub_node.m_branches[1].m_value == "locked")
+            /*if (sub_node.m_branches[1].m_value == "locked")
             {
                 layer = sub_node.m_branches[2].m_branches[0].m_value;
                 the_instance.m_layer = this->getLayerId(layer);
@@ -151,7 +153,7 @@ bool kicadPcbDataBase::buildKicadPcb()
                     the_instance.m_angle = 0;
 
                 the_instance.m_locked = false;
-            }
+            }*/
             // See if the component is created
             auto comp_it = component_name_to_id.find(component_name);
             int comp_id = -1;
@@ -167,6 +169,25 @@ bool kicadPcbDataBase::buildKicadPcb()
             int noNameId = 0;
             for (auto &&module_node : sub_node.m_branches)
             {
+                if (module_node.m_value == "locked")
+                {
+                    the_instance.m_locked = true;
+                }
+
+                if (module_node.m_value == "layer")
+                {
+                    layer = module_node.m_branches[0].m_value;
+                    the_instance.m_layer = this->getLayerId(layer);
+                }
+
+                if (module_node.m_value == "at")
+                {
+                    get_2d(ss, begin(module_node.m_branches), the_instance.m_x, the_instance.m_y);
+                    if (module_node.m_branches.size() == 3)
+                        get_value(ss, begin(module_node.m_branches) + 2, the_instance.m_angle);
+                    else
+                        the_instance.m_angle = 0;
+                }
                 //TODO:: Handle (fp_text value ...)
                 if (module_node.m_value == "fp_text" && module_node.m_branches[0].m_value == "reference")
                 {
@@ -880,6 +901,7 @@ void kicadPcbDataBase::printInst()
         getCompBBox(inst.getComponentId(), &instSize);
         std::cout << inst.getName() << ", instId: " << inst.getId() << ", compId: " << inst.getComponentId()
                   << ", layer: " << inst.getLayer()
+                  << ", pos: (" << inst.getX() << "," << inst.getY() << ")"
                   << ", Bbox: " << instSize.m_x << " " << instSize.m_y
                   << "====================== " << std::endl;
         //TODO: API for below loop access
@@ -1345,7 +1367,6 @@ bool kicadPcbDataBase::getCompBBox(const int compId, point_2d *bBox)
         maxy = std::max(center.m_y + end.m_y + width, maxy);
     }
 
-    /*
     for (size_t i = 0; i < comp.m_polys.size(); ++i)
     {
         for (size_t j = 0; j < comp.m_polys[i].m_shape.size(); ++j)
@@ -1358,8 +1379,7 @@ bool kicadPcbDataBase::getCompBBox(const int compId, point_2d *bBox)
             maxy = std::max(point.m_y + width, maxy);
         }
     }
-    */
-    /*
+
     for (size_t i = 0; i < comp.m_arcs.size(); ++i)
     {
         auto start = comp.m_arcs[i].m_start;
@@ -1375,7 +1395,6 @@ bool kicadPcbDataBase::getCompBBox(const int compId, point_2d *bBox)
         miny = std::min(end.m_y - width, miny);
         maxy = std::max(end.m_y + width, maxy);
     }
-    */
 
     auto pads = comp.getPadstacks();
     for (auto &pad : pads)

@@ -10,7 +10,6 @@
 #include "shape.h"
 #include "via.h"
 
-
 enum class ObjectType
 {
     PIN,
@@ -35,6 +34,8 @@ public:
     void setRelativeShape(const points_2d &s) { m_relativeShape = s; }
     void setPoly(const polygon_t &poly) { m_poly = poly; }
     void setPos(const points_2d &pos) { m_pos = pos; }
+    void setX(const double &x) { m_pos[0].m_x = x; }
+    void setY(const double &y) { m_pos[0].m_y = y; }
     void setPos(const point_2d &pos) { m_pos.push_back(pos); }
     box &getBBox() { return m_bbox; }
     ObjectType &getType() { return m_type; }
@@ -45,12 +46,16 @@ public:
     points_2d &getRelativeShape() { return m_relativeShape; }
     //point_2d &getPos() { return m_pos[0];}
     points_2d &getPos() { return m_pos; }
-    double &getX() {
-        point_2d pos = getCenterPos(); 
-        return pos.m_x; }
-    double &getY() { 
-        point_2d pos = getCenterPos(); 
-        return pos.m_y; }
+    double &getX()
+    {
+        point_2d pos = getCenterPos();
+        return pos.m_x;
+    }
+    double &getY()
+    {
+        point_2d pos = getCenterPos();
+        return pos.m_y;
+    }
 
     point_2d getCenterPos()
     {
