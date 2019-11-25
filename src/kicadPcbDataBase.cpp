@@ -12,7 +12,7 @@ bool kicadPcbDataBase::buildKicadPcb() {
     if (!parser.parseKicadPcb(&tree))
         return false;
     std::string treeFile = "in";
-    parser.writeTree(tree, treeFile);
+    //parser.writeTree(tree, treeFile);
 
     std::stringstream ss;
     auto default_rule = rule{0.25, 0.25};
@@ -1502,7 +1502,7 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
 
     kicadParser writer(outputFileName);
     std::string treeFile = "out";
-    writer.writeTree(tree, treeFile);
+    //writer.writeTree(tree, treeFile);
     writer.writeKicadPcb(tree);
 }
 
