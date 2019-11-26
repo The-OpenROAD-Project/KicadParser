@@ -890,6 +890,32 @@ void kicadPcbDataBase::printInst()
     }
 }
 
+void kicadPcbDataBase::printLockedInst()
+{
+std::cout << std::endl;
+    std::cout << "#####################################" << std::endl;
+    std::cout << "###                               ###" << std::endl;
+    std::cout << "###       LOCKED INST             ###" << std::endl;
+    std::cout << "###                               ###" << std::endl;
+    std::cout << "#####################################" << std::endl;
+    for (auto &inst : instances)
+    {
+        if(!inst.isLocked()) continue;
+        point_2d instSize;
+        getCompBBox(inst.getComponentId(), &instSize);
+        std::cout << inst.getName() << ", instId: " << inst.getId() << ", compId: " << inst.getComponentId()
+                  << ", layer: " << inst.getLayer()
+                  << ", Bbox: " << instSize.m_x << " " << instSize.m_y
+                  << "====================== " << std::endl;
+        //TODO: API for below loop access
+        for (auto &pin_it : inst.m_pin_net_map)
+        {
+            std::cout << "\tpinName: " << pin_it.first << " netId: " << pin_it.second << std::endl;
+        }
+    }
+
+}
+
 ///// Bookshelf nodes format
 void kicadPcbDataBase::printNodes()
 {

@@ -45,6 +45,7 @@ class kicadPcbDataBase {
     void printUnconnectedPins();
     void printKiCad(const std::string folderName = "", const std::string fileNameStamp = "");
     void printNodes();
+    void printLockedInst();
 
     bool buildKicadPcb();
 
