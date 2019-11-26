@@ -46,8 +46,10 @@ class kicadPcbDataBase {
     void printKiCad(const std::string folderName = "", const std::string fileNameStamp = "");
     void printNodes();
     void printLockedInst();
+    void printRoutedSegmentsWLAndNumVias();
 
     bool buildKicadPcb();
+    void removeRoutedSegmentsAndVias();
 
     bool getPcbRouterInfo(std::vector<std::set<std::pair<double, double>>> *);
     bool getPinPosition(const std::string &inst_name, const std::string &pin_name, point_2d *pos);
@@ -94,6 +96,7 @@ class kicadPcbDataBase {
     points_2d &getBoardBoundary() { return m_boundary; }
     void addClearanceDrc(Object &obj1, Object &obj2);
     void printClearanceDrc();
+    int getInstancesCount() { return instances.size(); }
 
    private:
     net &getNet(const std::string &);
