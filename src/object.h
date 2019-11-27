@@ -96,6 +96,23 @@ public:
         return m_equs;
     }
 
+    void printObject()
+    {
+        std::cout << "Net: " << m_netId;
+        if (m_type == ObjectType::PIN)
+        {
+            std::cout << " Pin " << m_dbId << " comp: " << m_compId << " inst: " << m_instId << std::endl;
+        }
+        else if (m_type == ObjectType::SEGMENT)
+        {
+            std::cout << "Segment " << m_dbId << std::endl;
+        }
+        else if (m_type == ObjectType::VIA)
+        {
+            std::cout << "Via " << m_dbId << std::endl;
+        }
+    }
+
 private:
     ObjectType m_type;
     int m_dbId; // id in kicad database
