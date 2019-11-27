@@ -46,6 +46,7 @@ class kicadPcbDataBase {
     void printKiCad(const std::string folderName = "", const std::string fileNameStamp = "");
     void printNodes();
     void printLockedInst();
+    void printDesignStatistics();
     void printRoutedSegmentsWLAndNumVias();
 
     bool buildKicadPcb();

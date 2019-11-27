@@ -776,17 +776,15 @@ void kicadPcbDataBase::printInst() {
     }
 }
 
-void kicadPcbDataBase::printLockedInst()
-{
-std::cout << std::endl;
+void kicadPcbDataBase::printLockedInst() {
+    std::cout << std::endl;
     std::cout << "#####################################" << std::endl;
     std::cout << "###                               ###" << std::endl;
     std::cout << "###       LOCKED INST             ###" << std::endl;
     std::cout << "###                               ###" << std::endl;
     std::cout << "#####################################" << std::endl;
-    for (auto &inst : instances)
-    {
-        if(!inst.isLocked()) continue;
+    for (auto &inst : instances) {
+        if (!inst.isLocked()) continue;
         point_2d instSize;
         getCompBBox(inst.getComponentId(), &instSize);
         std::cout << inst.getName() << ", instId: " << inst.getId() << ", compId: " << inst.getComponentId()
@@ -794,12 +792,40 @@ std::cout << std::endl;
                   << ", Bbox: " << instSize.m_x << " " << instSize.m_y
                   << "====================== " << std::endl;
         //TODO: API for below loop access
-        for (auto &pin_it : inst.m_pin_net_map)
-        {
+        for (auto &pin_it : inst.m_pin_net_map) {
             std::cout << "\tpinName: " << pin_it.first << " netId: " << pin_it.second << std::endl;
         }
     }
+}
 
+void kicadPcbDataBase::printDesignStatistics() {
+    std::cout << std::endl;
+    std::cout << "#####################################" << std::endl;
+    std::cout << "###                               ###" << std::endl;
+    std::cout << "###       Design Statistics       ###" << std::endl;
+    std::cout << "###                               ###" << std::endl;
+    std::cout << "#####################################" << std::endl;
+
+    // Required
+    int numTwoPinNets = 0;
+    int numThreePinNets = 0;
+    int numPinsInLargestNet = 0;
+
+    for (auto &net : nets) {
+        if(net.m_pins.size() ==2 ){
+            numTwoPinNets++;
+        }
+        if(net.m_pins.size() ==3) {
+            numThreePinNets++;
+        }
+        if(net.m_pins.size()>numPinsInLargestNet){
+            numPinsInLargestNet = net.m_pins.size();
+        }
+    }
+    
+    std::cout << "# 2-pin net: " << numTwoPinNets << std::endl;
+    std::cout << "# 3-pin net: " << numThreePinNets << std::endl;
+    std::cout << "# pins in the largest net: " << numPinsInLargestNet << std::endl;
 }
 
 ///// Bookshelf nodes format
