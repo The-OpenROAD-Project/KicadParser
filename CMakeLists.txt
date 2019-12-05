@@ -5,10 +5,17 @@ project(KiCadPcbParser)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -ggdb")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+find_package(SWIG_EXECUTABLE "/bin/swig")
+if(NOT SWIG_EXECUTABLE)
+set(SWIG_EXECUTABLE "/bin/swig")
+endif()
+find_package( PythonInterp 2.7 REQUIRED )
+find_package( PythonLibs 2.7 REQUIRED )
 
 find_package(Boost REQUIRED)
 
@@ -19,6 +26,7 @@ set (KICADPCB_SRC
   src/kicadParser.cpp
   src/shape.cpp
   src/util.cpp
+  src/PcbDB_wrapper.cpp
   )
 
 set (KICADPCB_HEADER
@@ -36,11 +44,16 @@ set (KICADPCB_HEADER
   src/object.h
   )
 
+set (DB_SWIG_FILES 
+  src/PcbDB.i
+)
+
 ############################################################
 # include directories 
 ############################################################
 include_directories(
     ${Boost_INCLUDE_DIR}
+    ${PYTHON_INCLUDE_DIRS}
   )
 
 ############################################################
@@ -62,9 +75,16 @@ set_target_properties( kicadpcbparserlib
 ############################################################
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${KICADPCB_HOME}/bin)
 
+add_custom_command( OUTPUT ${KICADPCB_HOME}/src/PcbDB_wrapper.cpp
+  COMMAND ${SWIG_EXECUTABLE} -python -c++ -o ${KICADPCB_HOME}/src/PcbDB_wrapper.cpp ${KICADPCB_HOME}/src/PcbDB.i   
+  WORKING_DIRECTORY ${KICADPCB_HOME}
+  DEPENDS ${DB_SWIG_FILES}
+)
+
 add_executable( kicadpcbparser src/main.cpp )
 target_link_libraries( kicadpcbparser
   kicadpcbparserlib
+  ${PYTHON_INCLUDE_DIRS}
   )
 
 ############################################################
@@ -74,4 +94,3 @@ target_link_libraries( kicadpcbparser
 #install(FILES ${PCBROUTER_HEADER} DESTINATION include)
 #install(TARGETS pcbrouter DESTINATION bin)
 #install(TARGETS pcbrouterlib DESTINATION lib)
-
