@@ -23,6 +23,7 @@ install_manifest.txt
 *.pro
 *fp-info-cache
 *autosave*.kicad_pcb
+*.kicad_pcb-bak
 
 # Backup files
 *.bk
