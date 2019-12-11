@@ -24,7 +24,7 @@ bool kicadPcbDataBase::buildKicadPcb() {
                 auto layer_name = layer_node.m_branches[0].m_value;
                 auto layer_type = layer_node.m_branches[1].m_value;
                 //Use "signal" to decide
-                if (layer_type == "signal") {
+                if (layer_type == "signal" || layer_type == "power") {
                     layer_to_index_map[layer_name] = std::stoi(layer_node.m_value);
                     index_to_layer_map[std::stoi(layer_node.m_value)] = layer_name;
                 }
