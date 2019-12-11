@@ -17,8 +17,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 #set(SWIG_EXECUTABLE "/usr/local/bin/swig")
 #endif()
 
-find_package( PythonInterp 2.7 REQUIRED )
-find_package( PythonLibs 2.7 REQUIRED )
+find_package(PythonInterp 2.7 REQUIRED)
+find_package(PythonLibs 2.7 REQUIRED)
 find_package(SWIG REQUIRED)
 find_package(Boost REQUIRED)
 
