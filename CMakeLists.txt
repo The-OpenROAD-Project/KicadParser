@@ -10,15 +10,16 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -ggdb")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-#find_package(SWIG_EXECUTABLE swig)
-find_library(SWIG_EXECUTABLE swig)
-if(NOT SWIG_EXECUTABLE)
+
+#find_library(SWIG_EXECUTABLE swig)
+#if(NOT SWIG_EXECUTABLE)
 #set(SWIG_EXECUTABLE "/bin/swig")
-set(SWIG_EXECUTABLE "/usr/local/bin/swig")
-endif()
+#set(SWIG_EXECUTABLE "/usr/local/bin/swig")
+#endif()
+
 find_package( PythonInterp 2.7 REQUIRED )
 find_package( PythonLibs 2.7 REQUIRED )
-
+find_package(SWIG REQUIRED)
 find_package(Boost REQUIRED)
 
 set(KICADPCB_HOME ${PROJECT_SOURCE_DIR} )
