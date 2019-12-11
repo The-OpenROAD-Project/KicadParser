@@ -52,7 +52,7 @@ class kicadPcbDataBase {
     bool buildKicadPcb();
     void removeRoutedSegmentsAndVias();
 
-    bool getPcbRouterInfo(std::vector<std::set<std::pair<double, double>>> *);
+    bool getPcbRouterInfo(std::vector<std::set<std::pair<double, double> > > *);
     bool getPinPosition(const std::string &inst_name, const std::string &pin_name, point_2d *pos);
     bool getPinPosition(const int inst_id, const int &pin_id, point_2d *pos);
     void getPinPosition(const padstack &, const instance &, point_2d *pos);
@@ -115,7 +115,7 @@ class kicadPcbDataBase {
     std::unordered_map<std::string, int> component_name_to_id;  //<component name, component int>
 
     //Drc
-    std::vector<std::pair<Object, Object>> clearanceDrcs;
+    std::vector<std::pair<Object, Object> > clearanceDrcs;
 
     // Object Instances
     std::vector<instance> instances;
@@ -139,7 +139,7 @@ class kicadPcbDataBase {
     std::vector<track> the_tracks;
 
     // For differential pair lookup
-    std::map<std::string, std::pair<int, int>> name_to_diff_pair_net_map;  // <net name, <netId1, netId2>>
+    std::map<std::string, std::pair<int, int> > name_to_diff_pair_net_map;  // <net name, <netId1, netId2>>
 
     // Misc.
     Tree tree;
