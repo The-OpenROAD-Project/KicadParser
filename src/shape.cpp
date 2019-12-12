@@ -436,45 +436,46 @@ points_2d viaToOctagon(const double &size, const point_2d &pos, const double &cl
 
     auto coords = points_2d{};
     auto point = point_2d{};
+    double r = _size.m_x + clearance;
 
     //[0]
-    point.m_x = pos.m_x + _size.m_x + (clearance * tan(22.5 * M_PI / 180));
-    point.m_y = pos.m_y + _size.m_y + clearance;
+    point.m_x = pos.m_x + r * tan(22.5 * M_PI / 180);
+    point.m_y = pos.m_y + r;
     coords.push_back(point);
 
     //[1]
-    point.m_x = pos.m_x + _size.m_x + clearance;
-    point.m_y = pos.m_y + _size.m_y + (clearance * tan(22.5 * M_PI / 180));
+    point.m_x = pos.m_x + r;
+    point.m_y = pos.m_y + r * tan(22.5 * M_PI / 180);
     coords.push_back(point);
 
     //[2]
-    point.m_x = pos.m_x + _size.m_x + clearance;
-    point.m_y = pos.m_y - _size.m_y - (clearance * tan(22.5 * M_PI / 180));
+    point.m_x = pos.m_x + r;
+    point.m_y = pos.m_y - r * tan(22.5 * M_PI / 180);
     coords.push_back(point);
 
     //[3]
-    point.m_x = pos.m_x + _size.m_x + (clearance * tan(22.5 * M_PI / 180));
-    point.m_y = pos.m_y - _size.m_y - clearance;
+    point.m_x = pos.m_x + r * tan(22.5 * M_PI / 180);
+    point.m_y = pos.m_y - r;
     coords.push_back(point);
 
     //[4]
-    point.m_x = pos.m_x - _size.m_x - (clearance * tan(22.5 * M_PI / 180));
-    point.m_y = pos.m_y - _size.m_y - clearance;
+    point.m_x = pos.m_x - r * tan(22.5 * M_PI / 180);
+    point.m_y = pos.m_y - r;
     coords.push_back(point);
 
     //[5]
-    point.m_x = pos.m_x - _size.m_x - clearance;
-    point.m_y = pos.m_y - _size.m_y - (clearance * tan(22.5 * M_PI / 180));
+    point.m_x = pos.m_x - r;
+    point.m_y = pos.m_y - r * tan(22.5 * M_PI / 180);
     coords.push_back(point);
 
     //[6]
-    point.m_x = pos.m_x - _size.m_x - clearance;
-    point.m_y = pos.m_y + _size.m_y + (clearance * tan(22.5 * M_PI / 180));
+    point.m_x = pos.m_x - r;
+    point.m_y = pos.m_y + r * tan(22.5 * M_PI / 180);
     coords.push_back(point);
 
     //[7]
-    point.m_x = pos.m_x - _size.m_x - (clearance * tan(22.5 * M_PI / 180));
-    point.m_y = pos.m_y + _size.m_y + clearance;
+    point.m_x = pos.m_x - r * tan(22.5 * M_PI / 180);
+    point.m_y = pos.m_y + r;
     coords.push_back(point);
 
     return coords;
@@ -850,42 +851,42 @@ points_2d viaToRelativeOctagon(const double &size, const double &clearance)
     auto point = point_2d{};
 
     //[0]
-    point.m_x = _size.m_x + (clearance * tan(22.5 * M_PI / 180));
+    point.m_x = (_size.m_x + clearance) * tan(22.5 * M_PI / 180);
     point.m_y = _size.m_y + clearance;
     coords.push_back(point);
 
     //[1]
     point.m_x = _size.m_x + clearance;
-    point.m_y = _size.m_y + (clearance * tan(22.5 * M_PI / 180));
+    point.m_y = (_size.m_y + clearance) * tan(22.5 * M_PI / 180);
     coords.push_back(point);
 
     //[2]
     point.m_x = _size.m_x + clearance;
-    point.m_y = _size.m_y - (clearance * tan(22.5 * M_PI / 180));
+    point.m_y = -1 * (_size.m_y + clearance) * tan(22.5 * M_PI / 180);
     coords.push_back(point);
 
     //[3]
-    point.m_x = _size.m_x + (clearance * tan(22.5 * M_PI / 180));
-    point.m_y = _size.m_y - clearance;
+    point.m_x = (_size.m_x + clearance) * tan(22.5 * M_PI / 180);
+    point.m_y = -1 * _size.m_y - clearance;
     coords.push_back(point);
 
     //[4]
-    point.m_x = _size.m_x - (clearance * tan(22.5 * M_PI / 180));
-    point.m_y = _size.m_y - clearance;
+    point.m_x = -1 * (_size.m_x + clearance) * tan(22.5 * M_PI / 180);
+    point.m_y = -1 * _size.m_y - clearance;
     coords.push_back(point);
 
     //[5]
-    point.m_x = _size.m_x - clearance;
-    point.m_y = _size.m_y - (clearance * tan(22.5 * M_PI / 180));
+    point.m_x = -1 * _size.m_x - clearance;
+    point.m_y = -1 * (_size.m_y + clearance) * tan(22.5 * M_PI / 180);
     coords.push_back(point);
 
     //[6]
-    point.m_x = _size.m_x - clearance;
-    point.m_y = _size.m_y + (clearance * tan(22.5 * M_PI / 180));
+    point.m_x = -1 * _size.m_x - clearance;
+    point.m_y = (_size.m_y + clearance) * tan(22.5 * M_PI / 180);
     coords.push_back(point);
 
     //[7]
-    point.m_x = _size.m_x - (clearance * tan(22.5 * M_PI / 180));
+    point.m_x = -1 * (_size.m_x + clearance) * tan(22.5 * M_PI / 180);
     point.m_y = _size.m_y + clearance;
     coords.push_back(point);
 
