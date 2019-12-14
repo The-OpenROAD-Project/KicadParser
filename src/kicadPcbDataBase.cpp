@@ -144,6 +144,7 @@ bool kicadPcbDataBase::buildKicadPcb() {
                 comp_id = comp_it->second;
             }
             component the_comp{comp_id, component_name};
+            bool isBottomComp = false;
             int noNameId = 0;
             for (auto &&module_node : sub_node.m_branches) {
                 if (module_node.m_value == "locked") {
@@ -153,6 +154,10 @@ bool kicadPcbDataBase::buildKicadPcb() {
                 if (module_node.m_value == "layer") {
                     layer = module_node.m_branches[0].m_value;
                     the_instance.m_layer = this->getLayerId(layer);
+
+                    if (the_instance.m_layer != 0) {
+                        isBottomComp = true;
+                    }
                 }
 
                 if (module_node.m_value == "at") {
@@ -221,6 +226,11 @@ bool kicadPcbDataBase::buildKicadPcb() {
 
                         get_2d(ss, begin(module_node.m_branches[3].m_branches), the_padstack.m_pos.m_x, the_padstack.m_pos.m_y);
                         get_2d(ss, begin(module_node.m_branches[4].m_branches), the_point.m_x, the_point.m_y);
+                        // Always store the Top layer relative location as Components
+                        if (isBottomComp) {
+                            the_padstack.m_pos.m_y = -the_padstack.m_pos.m_y;
+                        }
+
                         the_padstack.m_size = the_point;
                         if ((int)module_node.m_branches[3].m_branches.size() == 3) {
                             get_value(ss, begin(module_node.m_branches[3].m_branches) + 2, the_padstack.m_angle);
@@ -812,17 +822,17 @@ void kicadPcbDataBase::printDesignStatistics() {
     int numPinsInLargestNet = 0;
 
     for (auto &net : nets) {
-        if(net.m_pins.size() ==2 ){
+        if (net.m_pins.size() == 2) {
             numTwoPinNets++;
         }
-        if(net.m_pins.size() ==3) {
+        if (net.m_pins.size() == 3) {
             numThreePinNets++;
         }
-        if(net.m_pins.size()>numPinsInLargestNet){
+        if (net.m_pins.size() > numPinsInLargestNet) {
             numPinsInLargestNet = net.m_pins.size();
         }
     }
-    
+
     std::cout << "# 2-pin net: " << numTwoPinNets << std::endl;
     std::cout << "# 3-pin net: " << numThreePinNets << std::endl;
     std::cout << "# pins in the largest net: " << numPinsInLargestNet << std::endl;
@@ -1198,6 +1208,10 @@ bool kicadPcbDataBase::getPinPosition(const int inst_id, const int &pin_id, poin
 void kicadPcbDataBase::getPinPosition(const padstack &pad, const instance &inst, point_2d *pos) {
     double padX = pad.m_pos.m_x, padY = pad.m_pos.m_y;
     auto instAngle = inst.m_angle * (-M_PI / 180.0);
+
+    if (inst.isFlipped()) {
+        padY = -padY;
+    }
 
     auto s = sin((float)instAngle);
     auto c = cos((float)instAngle);
