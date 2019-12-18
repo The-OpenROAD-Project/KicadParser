@@ -13,12 +13,14 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 #find_package(SWIG_EXECUTABLE swig)
 find_library(SWIG_EXECUTABLE swig)
 if(NOT SWIG_EXECUTABLE)
-set(SWIG_EXECUTABLE "/bin/swig")
+set(SWIG_EXECUTABLE "swig")
 #set(SWIG_EXECUTABLE "/usr/local/bin/swig")
 endif()
 
-find_package( PythonInterp 2.7 REQUIRED )
-find_package( PythonLibs 2.7 REQUIRED )
+#find_package( PythonInterp 2.7 REQUIRED )
+find_package( PythonInterp 3 REQUIRED )
+#find_package( PythonLibs 2.7 REQUIRED )
+find_package( PythonLibs 3 REQUIRED )
 find_package(SWIG REQUIRED)
 find_package(Boost REQUIRED)
 
@@ -79,7 +81,7 @@ set_target_properties( kicadpcbparserlib
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${KICADPCB_HOME}/bin)
 
 add_custom_command( OUTPUT ${KICADPCB_HOME}/src/PcbDB_wrapper.cpp
-  COMMAND ${SWIG_EXECUTABLE} -python -c++ -o ${KICADPCB_HOME}/src/PcbDB_wrapper.cpp ${KICADPCB_HOME}/src/PcbDB.i   
+  COMMAND ${SWIG_EXECUTABLE} -python -py3 -c++ -o ${KICADPCB_HOME}/src/PcbDB_wrapper.cpp ${KICADPCB_HOME}/src/PcbDB.i   
   WORKING_DIRECTORY ${KICADPCB_HOME}
   DEPENDS ${DB_SWIG_FILES}
 )
