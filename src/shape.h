@@ -68,7 +68,7 @@ void testShapeToCoords();
 points_2d segment_to_rect(const points_2d &point, const double &width);
 points_2d via_to_circle(const point_2d &pos, const double &size);
 // To points_2d Octagon
-points_2d pinShapeToOctagon(const point_2d &size, const point_2d &pos, const double &clearance, const double &instAngle, const double &pinAngle);
+points_2d pinShapeToOctagon(const point_2d &size, const point_2d &pos, const double &clearance, const double &instAngle, const double &pinAngle, padShape type);
 points_2d viaToOctagon(const double &size, const point_2d &pos, const double &clearance);
 points_2d segmentToOctagon(const points_2d &point, const double &w, const double &clearance);
 points_2d relativeStartEndPointsForSegment(const points_2d &p);

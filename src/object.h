@@ -95,7 +95,10 @@ public:
     {
         return m_equs;
     }
-
+    void clearEquation()
+    {
+        m_equs.clear();
+    }
     void printObject()
     {
         std::cout << "Net: " << m_netId;
@@ -111,6 +114,43 @@ public:
         {
             std::cout << "Via " << m_dbId << std::endl;
         }
+
+        printPolygon();
+
+        std::cout << "position: ";
+        for (auto &&p : m_pos)
+        {
+            std::cout << p << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    void updateShape(std::string type, double &diff)
+    {
+        for (auto &&point : m_shape)
+        {
+            if (type == "x")
+            {
+                point.m_x = point.m_x + diff;
+            }
+            else if (type == "y")
+            {
+                point.m_y = point.m_y + diff;
+            }
+        }
+    }
+
+    void printPolygon()
+    {
+        std::cout << "Polygon(";
+        for (size_t i = 0; i < m_shape.size(); ++i)
+        {
+
+            std::cout << m_shape[i];
+            if (i != 7)
+                std::cout << ", ";
+        }
+        std::cout << ")" << std::endl;
     }
 
 private:
