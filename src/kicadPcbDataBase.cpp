@@ -930,7 +930,7 @@ void kicadPcbDataBase::testInstAngle()
 {
     for (auto &inst : instances)
     {
-        double angle = 270;
+        double angle = 180;
         inst.setAngle(angle);
     }
 }
@@ -1692,6 +1692,7 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
 
             int compId = inst->getComponentId();
             auto comp = getComponent(compId);
+            std::cout << "inst name: " << instName << std::endl;
             for (auto &&pad_node : sub_node.m_branches)
             {
                 if (pad_node.m_value == "pad")
@@ -1703,6 +1704,12 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
                         continue;
 
                     double angle = pad->getAngle() + inst->getAngle();
+                    if (angle < 0)
+                        angle = angle + 360;
+                    else if (angle >= 360)
+                        angle = angle - 360;
+                    std::cout << "pad name: " << padName << "relative pad angle: " << pad->getAngle()
+                              << "pad angle: " << angle << "inst angle: " << inst->getAngle() << std::endl;
                     for (auto &&pad_sub_node : pad_node.m_branches)
                     {
                         if (pad_sub_node.m_value == "at")
@@ -1717,6 +1724,7 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
                             else if (angle != 0 && pad_sub_node.m_branches.size() == 2)
                             {
                                 auto t = Tree{std::to_string(angle), {}};
+                                pad_sub_node.m_branches.push_back(t);
                             }
                         }
                     }
