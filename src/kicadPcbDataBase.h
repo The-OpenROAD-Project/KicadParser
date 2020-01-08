@@ -102,6 +102,7 @@ public:
     void printClearanceDrc();
     int getInstancesCount() { return instances.size(); }
     double getLargestClearance();
+    void testInstAngle();
 
 private:
     net &getNet(const std::string &);
