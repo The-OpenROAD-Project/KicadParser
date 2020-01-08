@@ -1256,7 +1256,7 @@ void kicadPcbDataBase::printPcbRouterInfo()
     }
 }
 
-bool kicadPcbDataBase::getPcbRouterInfo(std::vector<std::set<std::pair<double, double>>> *routerInfo)
+bool kicadPcbDataBase::getPcbRouterInfo(std::vector<std::set<std::pair<double, double> > > *routerInfo)
 {
     int numNet = nets.size();
     // netId = 0 is default
