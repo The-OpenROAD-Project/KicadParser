@@ -228,7 +228,21 @@ bool kicadPcbDataBase::buildKicadPcb()
                             the_poly.m_shape.push_back(the_point);
                         }
                         get_value(ss, begin(module_node.m_branches[2].m_branches), the_poly.m_width);
+                        for (auto &&poly_node : module_node.m_branches) 
+                        {
+                            if(poly_node.m_value == "layer") {
+                                std::string layer = poly_node.m_branches[0].m_value;
+                                if (layer == PCB_LAYER_FRONT_CRTYD_STR) 
+                                    the_poly.m_layer = PCB_LAYER_FRONT_CRTYD_ID;
+                                else if(layer == PCB_LAYER_BOTTOM_CRTYD_STR)
+                                    the_poly.m_layer = PCB_LAYER_BOTTOM_CRTYD_ID;
+                                else the_poly.m_layer = -1;
+                            }
+                        }
                         the_comp.m_polys.push_back(the_poly);
+
+
+
                     }
                     else if (module_node.m_value == "fp_circle")
                     {

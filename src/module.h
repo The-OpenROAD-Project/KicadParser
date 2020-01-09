@@ -6,6 +6,7 @@
 #include <vector>
 #include "pin.h"
 #include "shape.h"
+#include "layer.h"
 //#include <optional>
 
 class component {
@@ -52,6 +53,22 @@ class component {
             pad = nullptr;
             return false;
         }
+    }
+
+    bool hasFrontCrtyd() {
+        for (auto &poly : m_polys) {
+            if (poly.m_layer == PCB_LAYER_FRONT_CRTYD_ID)
+                return true;
+        }
+        return false;
+    }
+
+    bool hasBottomCrtyd() {
+           for (auto &poly : m_polys) {
+            if (poly.m_layer == PCB_LAYER_BOTTOM_CRTYD_ID)
+                return true;
+        }
+        return false;
     }
 
     friend class kicadPcbDataBase;
