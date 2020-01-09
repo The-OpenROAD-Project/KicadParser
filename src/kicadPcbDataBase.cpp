@@ -838,6 +838,7 @@ void kicadPcbDataBase::getBoardBoundaryByEdgeCuts(double &minX, double &maxX, do
     maxX = std::numeric_limits<double>::lowest();
     minY = std::numeric_limits<double>::max();
     maxY = std::numeric_limits<double>::lowest();
+    double maxWidth = std::numeric_limits<double>::lowest();
 
     for (auto &grLine : this->boundaryLines)
     {
@@ -850,7 +851,14 @@ void kicadPcbDataBase::getBoardBoundaryByEdgeCuts(double &minX, double &maxX, do
         maxX = std::max(grLine.m_end.m_x, maxX);
         minY = std::min(grLine.m_end.m_y, minY);
         maxY = std::max(grLine.m_end.m_y, maxY);
+
+        maxWidth = std::max(grLine.m_width, maxWidth);
     }
+
+    minX += maxWidth/2.0;
+    minY += maxWidth/2.0;
+    maxX -= maxWidth/2.0;
+    maxY -= maxWidth/2.0;
 }
 
 void kicadPcbDataBase::printSegment()
