@@ -1681,7 +1681,7 @@ std::vector<int> kicadPcbDataBase::getPinLayer(const int &instId, const int &pad
     }
 }
 
-void kicadPcbDataBase::printKiCad(const std::string folderName, const std::string fileNameStamp)
+void kicadPcbDataBase::printKiCad(const std::string folderName, const std::string fileNameStamp, const std::string fileName)
 {
     std::string instName;
     for (size_t i = 0; i < tree.m_branches.size(); ++i)
@@ -1923,6 +1923,10 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
         fileNameExtraTag = "output";
     }
     std::string outputFileName = fileNameExtraTag + "." + fileNameWoExtension + "." + fileExtension;
+    if (!fileName.empty())
+    {
+        outputFileName = fileName;
+    }
     if (!folderName.empty())
     {
         outputFileName = utilParser::appendDirectory(folderName, outputFileName);

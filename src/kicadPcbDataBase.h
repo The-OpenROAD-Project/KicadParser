@@ -48,7 +48,7 @@ public:
     void printFile();
     void printSegment();
     void printUnconnectedPins();
-    void printKiCad(const std::string folderName = "", const std::string fileNameStamp = "");
+    void printKiCad(const std::string folderName = "", const std::string fileNameStamp = "", const std::string fileName = "");
     void printNodes();
     void printLockedInst();
     void printDesignStatistics();
