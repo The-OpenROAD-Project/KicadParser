@@ -21,6 +21,8 @@
 #include "tree.h"
 #include "util.h"
 #include "via.h"
+#include "shape.h"
+#include "layer.h"
 
 class kicadPcbDataBase
 {
@@ -97,8 +99,9 @@ public:
 
     // TODO: Get design boundary based on rotated pin shape
     void getBoardBoundaryByPinLocation(double &minX, double &maxX, double &minY, double &maxY);
-    //[[deprecated]] points_2d &getBoardBoundary() { return m_boundary; }
+    //[[deprecated]] points_2d &getBoardBoundary() { return m_boundary; } 
     void addClearanceDrc(Object &obj1, Object &obj2);
+    void getBoardBoundaryByEdgeCuts(double &minX, double &maxX, double &minY, double &maxY);
     void printClearanceDrc();
     int getInstancesCount() { return instances.size(); }
     double getLargestClearance();
@@ -128,6 +131,7 @@ private:
     std::vector<net> nets;
     std::vector<netclass> netclasses;
 
+    std::vector<line> boundaryLines;
     points_2d m_boundary; //(minx,miny) (maxx,maxy)
 
     // Keepouts
