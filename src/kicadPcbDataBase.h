@@ -97,7 +97,7 @@ public:
 
     // TODO: Get design boundary based on rotated pin shape
     void getBoardBoundaryByPinLocation(double &minX, double &maxX, double &minY, double &maxY);
-    points_2d &getBoardBoundary() { return m_boundary; }
+    [[deprecated]] points_2d &getBoardBoundary() { return m_boundary; }
     void addClearanceDrc(Object &obj1, Object &obj2);
     void printClearanceDrc();
     int getInstancesCount() { return instances.size(); }

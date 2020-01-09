@@ -1013,7 +1013,7 @@ void kicadPcbDataBase::printNodes()
         getCompBBox(inst.getComponentId(), &instSize);
         std::cout << inst.getName()
                   << "          " << instSize.m_x << "          " << instSize.m_y
-                  << "          " << inst.getX()  << "          " << inst.getY()
+                  << "          " << inst.getX() << "          " << inst.getY()
                   << "          " << inst.getAngle() << "         " << inst.getLayer() << endl;
     }
 }
@@ -1267,7 +1267,7 @@ void kicadPcbDataBase::printPcbRouterInfo()
     }
 }
 
-bool kicadPcbDataBase::getPcbRouterInfo(std::vector<std::set<std::pair<double, double> > > *routerInfo)
+bool kicadPcbDataBase::getPcbRouterInfo(std::vector<std::set<std::pair<double, double>>> *routerInfo)
 {
     int numNet = nets.size();
     // netId = 0 is default
