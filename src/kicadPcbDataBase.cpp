@@ -461,6 +461,40 @@ bool kicadPcbDataBase::buildKicadPcb()
         //TODO: calculate outline
         else if (sub_node.m_value == "gr_line")
         {
+            line l;
+            std::string layer;
+            for (auto &&boundary_node : sub_node.m_branches)
+            {
+                if (boundary_node.m_value == "start")
+                {
+                    get_2d(ss, begin(boundary_node.m_branches), l.m_start.m_x, l.m_start.m_y);
+                }
+                else if (boundary_node.m_value == "end")
+                {
+                    get_2d(ss, begin(boundary_node.m_branches), l.m_end.m_x, l.m_end.m_y);
+                }
+                else if (boundary_node.m_value == "angle")
+                {
+                    get_value(ss, begin(boundary_node.m_branches), l.m_angle);
+                }
+
+                else if (boundary_node.m_value == "layer")
+                {
+
+                    layer = boundary_node.m_branches[0].m_value;
+                    if (layer != PCB_LAYER_EDGE_CUT_STR)
+                        l.m_layer = -1;
+                    else
+                        l.m_layer = PCB_LAYER_EDGE_CUT_ID;
+                    //TODO: add other layers to layer map
+                }
+                else if (boundary_node.m_value == "width")
+                {
+                    get_value(ss, begin(boundary_node.m_branches), l.m_width);
+                }
+            }
+            if (l.m_layer == PCB_LAYER_EDGE_CUT_ID)
+                boundaryLines.push_back(l);
         }
         // TODO: belongs to Net Instance
         else if (sub_node.m_value == "segment")
@@ -764,9 +798,9 @@ bool kicadPcbDataBase::buildKicadPcb()
 void kicadPcbDataBase::getBoardBoundaryByPinLocation(double &minX, double &maxX, double &minY, double &maxY)
 {
     minX = std::numeric_limits<double>::max();
-    maxX = std::numeric_limits<double>::min();
+    maxX = std::numeric_limits<double>::lowest();
     minY = std::numeric_limits<double>::max();
-    maxY = std::numeric_limits<double>::min();
+    maxY = std::numeric_limits<double>::lowest();
 
     for (auto &inst : instances)
     {
@@ -781,6 +815,27 @@ void kicadPcbDataBase::getBoardBoundaryByPinLocation(double &minX, double &maxX,
             minY = std::min(pinLocation.m_y, minY);
             maxY = std::max(pinLocation.m_y, maxY);
         }
+    }
+}
+
+void kicadPcbDataBase::getBoardBoundaryByEdgeCuts(double &minX, double &maxX, double &minY, double &maxY)
+{
+    minX = std::numeric_limits<double>::max();
+    maxX = std::numeric_limits<double>::lowest();
+    minY = std::numeric_limits<double>::max();
+    maxY = std::numeric_limits<double>::lowest();
+
+    for (auto &grLine : this->boundaryLines)
+    {
+        minX = std::min(grLine.m_start.m_x, minX);
+        maxX = std::max(grLine.m_start.m_x, maxX);
+        minY = std::min(grLine.m_start.m_y, minY);
+        maxY = std::max(grLine.m_start.m_y, maxY);
+
+        minX = std::min(grLine.m_end.m_x, minX);
+        maxX = std::max(grLine.m_end.m_x, maxX);
+        minY = std::min(grLine.m_end.m_y, minY);
+        maxY = std::max(grLine.m_end.m_y, maxY);
     }
 }
 

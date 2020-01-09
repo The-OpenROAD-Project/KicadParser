@@ -23,6 +23,7 @@ struct line
     point_2d m_end;
     double m_width; //2*radius
     int m_layer;
+    int m_angle;
 };
 
 struct circle
