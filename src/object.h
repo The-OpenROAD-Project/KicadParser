@@ -46,12 +46,12 @@ public:
     points_2d &getRelativeShape() { return m_relativeShape; }
     //point_2d &getPos() { return m_pos[0];}
     points_2d &getPos() { return m_pos; }
-    double &getX()
+    double getX()
     {
         point_2d pos = getCenterPos();
         return pos.m_x;
     }
-    double &getY()
+    double getY()
     {
         point_2d pos = getCenterPos();
         return pos.m_y;

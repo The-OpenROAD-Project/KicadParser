@@ -25,6 +25,9 @@ class Point_2D {
     bool operator<(const Point_2D &p) const {
         return std::tie(m_x, m_y) < std::tie(p.m_x, p.m_y);
     }
+    bool operator<=(const Point_2D &p) const {
+        return std::tie(m_x, m_y) <= std::tie(p.m_x, p.m_y);
+    }
     void operator=(const Point_2D &p) {
         m_x = p.m_x;
         m_y = p.m_y;

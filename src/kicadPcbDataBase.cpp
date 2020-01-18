@@ -1771,7 +1771,7 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
 
             int compId = inst->getComponentId();
             auto comp = getComponent(compId);
-            std::cout << "inst name: " << instName << std::endl;
+            //std::cout << "inst name: " << instName << std::endl;
             for (auto &&pad_node : sub_node.m_branches)
             {
                 if (pad_node.m_value == "pad")
@@ -1787,8 +1787,8 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
                         angle = angle + 360;
                     else if (angle >= 360)
                         angle = angle - 360;
-                    std::cout << "pad name: " << padName << "relative pad angle: " << pad->getAngle()
-                              << "pad angle: " << angle << "inst angle: " << inst->getAngle() << std::endl;
+                    //std::cout << "pad name: " << padName << "relative pad angle: " << pad->getAngle()
+                    //          << "pad angle: " << angle << "inst angle: " << inst->getAngle() << std::endl;
                     for (auto &&pad_sub_node : pad_node.m_branches)
                     {
                         if (pad_sub_node.m_value == "at")
