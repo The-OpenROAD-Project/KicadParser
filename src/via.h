@@ -26,13 +26,15 @@ class Via {
     std::vector<std::string> &getLayers() { return m_layers; }  //layers[0] start layer; layers[1] end layer
     ViaType getType() { return m_type; }
 
+    void setType(const ViaType &type) { m_type = type; }
+    void setSize(const double &size) { m_size = size; }
     void setPosition(const point_2d &_pos) { m_pos = std::move(_pos); }
     void setLayer(const std::vector<std::string> &_layers) { m_layers = std::move(_layers); }
 
    private:
     int m_id;
     int m_netId;
-    double m_size;  //Drill or Diameter?
+    double m_size;  //Diameter
     std::vector<std::string> m_layers;
     point_2d m_pos;
     ViaType m_type;
