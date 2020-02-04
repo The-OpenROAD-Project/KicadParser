@@ -1649,6 +1649,15 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
             auto n = Tree{"net", {}};
             n.m_branches.push_back(Tree{std::to_string(net.getId()), {}});
 
+            if (via.getType() == ViaType::MICRO || via.getType() == ViaType::BLIND_BURIED) {
+                auto viaType = Tree{"", {}};
+                if (via.getType() == ViaType::MICRO) {
+                    viaType.m_value = "micro";
+                } else if (via.getType() == ViaType::BLIND_BURIED) {
+                    viaType.m_value = "blind";
+                }
+                v.m_branches.push_back(viaType);
+            }
             v.m_branches.push_back(at);
             v.m_branches.push_back(size);
             //v.m_branches.push_back(drill);
