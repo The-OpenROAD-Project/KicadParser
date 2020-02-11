@@ -13,25 +13,22 @@
 #include <string>
 #include <unordered_map>
 #include "kicadParser.h"
+#include "layer.h"
 #include "module.h"
 #include "net.h"
 #include "object.h"
 #include "pin.h"
 #include "segment.h"
+#include "shape.h"
 #include "tree.h"
 #include "util.h"
 #include "via.h"
-#include "shape.h"
-#include "layer.h"
 
-class kicadPcbDataBase
-{
-public:
-    kicadPcbDataBase(std::string fileName) : m_fileName(fileName)
-    {
+class kicadPcbDataBase {
+   public:
+    kicadPcbDataBase(std::string fileName) : m_fileName(fileName) {
         std::cerr << "Build Kicad Pcb database..." << std::endl;
-        if (!buildKicadPcb())
-        {
+        if (!buildKicadPcb()) {
             std::cerr << "ERROR: Building Kicad Pcb database failed." << std::endl;
             assert(false);
         }
@@ -48,7 +45,7 @@ public:
     void printFile();
     void printSegment();
     void printUnconnectedPins();
-    void printKiCad(const std::string folderName = "", const std::string fileNameStamp = "", const std::string fileName = "");
+    void printKiCad(const std::string folderName = "", const std::string fileNameStamp = "", const std::string fileName = "", const bool verbose = false);
     void printNodes();
     void printLockedInst();
     void printDesignStatistics();
@@ -99,7 +96,7 @@ public:
 
     // TODO: Get design boundary based on rotated pin shape
     void getBoardBoundaryByPinLocation(double &minX, double &maxX, double &minY, double &maxY);
-    //[[deprecated]] points_2d &getBoardBoundary() { return m_boundary; } 
+    //[[deprecated]] points_2d &getBoardBoundary() { return m_boundary; }
     void addClearanceDrc(Object &obj1, Object &obj2);
     void getBoardBoundaryByEdgeCuts(double &minX, double &maxX, double &minY, double &maxY);
     void printClearanceDrc();
@@ -107,20 +104,20 @@ public:
     double getLargestClearance();
     void testInstAngle();
 
-private:
+   private:
     net &getNet(const std::string &);
 
-private:
+   private:
     // Input
     std::string m_fileName;
 
     // Index map
-    std::unordered_map<std::string, int> layer_to_index_map;   //<layer name, layer id>
-    std::map<int, std::string> index_to_layer_map;             //<layer id, layer name>
-    std::unordered_map<std::string, int> net_name_to_id;       //<net name, net id>
-    std::unordered_map<int, std::string> net_id_to_name;       //<net id, net name>
-    std::unordered_map<std::string, int> instance_name_to_id;  //<instance name, instance int>
-    std::unordered_map<std::string, int> component_name_to_id; //<component name, component int>
+    std::unordered_map<std::string, int> layer_to_index_map;    //<layer name, layer id>
+    std::map<int, std::string> index_to_layer_map;              //<layer id, layer name>
+    std::unordered_map<std::string, int> net_name_to_id;        //<net name, net id>
+    std::unordered_map<int, std::string> net_id_to_name;        //<net id, net name>
+    std::unordered_map<std::string, int> instance_name_to_id;   //<instance name, instance int>
+    std::unordered_map<std::string, int> component_name_to_id;  //<component name, component int>
 
     //Drc
     std::vector<std::pair<Object, Object> > clearanceDrcs;
@@ -132,11 +129,11 @@ private:
     std::vector<netclass> netclasses;
 
     std::vector<line> boundaryLines;
-    points_2d m_boundary; //(minx,miny) (maxx,maxy)
+    points_2d m_boundary;  //(minx,miny) (maxx,maxy)
 
     // Keepouts
-    std::map<std::string, paths> layer_to_keepout_map; // keepout zones <layer name, polygon>
-    paths all_keepouts;                                // All keepout zones in polygon
+    std::map<std::string, paths> layer_to_keepout_map;  // keepout zones <layer name, polygon>
+    paths all_keepouts;                                 // All keepout zones in polygon
     std::vector<Pin> unconnectedPins;
 
     // TODO: Move to Net Instance and Consider the usage of DRC checking
@@ -144,11 +141,11 @@ private:
 
     // TODO: Refactor this
     // Reorganized for router
-    std::vector<pad> all_pads; // unconnected pins
+    std::vector<pad> all_pads;  // unconnected pins
     std::vector<track> the_tracks;
 
     // For differential pair lookup
-    std::map<std::string, std::pair<int, int> > name_to_diff_pair_net_map; // <net name, <netId1, netId2>>
+    std::map<std::string, std::pair<int, int> > name_to_diff_pair_net_map;  // <net name, <netId1, netId2>>
 
     // Misc.
     Tree tree;

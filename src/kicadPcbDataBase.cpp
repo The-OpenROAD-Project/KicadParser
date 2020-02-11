@@ -1458,7 +1458,7 @@ std::vector<int> kicadPcbDataBase::getPinLayer(const int &instId, const int &pad
     }
 }
 
-void kicadPcbDataBase::printKiCad(const std::string folderName, const std::string fileNameStamp, const std::string fileName) {
+void kicadPcbDataBase::printKiCad(const std::string folderName, const std::string fileNameStamp, const std::string fileName, const bool verbose) {
     std::string instName;
     for (size_t i = 0; i < tree.m_branches.size(); ++i) {
         auto &sub_node = tree.m_branches[i];
@@ -1510,7 +1510,10 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
 
             int compId = inst->getComponentId();
             auto comp = getComponent(compId);
-            std::cout << "inst name: " << instName << std::endl;
+            if (verbose) {
+                std::cout << "inst name: " << instName << std::endl;
+            }
+
             for (auto &&pad_node : sub_node.m_branches) {
                 if (pad_node.m_value == "pad") {
                     std::string padName = pad_node.m_branches[0].m_value;
@@ -1524,8 +1527,11 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
                         angle = angle + 360;
                     else if (angle >= 360)
                         angle = angle - 360;
-                    std::cout << "pad name: " << padName << "relative pad angle: " << pad->getAngle()
-                              << "pad angle: " << angle << "inst angle: " << inst->getAngle() << std::endl;
+
+                    if (verbose) {
+                        std::cout << "pad name: " << padName << "relative pad angle: " << pad->getAngle()
+                                  << "pad angle: " << angle << "inst angle: " << inst->getAngle() << std::endl;
+                    }
                     for (auto &&pad_sub_node : pad_node.m_branches) {
                         if (pad_sub_node.m_value == "at") {
                             if (pad_sub_node.m_branches.size() == 3) {
