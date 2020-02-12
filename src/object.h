@@ -26,7 +26,7 @@ public:
            const int netId = -1,
            const int compId = -1,
            const int instId = -1)
-        : m_type(type), m_dbId(dbId), m_netId(netId), m_compId(compId), m_instId(instId){};
+        : m_type(type), m_dbId(dbId), m_netId(netId), m_compId(compId), m_instId(instId), m_locked(false){};
     ~Object(){};
     void setRTreeId(const std::pair<int, int> &id) { m_ids.push_back(id); }
     void setBBox(const box &b) { m_bbox = b; }
@@ -37,6 +37,8 @@ public:
     void setX(const double &x) { m_pos[0].m_x = x; }
     void setY(const double &y) { m_pos[0].m_y = y; }
     void setPos(const point_2d &pos) { m_pos.push_back(pos); }
+    void setLocked(const bool locked) { m_locked = locked; }
+    bool isLocked() {return m_locked;}
     box &getBBox() { return m_bbox; }
     ObjectType &getType() { return m_type; }
     int &getDBId() { return m_dbId; }
@@ -164,6 +166,7 @@ private:
     polygon_t m_poly;
     points_2d m_pos;
     int m_layer;
+    bool m_locked;
 
     box m_bbox;
     std::vector<std::pair<int, int>> m_ids; //< the ith rtree, id in rtree >
