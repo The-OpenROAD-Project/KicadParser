@@ -1646,8 +1646,8 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
 
             auto size = Tree{"size", {}};
             size.m_branches.push_back(Tree{std::to_string(via.getSize()), {}});
-            //auto drill = Tree{"drill", {}};
-            //drill.m_branches.push_back(Tree{"0.3937", {}});
+            auto drill = Tree{"drill", {}};
+            drill.m_branches.push_back(Tree{std::to_string(via.getDrillSize()), {}});
             auto layer = Tree{"layers", {}};
             std::vector<std::string> layers = via.getLayers();
             layer.m_branches.push_back(Tree{layers[0], {}});
@@ -1666,7 +1666,7 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
             }
             v.m_branches.push_back(at);
             v.m_branches.push_back(size);
-            //v.m_branches.push_back(drill);
+            v.m_branches.push_back(drill);
             v.m_branches.push_back(layer);
             v.m_branches.push_back(n);
             tree.m_branches.push_back(v);
