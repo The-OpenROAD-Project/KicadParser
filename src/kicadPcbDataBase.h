@@ -52,6 +52,7 @@ class kicadPcbDataBase {
     void printRoutedSegmentsWLAndNumVias();
 
     bool buildKicadPcb();
+    component& buildFlippedComponent(int &comp_id, int &flipped_comp_id);
     void removeRoutedSegmentsAndVias();
 
     bool getPcbRouterInfo(std::vector<std::set<std::pair<double, double> > > *);

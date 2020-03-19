@@ -686,6 +686,60 @@ bool kicadPcbDataBase::buildKicadPcb() {
     return true;
 }
 
+component& kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_comp_id) {
+    auto &comp = getComponent(comp_id);
+    auto flipped_component = component{flipped_comp_id, comp.m_name};
+    auto &the_padstack = comp.getPadstacks(); 
+
+    auto &the_lines = comp.m_lines;
+    for (auto &the_line : the_lines) {
+        auto the_flipped_line = line{};
+        the_flipped_line.m_start.m_y = -the_line.m_start.m_y;
+        the_flipped_line.m_end.m_y = -the_line.m_end.m_y;
+        the_flipped_line.m_width = the_line.m_width;
+        the_flipped_line.m_layer = the_line.m_layer;
+        the_flipped_line.m_angle = 180.0 - the_line.m_angle;
+        flipped_component.m_lines.push_back(the_flipped_line);
+    }
+
+    auto &the_circles = comp.m_circles;
+    for (auto &the_circle : the_circles) {
+        auto the_flipped_circle = circle{};
+        the_flipped_circle.m_center.m_y = -the_circle.m_center.m_y;
+        the_flipped_circle.m_end = the_circle.m_end;
+        the_flipped_circle.m_width = the_circle.m_width;
+        the_flipped_circle.m_layer = the_circle.m_layer;
+        flipped_component.m_circles.push_back(the_flipped_circle);
+    }
+
+    auto &the_polys = comp.m_polys;
+    for (auto &the_poly : the_polys) {
+        auto the_flipped_poly = poly{};
+
+        for (auto &ext_vert : the_poly.m_shape) {
+            auto the_point = point_2d{};
+            the_point.m_x = ext_vert.m_x;
+            the_point.m_y = -ext_vert.m_y;
+            the_flipped_poly.m_shape.push_back(the_point);
+        }
+        the_flipped_poly.m_width = the_poly.m_width;
+        the_flipped_poly.m_layer = the_poly.m_layer;
+        flipped_component.m_polys.push_back(the_flipped_poly);
+    }
+
+    auto &the_arcs = comp.m_arcs;
+    for (auto &the_arc: the_arcs) {
+        auto the_flipped_arc = arc{};
+        the_flipped_arc.m_start.m_y = -the_arc.m_start.m_y;
+        the_flipped_arc.m_end.m_y = -the_arc.m_end.m_y;
+        the_flipped_arc.m_width = the_arc.m_width;
+        the_flipped_arc.m_layer = the_arc.m_layer;
+        the_flipped_arc.m_angle = 180.0 - the_arc. m_angle;
+        flipped_component.m_arcs.push_back(the_flipped_arc);
+    }
+    return flipped_component;
+}
+
 void kicadPcbDataBase::getBoardBoundaryByPinLocation(double &minX, double &maxX, double &minY, double &maxY) {
     minX = std::numeric_limits<double>::max();
     maxX = std::numeric_limits<double>::lowest();
