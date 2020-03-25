@@ -38,7 +38,7 @@ public:
     void setY(const double &y) { m_pos[0].m_y = y; }
     void setPos(const point_2d &pos) { m_pos.push_back(pos); }
     void setLocked(const bool locked) { m_locked = locked; }
-    bool isLocked() {return m_locked;}
+    bool isLocked() { return m_locked; }
     box &getBBox() { return m_bbox; }
     ObjectType &getType() { return m_type; }
     int &getDBId() { return m_dbId; }
@@ -48,6 +48,7 @@ public:
     points_2d &getRelativeShape() { return m_relativeShape; }
     //point_2d &getPos() { return m_pos[0];}
     points_2d &getPos() { return m_pos; }
+    bool isBus() { return m_bus; }
     double getX()
     {
         point_2d pos = getCenterPos();
@@ -72,6 +73,33 @@ public:
             p = m_pos[0];
         }
         return p;
+    }
+
+    int getAngle()
+    {
+        int angle = 0;
+        if (m_type == ObjectType::SEGMENT)
+        {
+            if (m_pos[0].m_x == m_pos[1].m_x)
+            {
+                angle = 90;
+            }
+            else if (m_pos[0].m_y == m_pos[1].m_y)
+            {
+                angle = 0;
+            }
+            else if ((m_pos[0].m_x > m_pos[1].m_x && m_pos[0].m_y > m_pos[1].m_y)||
+                (m_pos[1].m_x > m_pos[0].m_x && m_pos[1].m_y > m_pos[0].m_y)) 
+            {
+                angle = 45;
+            }
+            else if ((m_pos[0].m_x < m_pos[1].m_x && m_pos[0].m_y > m_pos[1].m_y)||
+                (m_pos[1].m_x < m_pos[0].m_x && m_pos[1].m_y > m_pos[0].m_y)) 
+            {
+                angle = 135;
+            }
+        }
+        return angle;
     }
     polygon_t &getPoly() { return m_poly; }
     int &getNetId() { return m_netId; }
@@ -167,6 +195,7 @@ private:
     points_2d m_pos;
     int m_layer;
     bool m_locked;
+    bool m_bus;
 
     box m_bbox;
     std::vector<std::pair<int, int>> m_ids; //< the ith rtree, id in rtree >
