@@ -382,6 +382,8 @@ bool kicadPcbDataBase::buildKicadPcb() {
                 }
             }
             the_instance.m_comp_id = comp_id;
+            the_instance.m_comp_id_top = comp_id;
+            the_instance.m_comp_id_bottom = comp_id;
             instance_name_to_id[the_instance.m_name] = the_instance.m_id;
             instances.push_back(the_instance);
         }
@@ -568,6 +570,27 @@ bool kicadPcbDataBase::buildKicadPcb() {
         }
     }
 
+    std::vector<component> flipped_components;
+    int n_comp = components.size();
+    for (auto &comp : components) {
+        int compid = comp.getId();
+        int flipped_compid = compid + n_comp;
+        auto flipped_comp = buildFlippedComponent(compid, flipped_compid);
+        //cout << "pushing back flipped comps " << flipped_comp.getName() << endl;
+        flipped_components.push_back(flipped_comp);
+        cout << "done" << endl;
+    }
+
+    for (auto &comp : flipped_components) {
+        components.push_back(comp);
+    }
+
+    for (auto &inst : instances) {
+        auto &comp = components.at(inst.getComponentId());
+        int compid = comp.getId();
+        inst.m_comp_id_bottom = compid + n_comp;
+    }
+
     //std::cout << "MINX: " << minx << " MAXX: " << maxx << std::endl;
     //std::cout << "MINY: " << miny << " MAXY: " << maxy << std::endl;
     m_boundary.push_back(point_2d{minx, miny});
@@ -686,7 +709,7 @@ bool kicadPcbDataBase::buildKicadPcb() {
     return true;
 }
 
-component& kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_comp_id) {
+component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_comp_id) {
     auto &comp = getComponent(comp_id);
     auto flipped_component = component{flipped_comp_id, comp.m_name};
     auto &the_padstack = comp.getPadstacks(); 
@@ -737,6 +760,7 @@ component& kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_co
         the_flipped_arc.m_angle = 180.0 - the_arc. m_angle;
         flipped_component.m_arcs.push_back(the_flipped_arc);
     }
+
     return flipped_component;
 }
 

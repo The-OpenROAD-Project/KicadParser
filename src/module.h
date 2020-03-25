@@ -112,7 +112,7 @@ class instance {
     void setAngle(double &angle) { m_angle = angle; }
     void setX(double &x) { m_x = x; }
     void setY(double &y) { m_y = y; }
-    void setLayer(int &layer) { m_layer = layer; }
+    void setLayer(int &layer) { m_layer = layer; (layer == 0) ? m_comp_id = m_comp_id_top : m_comp_id = m_comp_id_bottom;}
     double getAngle() const { return m_angle; }
     double getX() const { return m_x; }
     double getY() const { return m_y; }
@@ -125,6 +125,8 @@ class instance {
     int m_id;
     std::string m_name;
     int m_comp_id;
+    int m_comp_id_top;
+    int m_comp_id_bottom;
     std::string m_side;
     double m_x;
     double m_y;
