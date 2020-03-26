@@ -107,12 +107,13 @@ class instance {
     ~instance() {}
 
     const std::string &getName() const { return m_name; }
-    int getComponentId() const { return m_comp_id; }
+    //int getComponentId() const { return m_comp_id; }
+    int getComponentId() const { return (m_layer == 0 ?  m_comp_id_top : m_comp_id_bottom); }
     int getId() const { return m_id; }
     void setAngle(double &angle) { m_angle = angle; }
     void setX(double &x) { m_x = x; }
     void setY(double &y) { m_y = y; }
-    void setLayer(int &layer) { m_layer = layer; (layer == 0) ? m_comp_id = m_comp_id_top : m_comp_id = m_comp_id_bottom;}
+    void setLayer(int &layer) { m_layer = layer;}
     double getAngle() const { return m_angle; }
     double getX() const { return m_x; }
     double getY() const { return m_y; }

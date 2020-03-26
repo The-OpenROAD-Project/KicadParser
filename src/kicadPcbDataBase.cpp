@@ -1003,7 +1003,8 @@ void kicadPcbDataBase::printNodes() {
         std::cout << inst.getName()
                   << "          " << instSize.m_x << "          " << instSize.m_y
                   << "          " << inst.getX() << "          " << inst.getY()
-                  << "          " << inst.getAngle() << "         " << inst.getLayer() << endl;
+                  << "          " << inst.getAngle() << "         " << inst.getLayer()
+                  << "          " << inst.getComponentId() << endl;
     }
 }
 
