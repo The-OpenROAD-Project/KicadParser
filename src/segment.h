@@ -20,6 +20,13 @@ public:
     points_2d &getPos() { return m_pos; }
     std::string &getLayer() { return m_layer; }
     void setPosition(const points_2d &_pos) { m_pos = std::move(_pos); }
+    double getLength()
+    {
+        if (m_pos.size() != 2)
+            return 0;
+        double length = m_pos[0].getDistance(m_pos[0], m_pos[1]);
+        return length;
+    }
 
 private:
     int m_id;

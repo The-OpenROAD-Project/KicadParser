@@ -1610,7 +1610,7 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
             for (auto &&pad_node : sub_node.m_branches) {
                 if (pad_node.m_value == "pad") {
                     std::string padName = pad_node.m_branches[0].m_value;
-
+                    std::string type = pad_node.m_branches[1].m_value;
                     padstack *pad;
                     if (!comp.getPadstack(padName, pad))
                         continue;
@@ -1623,7 +1623,8 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
 
                     if (verbose) {
                         std::cout << "pad name: " << padName << "relative pad angle: " << pad->getAngle()
-                                  << "pad angle: " << angle << "inst angle: " << inst->getAngle() << std::endl;
+                                  << "pad angle: " << angle << "inst angle: " << inst->getAngle()
+                                  << "inst layer: " << inst->getLayer() << std::endl;
                     }
                     for (auto &&pad_sub_node : pad_node.m_branches) {
                         if (pad_sub_node.m_value == "at") {
@@ -1635,6 +1636,33 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
                             } else if (angle != 0 && pad_sub_node.m_branches.size() == 2) {
                                 auto t = Tree{std::to_string(angle), {}};
                                 pad_sub_node.m_branches.push_back(t);
+                            }
+                        }
+                        else if (pad_sub_node.m_value == "layers" && type == "smd") {
+                            if (pad_sub_node.m_branches.size() == 3) {
+                                if (inst->getLayer() == 0) {
+                                    pad_sub_node.m_branches[0].m_value = index_to_layer_map[0];
+                                    pad_sub_node.m_branches[1].m_value = PCB_LAYER_FRONT_MASK_STR;
+                                    pad_sub_node.m_branches[2].m_value = PCB_LAYER_FRONT_PASTE_STR;
+                                } else if (inst->getLayer() == 31) {
+                                    pad_sub_node.m_branches[0].m_value = index_to_layer_map[31];
+                                    pad_sub_node.m_branches[1].m_value = PCB_LAYER_BOTTOM_MASK_STR;
+                                    pad_sub_node.m_branches[2].m_value = PCB_LAYER_BOTTOM_PASTE_STR;
+                                }
+                            } else {
+                                if (inst->getLayer() == 0) {
+                                    pad_sub_node.m_branches[0].m_value = index_to_layer_map[0];
+                                } else if (inst->getLayer() == 31) {
+                                    pad_sub_node.m_branches[0].m_value = index_to_layer_map[31];
+                                }
+                                bool firstLayer = false;
+                                for (auto &&layers : pad_sub_node.m_branches) {
+                                    if (!firstLayer) {
+                                        firstLayer = true;
+                                        continue;
+                                    }
+                                    layers.m_value = "";
+                                }
                             }
                         }
                     }

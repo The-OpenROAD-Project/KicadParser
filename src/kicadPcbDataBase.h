@@ -102,6 +102,7 @@ class kicadPcbDataBase {
     void getBoardBoundaryByEdgeCuts(double &minX, double &maxX, double &minY, double &maxY);
     void printClearanceDrc();
     int getInstancesCount() { return instances.size(); }
+    int getNumNets() { return nets.size(); }
     double getLargestClearance();
     void testInstAngle();
 
