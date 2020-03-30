@@ -719,7 +719,7 @@ component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_com
         the_flipped_pad.m_type = pad.m_type;
         the_flipped_pad.m_pos.m_x = pad.m_pos.m_x;
         the_flipped_pad.m_pos.m_y = -pad.m_pos.m_y;
-        the_flipped_pad.m_angle = 180 - pad.m_angle;
+        the_flipped_pad.m_angle = pad.m_angle;
         the_flipped_pad.m_size = pad.m_size;
         the_flipped_pad.m_rule = pad.m_rule;
         the_flipped_pad.m_roundrect_ratio = pad.m_roundrect_ratio;
@@ -747,7 +747,7 @@ component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_com
         } else if (the_line.m_layer == 31) {
             the_flipped_line.m_layer = 0;
         }
-        the_flipped_line.m_angle = 180.0 - the_line.m_angle;
+        the_flipped_line.m_angle = the_line.m_angle;
         flipped_component.m_lines.push_back(the_flipped_line);
     }
 
@@ -798,7 +798,7 @@ component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_com
         } else if (the_arc.m_layer == 31) {
             the_flipped_arc.m_layer = 0;
         }
-        the_flipped_arc.m_angle = 180.0 - the_arc. m_angle;
+        the_flipped_arc.m_angle = the_arc.m_angle;
         flipped_component.m_arcs.push_back(the_flipped_arc);
     }
 
