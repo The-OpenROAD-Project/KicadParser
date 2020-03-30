@@ -710,11 +710,35 @@ bool kicadPcbDataBase::buildKicadPcb() {
 component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_comp_id) {
     auto &comp = getComponent(comp_id);
     auto flipped_component = component{flipped_comp_id, comp.m_name};
-    auto &the_padstack = comp.getPadstacks();
+    auto &the_padstacks = comp.getPadstacks();
+    for (auto &pad : the_padstacks) {
+        auto the_flipped_pad = padstack{};
+        the_flipped_pad.m_id = pad.m_id;
+        the_flipped_pad.m_name = pad.m_name;
+        the_flipped_pad.m_shape = pad.m_shape;
+        the_flipped_pad.m_type = pad.m_type;
+        the_flipped_pad.m_pos.m_x = pad.m_pos.m_x;
+        the_flipped_pad.m_pos.m_y = -pad.m_pos.m_y;
+        the_flipped_pad.m_angle = 180 - pad.m_angle;
+        the_flipped_pad.m_size = pad.m_size;
+        the_flipped_pad.m_rule = pad.m_rule;
+        the_flipped_pad.m_roundrect_ratio = pad.m_roundrect_ratio;
+
+        // Derived variables not done yet
+        the_flipped_pad.m_shape_coords = pad.m_shape_coords;
+        the_flipped_pad.m_shape_polygon = pad.m_shape_polygon;
+
+        the_flipped_pad.m_layers = pad.m_layers;
+        flipped_component.m_pads.push_back(the_flipped_pad);
+    }   
+    flipped_component.m_pad_name_to_id = comp.m_pad_name_to_id;
 
     auto &the_lines = comp.m_lines;
     for (auto &the_line : the_lines) {
         auto the_flipped_line = line{};
+        the_flipped_line.m_start.m_x = the_line.m_start.m_x;
+        the_flipped_line.m_end.m_x = the_line.m_end.m_x;    
+
         the_flipped_line.m_start.m_y = -the_line.m_start.m_y;
         the_flipped_line.m_end.m_y = -the_line.m_end.m_y;
         the_flipped_line.m_width = the_line.m_width;
@@ -730,6 +754,7 @@ component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_com
     auto &the_circles = comp.m_circles;
     for (auto &the_circle : the_circles) {
         auto the_flipped_circle = circle{};
+        the_flipped_circle.m_center.m_x = the_circle.m_center.m_x;
         the_flipped_circle.m_center.m_y = -the_circle.m_center.m_y;
         the_flipped_circle.m_end = the_circle.m_end;
         the_flipped_circle.m_width = the_circle.m_width;
@@ -763,6 +788,8 @@ component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_com
     auto &the_arcs = comp.m_arcs;
     for (auto &the_arc: the_arcs) {
         auto the_flipped_arc = arc{};
+        the_flipped_arc.m_start.m_y = the_arc.m_start.m_x;
+        the_flipped_arc.m_end.m_y = the_arc.m_end.m_x;
         the_flipped_arc.m_start.m_y = -the_arc.m_start.m_y;
         the_flipped_arc.m_end.m_y = -the_arc.m_end.m_y;
         the_flipped_arc.m_width = the_arc.m_width;
