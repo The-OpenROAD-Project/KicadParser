@@ -194,7 +194,7 @@
 
   (module "SOT804-4(NXP)" (layer Bottom) (tedit 0) (tstamp 5E70116E)
     (at 110.4751 101.3766 180)
-    (fp_text reference IC9 (at -4.55 5 90) (layer B.SilkS)
+    (fp_text reference IC91 (at -4.55 5 90) (layer B.SilkS)
       (effects (font (size 0.77216 0.77216) (thickness 0.115824)) (justify right bottom mirror))
     )
     (fp_text value TDA19988BHN/C1,557 (at -4.5 -6.07 180) (layer B.Fab)
@@ -343,7 +343,7 @@
 
   (module "SOT804-4(NXP)" (layer Bottom) (tedit 0) (tstamp 5E70116E)
     (at 110.7291 90.2006 270)
-    (fp_text reference IC9 (at -4.55 5) (layer B.SilkS)
+    (fp_text reference IC92 (at -4.55 5) (layer B.SilkS)
       (effects (font (size 0.77216 0.77216) (thickness 0.115824)) (justify left bottom mirror))
     )
     (fp_text value TDA19988BHN/C1,557 (at -4.5 -6.07 270) (layer B.Fab)
@@ -492,7 +492,7 @@
 
   (module "SOT804-4(NXP)" (layer Bottom) (tedit 0) (tstamp 5E70116E)
     (at 110.4751 78.2626 90)
-    (fp_text reference IC9 (at -4.55 5) (layer B.SilkS)
+    (fp_text reference IC93 (at -4.55 5) (layer B.SilkS)
       (effects (font (size 0.77216 0.77216) (thickness 0.115824)) (justify right bottom mirror))
     )
     (fp_text value TDA19988BHN/C1,557 (at -4.5 -6.07 270) (layer B.Fab)
@@ -641,7 +641,7 @@
 
   (module "SOT804-4(NXP)" (layer Top) (tedit 0) (tstamp 5E70116E)
     (at 123.4291 101.1226 180)
-    (fp_text reference IC9 (at -4.55 -5 90) (layer F.SilkS)
+    (fp_text reference IC94 (at -4.55 -5 90) (layer F.SilkS)
       (effects (font (size 0.77216 0.77216) (thickness 0.115824)) (justify right bottom))
     )
     (fp_text value TDA19988BHN/C1,557 (at -4.5 6.07) (layer F.Fab)
@@ -790,7 +790,7 @@
 
   (module "SOT804-4(NXP)" (layer Top) (tedit 0) (tstamp 5E70116E)
     (at 123.6831 89.6926 270)
-    (fp_text reference IC9 (at -4.55 -5) (layer F.SilkS)
+    (fp_text reference IC95 (at -4.55 -5) (layer F.SilkS)
       (effects (font (size 0.77216 0.77216) (thickness 0.115824)) (justify left bottom))
     )
     (fp_text value TDA19988BHN/C1,557 (at -4.5 6.07 90) (layer F.Fab)
@@ -939,7 +939,7 @@
 
   (module "SOT804-4(NXP)" (layer Top) (tedit 0) (tstamp 5E70116E)
     (at 123.1751 78.0086 90)
-    (fp_text reference IC9 (at -4.55 -5) (layer F.SilkS)
+    (fp_text reference IC96 (at -4.55 -5) (layer F.SilkS)
       (effects (font (size 0.77216 0.77216) (thickness 0.115824)) (justify right bottom))
     )
     (fp_text value TDA19988BHN/C1,557 (at -4.5 6.07 90) (layer F.Fab)
@@ -1088,7 +1088,7 @@
 
   (module "SOT804-4(NXP)" (layer Bottom) (tedit 0) (tstamp 5E70116E)
     (at 110.49 66.04)
-    (fp_text reference IC9 (at -4.55 5 90) (layer B.SilkS)
+    (fp_text reference IC97 (at -4.55 5 90) (layer B.SilkS)
       (effects (font (size 0.77216 0.77216) (thickness 0.115824)) (justify left bottom mirror))
     )
     (fp_text value TDA19988BHN/C1,557 (at -4.5 -6.07 180) (layer B.Fab)
@@ -1237,7 +1237,7 @@
 
   (module "SOT804-4(NXP)" (layer Top) (tedit 0) (tstamp 5D7C28DE)
     (at 123.19 66.04)
-    (fp_text reference IC9 (at -4.55 -5 -270) (layer F.SilkS)
+    (fp_text reference IC98 (at -4.55 -5 -270) (layer F.SilkS)
       (effects (font (size 0.77216 0.77216) (thickness 0.115824)) (justify left bottom))
     )
     (fp_text value TDA19988BHN/C1,557 (at -4.5 6.07) (layer F.Fab)

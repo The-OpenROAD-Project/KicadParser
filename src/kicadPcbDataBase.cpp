@@ -576,9 +576,7 @@ bool kicadPcbDataBase::buildKicadPcb() {
         int compid = comp.getId();
         int flipped_compid = compid + n_comp;
         auto flipped_comp = buildFlippedComponent(compid, flipped_compid);
-        //cout << "pushing back flipped comps " << flipped_comp.getName() << endl;
         flipped_components.push_back(flipped_comp);
-        cout << "done" << endl;
     }
 
     for (auto &comp : flipped_components) {
@@ -712,7 +710,7 @@ bool kicadPcbDataBase::buildKicadPcb() {
 component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_comp_id) {
     auto &comp = getComponent(comp_id);
     auto flipped_component = component{flipped_comp_id, comp.m_name};
-    auto &the_padstack = comp.getPadstacks(); 
+    auto &the_padstack = comp.getPadstacks();
 
     auto &the_lines = comp.m_lines;
     for (auto &the_line : the_lines) {
@@ -720,7 +718,11 @@ component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_com
         the_flipped_line.m_start.m_y = -the_line.m_start.m_y;
         the_flipped_line.m_end.m_y = -the_line.m_end.m_y;
         the_flipped_line.m_width = the_line.m_width;
-        the_flipped_line.m_layer = the_line.m_layer;
+        if (the_line.m_layer == 0) {
+            the_flipped_line.m_layer = 31;
+        } else if (the_line.m_layer == 31) {
+            the_flipped_line.m_layer = 0;
+        }
         the_flipped_line.m_angle = 180.0 - the_line.m_angle;
         flipped_component.m_lines.push_back(the_flipped_line);
     }
@@ -731,7 +733,11 @@ component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_com
         the_flipped_circle.m_center.m_y = -the_circle.m_center.m_y;
         the_flipped_circle.m_end = the_circle.m_end;
         the_flipped_circle.m_width = the_circle.m_width;
-        the_flipped_circle.m_layer = the_circle.m_layer;
+        if (the_circle.m_layer == 0) {
+            the_flipped_circle.m_layer = 31;
+        } else if (the_circle.m_layer == 31) {
+            the_flipped_circle.m_layer = 0;
+        }
         flipped_component.m_circles.push_back(the_flipped_circle);
     }
 
@@ -746,7 +752,11 @@ component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_com
             the_flipped_poly.m_shape.push_back(the_point);
         }
         the_flipped_poly.m_width = the_poly.m_width;
-        the_flipped_poly.m_layer = the_poly.m_layer;
+        if (the_poly.m_layer == 0) {
+            the_flipped_poly.m_layer = 31;
+        } else if (the_poly.m_layer == 31) {
+            the_flipped_poly.m_layer = 0;
+        }
         flipped_component.m_polys.push_back(the_flipped_poly);
     }
 
@@ -756,7 +766,11 @@ component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_com
         the_flipped_arc.m_start.m_y = -the_arc.m_start.m_y;
         the_flipped_arc.m_end.m_y = -the_arc.m_end.m_y;
         the_flipped_arc.m_width = the_arc.m_width;
-        the_flipped_arc.m_layer = the_arc.m_layer;
+        if (the_arc.m_layer == 0) {
+            the_flipped_arc.m_layer = 31;
+        } else if (the_arc.m_layer == 31) {
+            the_flipped_arc.m_layer = 0;
+        }
         the_flipped_arc.m_angle = 180.0 - the_arc. m_angle;
         flipped_component.m_arcs.push_back(the_flipped_arc);
     }
