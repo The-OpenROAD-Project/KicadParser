@@ -161,10 +161,10 @@ bool kicadPcbDataBase::buildKicadPcb()
             {
                 comp_id = (int)components.size();
             }
-            else
+            /* else
             {
                 comp_id = comp_it->second;
-            }
+            }*/
             component the_comp{comp_id, component_name};
             bool isBottomComp = false;
             int noNameId = 0;
@@ -283,10 +283,10 @@ bool kicadPcbDataBase::buildKicadPcb()
                         get_2d(ss, begin(module_node.m_branches[3].m_branches), the_padstack.m_pos.m_x, the_padstack.m_pos.m_y);
                         get_2d(ss, begin(module_node.m_branches[4].m_branches), the_point.m_x, the_point.m_y);
                         // Always store the Top layer relative location as Components
-                        if (isBottomComp)
+                        /*if (isBottomComp)
                         {
                             the_padstack.m_pos.m_y = -the_padstack.m_pos.m_y;
-                        }
+                        }*/
 
                         the_padstack.m_size = the_point;
                         if ((int)module_node.m_branches[3].m_branches.size() == 3)
@@ -377,8 +377,19 @@ bool kicadPcbDataBase::buildKicadPcb()
 
             if (comp_it == component_name_to_id.end())
             {
+
+                if (isBottomComp)
+                {
+                    component_name_to_id[component_name].second = comp_id;
+                    component_name_to_id[component_name].first = -1;
+                    the_comp.setIsFront(false);
+                }
+                else
+                {
+                    component_name_to_id[component_name].second = -1;
+                    component_name_to_id[component_name].first = comp_id;
+                }
                 components.push_back(the_comp);
-                component_name_to_id[component_name] = comp_id;
             }
 
             //Find the connection of the pad
@@ -467,9 +478,7 @@ bool kicadPcbDataBase::buildKicadPcb()
                     }
                 }
             }
-            the_instance.m_comp_id = comp_id;
-            the_instance.m_comp_id_top = comp_id;
-            the_instance.m_comp_id_bottom = comp_id;
+            the_instance.m_comp_id = std::make_pair(comp_id, comp_id);
             instance_name_to_id[the_instance.m_name] = the_instance.m_id;
             instances.push_back(the_instance);
         }
@@ -688,22 +697,32 @@ bool kicadPcbDataBase::buildKicadPcb()
 
     std::vector<component> flipped_components;
     int n_comp = components.size();
-    for (auto &comp : components) {
+    for (auto &comp : components)
+    {
         int compid = comp.getId();
         int flipped_compid = compid + n_comp;
         auto flipped_comp = buildFlippedComponent(compid, flipped_compid);
         flipped_components.push_back(flipped_comp);
     }
 
-    for (auto &comp : flipped_components) {
+    for (auto &comp : flipped_components)
+    {
+        std::string compName = comp.getName();
+        int id = comp.getId();
         components.push_back(comp);
+        if (comp.isFront())
+            component_name_to_id[compName].first = id;
+        else
+            component_name_to_id[compName].second = id;
     }
 
-    for (auto &inst : instances) {
+    for (auto &inst : instances)
+    {
         auto &comp = components.at(inst.getComponentId());
         int compid = comp.getId();
-
-        inst.m_comp_id_bottom = compid + n_comp;
+        std::string compName = comp.getName();
+        std::pair<int, int> ids = component_name_to_id[compName];
+        inst.setComponentIds(ids);
         /*if (inst.isFlipped()) {
             inst.m_comp_id_top = compid + n_comp;
         } else {
@@ -834,18 +853,20 @@ bool kicadPcbDataBase::buildKicadPcb()
     return true;
 }
 
-component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_comp_id) {
+component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_comp_id)
+{
     auto &comp = getComponent(comp_id);
     auto flipped_component = component{flipped_comp_id, comp.m_name};
     auto &the_padstacks = comp.getPadstacks();
-    for (auto &pad : the_padstacks) {
+    for (auto &pad : the_padstacks)
+    {
         auto the_flipped_pad = padstack{};
         the_flipped_pad.m_id = pad.m_id;
         the_flipped_pad.m_name = pad.m_name;
         the_flipped_pad.m_shape = pad.m_shape;
         the_flipped_pad.m_type = pad.m_type;
         the_flipped_pad.m_pos.m_x = pad.m_pos.m_x;
-        the_flipped_pad.m_pos.m_y = -1*pad.m_pos.m_y;
+        the_flipped_pad.m_pos.m_y = -1 * pad.m_pos.m_y;
 
         the_flipped_pad.m_angle = pad.m_angle;
         the_flipped_pad.m_size = pad.m_size;
@@ -855,33 +876,39 @@ component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_com
         // Derived variables not done yet
         the_flipped_pad.m_shape_coords = pad.m_shape_coords;
         the_flipped_pad.m_shape_polygon = pad.m_shape_polygon;
-        for(auto &&cord : the_flipped_pad.m_shape_coords) {
+        for (auto &&cord : the_flipped_pad.m_shape_coords)
+        {
             //std::cout << "(" << cord.m_x << "," << cord.m_y << ") ";
-            cord.m_y = -1*cord.m_y;
+            cord.m_y = -1 * cord.m_y;
         }
         //cout << endl;
-        for(auto &&cord : the_flipped_pad.m_shape_polygon) {
+        for (auto &&cord : the_flipped_pad.m_shape_polygon)
+        {
             //std::cout << "(" << cord.m_x << "," << cord.m_y << ") ";
-            cord.m_y = -1*cord.m_y;
+            cord.m_y = -1 * cord.m_y;
         }
 
         the_flipped_pad.m_layers = pad.m_layers;
         flipped_component.m_pads.push_back(the_flipped_pad);
-    }   
+    }
     flipped_component.m_pad_name_to_id = comp.m_pad_name_to_id;
 
     auto &the_lines = comp.m_lines;
-    for (auto &the_line : the_lines) {
+    for (auto &the_line : the_lines)
+    {
         auto the_flipped_line = line{};
         the_flipped_line.m_start.m_x = the_line.m_start.m_x;
-        the_flipped_line.m_end.m_x = the_line.m_end.m_x;    
+        the_flipped_line.m_end.m_x = the_line.m_end.m_x;
 
-        the_flipped_line.m_start.m_y = -1*the_line.m_start.m_y;
-        the_flipped_line.m_end.m_y = -1*the_line.m_end.m_y;
+        the_flipped_line.m_start.m_y = -1 * the_line.m_start.m_y;
+        the_flipped_line.m_end.m_y = -1 * the_line.m_end.m_y;
         the_flipped_line.m_width = the_line.m_width;
-        if (the_line.m_layer == 0) {
+        if (the_line.m_layer == 0)
+        {
             the_flipped_line.m_layer = 31;
-        } else if (the_line.m_layer == 31) {
+        }
+        else if (the_line.m_layer == 31)
+        {
             the_flipped_line.m_layer = 0;
         }
         the_flipped_line.m_angle = the_line.m_angle;
@@ -889,56 +916,73 @@ component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_com
     }
 
     auto &the_circles = comp.m_circles;
-    for (auto &the_circle : the_circles) {
+    for (auto &the_circle : the_circles)
+    {
         auto the_flipped_circle = circle{};
         the_flipped_circle.m_center.m_x = the_circle.m_center.m_x;
-        the_flipped_circle.m_center.m_y = -1*the_circle.m_center.m_y;
+        the_flipped_circle.m_center.m_y = -1 * the_circle.m_center.m_y;
         the_flipped_circle.m_end.m_x = the_circle.m_end.m_x;
-        the_flipped_circle.m_end.m_y = -1*the_circle.m_end.m_y;
+        the_flipped_circle.m_end.m_y = -1 * the_circle.m_end.m_y;
         the_flipped_circle.m_width = the_circle.m_width;
-        if (the_circle.m_layer == 0) {
+        if (the_circle.m_layer == 0)
+        {
             the_flipped_circle.m_layer = 31;
-        } else if (the_circle.m_layer == 31) {
+        }
+        else if (the_circle.m_layer == 31)
+        {
             the_flipped_circle.m_layer = 0;
         }
         flipped_component.m_circles.push_back(the_flipped_circle);
     }
 
     auto &the_polys = comp.m_polys;
-    for (auto &the_poly : the_polys) {
+    for (auto &the_poly : the_polys)
+    {
         auto the_flipped_poly = poly{};
 
-        for (auto &ext_vert : the_poly.m_shape) {
+        for (auto &ext_vert : the_poly.m_shape)
+        {
             auto the_point = point_2d{};
             the_point.m_x = ext_vert.m_x;
-            the_point.m_y = -1*-ext_vert.m_y;
+            the_point.m_y = -1 * -ext_vert.m_y;
             the_flipped_poly.m_shape.push_back(the_point);
         }
         the_flipped_poly.m_width = the_poly.m_width;
-        if (the_poly.m_layer == 0) {
+        if (the_poly.m_layer == 0)
+        {
             the_flipped_poly.m_layer = 31;
-        } else if (the_poly.m_layer == 31) {
+        }
+        else if (the_poly.m_layer == 31)
+        {
             the_flipped_poly.m_layer = 0;
         }
         flipped_component.m_polys.push_back(the_flipped_poly);
     }
 
     auto &the_arcs = comp.m_arcs;
-    for (auto &the_arc: the_arcs) {
+    for (auto &the_arc : the_arcs)
+    {
         auto the_flipped_arc = arc{};
         the_flipped_arc.m_start.m_y = the_arc.m_start.m_x;
         the_flipped_arc.m_end.m_y = the_arc.m_end.m_x;
-        the_flipped_arc.m_start.m_y = -1*the_arc.m_start.m_y;
-        the_flipped_arc.m_end.m_y = -1*the_arc.m_end.m_y;
+        the_flipped_arc.m_start.m_y = -1 * the_arc.m_start.m_y;
+        the_flipped_arc.m_end.m_y = -1 * the_arc.m_end.m_y;
         the_flipped_arc.m_width = the_arc.m_width;
-        if (the_arc.m_layer == 0) {
+        if (the_arc.m_layer == 0)
+        {
             the_flipped_arc.m_layer = 31;
-        } else if (the_arc.m_layer == 31) {
+        }
+        else if (the_arc.m_layer == 31)
+        {
             the_flipped_arc.m_layer = 0;
         }
         the_flipped_arc.m_angle = the_arc.m_angle;
         flipped_component.m_arcs.push_back(the_flipped_arc);
     }
+    if (comp.isFront())
+        flipped_component.setIsFront(false);
+    else
+        flipped_component.setIsFront(true);
 
     return flipped_component;
 }
@@ -1544,12 +1588,17 @@ bool kicadPcbDataBase::getInstance(const std::string &name, instance *&inst)
     }
 }
 
-bool kicadPcbDataBase::getComponent(const std::string &name, component *&comp)
+bool kicadPcbDataBase::getComponent(const std::string &name, component *&comp, bool isFront)
 {
     auto ite = component_name_to_id.find(name);
+    int id = -1;
     if (ite != component_name_to_id.end())
     {
-        comp = &(components.at(ite->second));
+        if (isFront)
+            id = ite->second.first;
+        else
+            id = ite->second.second;
+        comp = &(components.at(id));
         return true;
     }
     else
