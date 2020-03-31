@@ -586,7 +586,13 @@ bool kicadPcbDataBase::buildKicadPcb() {
     for (auto &inst : instances) {
         auto &comp = components.at(inst.getComponentId());
         int compid = comp.getId();
+
         inst.m_comp_id_bottom = compid + n_comp;
+        /*if (inst.isFlipped()) {
+            inst.m_comp_id_top = compid + n_comp;
+        } else {
+            inst.m_comp_id_bottom = compid + n_comp;
+        }*/
     }
 
     //std::cout << "MINX: " << minx << " MAXX: " << maxx << std::endl;
@@ -718,7 +724,8 @@ component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_com
         the_flipped_pad.m_shape = pad.m_shape;
         the_flipped_pad.m_type = pad.m_type;
         the_flipped_pad.m_pos.m_x = pad.m_pos.m_x;
-        the_flipped_pad.m_pos.m_y = -pad.m_pos.m_y;
+        the_flipped_pad.m_pos.m_y = -1*pad.m_pos.m_y;
+
         the_flipped_pad.m_angle = pad.m_angle;
         the_flipped_pad.m_size = pad.m_size;
         the_flipped_pad.m_rule = pad.m_rule;
@@ -727,6 +734,15 @@ component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_com
         // Derived variables not done yet
         the_flipped_pad.m_shape_coords = pad.m_shape_coords;
         the_flipped_pad.m_shape_polygon = pad.m_shape_polygon;
+        for(auto &&cord : the_flipped_pad.m_shape_coords) {
+            //std::cout << "(" << cord.m_x << "," << cord.m_y << ") ";
+            cord.m_y = -1*cord.m_y;
+        }
+        //cout << endl;
+        for(auto &&cord : the_flipped_pad.m_shape_polygon) {
+            //std::cout << "(" << cord.m_x << "," << cord.m_y << ") ";
+            cord.m_y = -1*cord.m_y;
+        }
 
         the_flipped_pad.m_layers = pad.m_layers;
         flipped_component.m_pads.push_back(the_flipped_pad);
@@ -739,8 +755,8 @@ component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_com
         the_flipped_line.m_start.m_x = the_line.m_start.m_x;
         the_flipped_line.m_end.m_x = the_line.m_end.m_x;    
 
-        the_flipped_line.m_start.m_y = -the_line.m_start.m_y;
-        the_flipped_line.m_end.m_y = -the_line.m_end.m_y;
+        the_flipped_line.m_start.m_y = -1*the_line.m_start.m_y;
+        the_flipped_line.m_end.m_y = -1*the_line.m_end.m_y;
         the_flipped_line.m_width = the_line.m_width;
         if (the_line.m_layer == 0) {
             the_flipped_line.m_layer = 31;
@@ -755,8 +771,9 @@ component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_com
     for (auto &the_circle : the_circles) {
         auto the_flipped_circle = circle{};
         the_flipped_circle.m_center.m_x = the_circle.m_center.m_x;
-        the_flipped_circle.m_center.m_y = -the_circle.m_center.m_y;
-        the_flipped_circle.m_end = the_circle.m_end;
+        the_flipped_circle.m_center.m_y = -1*the_circle.m_center.m_y;
+        the_flipped_circle.m_end.m_x = the_circle.m_end.m_x;
+        the_flipped_circle.m_end.m_y = -1*the_circle.m_end.m_y;
         the_flipped_circle.m_width = the_circle.m_width;
         if (the_circle.m_layer == 0) {
             the_flipped_circle.m_layer = 31;
@@ -773,7 +790,7 @@ component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_com
         for (auto &ext_vert : the_poly.m_shape) {
             auto the_point = point_2d{};
             the_point.m_x = ext_vert.m_x;
-            the_point.m_y = -ext_vert.m_y;
+            the_point.m_y = -1*-ext_vert.m_y;
             the_flipped_poly.m_shape.push_back(the_point);
         }
         the_flipped_poly.m_width = the_poly.m_width;
@@ -790,8 +807,8 @@ component kicadPcbDataBase::buildFlippedComponent(int &comp_id, int &flipped_com
         auto the_flipped_arc = arc{};
         the_flipped_arc.m_start.m_y = the_arc.m_start.m_x;
         the_flipped_arc.m_end.m_y = the_arc.m_end.m_x;
-        the_flipped_arc.m_start.m_y = -the_arc.m_start.m_y;
-        the_flipped_arc.m_end.m_y = -the_arc.m_end.m_y;
+        the_flipped_arc.m_start.m_y = -1*the_arc.m_start.m_y;
+        the_flipped_arc.m_end.m_y = -1*the_arc.m_end.m_y;
         the_flipped_arc.m_width = the_arc.m_width;
         if (the_arc.m_layer == 0) {
             the_flipped_arc.m_layer = 31;
@@ -1046,6 +1063,13 @@ void kicadPcbDataBase::printNodes() {
                   << "          " << inst.getX() << "          " << inst.getY()
                   << "          " << inst.getAngle() << "         " << inst.getLayer()
                   << "          " << inst.getComponentId() << endl;
+
+        /*auto &comp = getComponent(inst.getComponentId());
+        auto &the_padstacks = comp.getPadstacks();
+        for (auto &pad : the_padstacks) {
+            cout << "(" << pad.m_pos.m_x << "," << pad.m_pos.m_y << ") ";
+        }
+        cout << endl;*/
     }
 }
 
