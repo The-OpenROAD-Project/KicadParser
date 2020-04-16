@@ -1801,8 +1801,8 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
                     {
                         if (pad_sub_node.m_value == "at")
                         {
-                            pad_sub_node.m_branches[0].m_value = std::to_string(pos.m_x);
-                            pad_sub_node.m_branches[1].m_value = std::to_string(pos.m_y);
+                            //pad_sub_node.m_branches[0].m_value = std::to_string(pos.m_x);
+                            //pad_sub_node.m_branches[1].m_value = std::to_string(pos.m_y);
 
                             if (pad_sub_node.m_branches.size() == 3)
                             {
