@@ -36,4 +36,6 @@ private:
     std::string m_layer;
 };
 
+using Segments = std::vector<Segment>;
+
 #endif
