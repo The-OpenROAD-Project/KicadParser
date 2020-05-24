@@ -26,7 +26,12 @@ public:
            const int netId = -1,
            const int compId = -1,
            const int instId = -1)
-        : m_type(type), m_dbId(dbId), m_netId(netId), m_compId(compId), m_instId(instId), m_locked(false){};
+        : m_type(type), m_dbId(dbId), m_netId(netId), m_compId(compId), m_instId(instId), m_locked(false)
+    {
+        m_extraSpace.first = 0;
+        m_extraSpace.second = 0;
+        m_prePos.emplace_back(point_2d(0, 0));
+    };
     ~Object(){};
     void setRTreeId(const std::pair<int, int> &id) { m_ids.push_back(id); }
     void setBBox(const box &b) { m_bbox = b; }
@@ -38,6 +43,18 @@ public:
     void setY(const double &y) { m_pos[0].m_y = y; }
     void setPos(const point_2d &pos) { m_pos.push_back(pos); }
     void setLocked(const bool locked) { m_locked = locked; }
+    void setLayer(const int layer) { m_layer = layer; }
+    void setExtraSpace(const double &width, const std::string &type)
+    {
+        if (type == "right")
+        {
+            m_extraSpace.second = width;
+        }
+        else if (type == "left")
+        {
+            m_extraSpace.first = width;
+        }
+    }
     bool isLocked() { return m_locked; }
     box &getBBox() { return m_bbox; }
     ObjectType &getType() { return m_type; }
@@ -49,6 +66,8 @@ public:
     //point_2d &getPos() { return m_pos[0];}
     points_2d &getPos() { return m_pos; }
     bool isBus() { return m_bus; }
+    bool setIsBus(bool isBus) { m_bus = isBus; }
+    std::pair<double, double> getExtraSpace() { return m_extraSpace; }
     double getX()
     {
         point_2d pos = getCenterPos();
@@ -88,13 +107,13 @@ public:
             {
                 angle = 0;
             }
-            else if ((m_pos[0].m_x > m_pos[1].m_x && m_pos[0].m_y > m_pos[1].m_y)||
-                (m_pos[1].m_x > m_pos[0].m_x && m_pos[1].m_y > m_pos[0].m_y)) 
+            else if ((m_pos[0].m_x > m_pos[1].m_x && m_pos[0].m_y > m_pos[1].m_y) ||
+                     (m_pos[1].m_x > m_pos[0].m_x && m_pos[1].m_y > m_pos[0].m_y))
             {
                 angle = 45;
             }
-            else if ((m_pos[0].m_x < m_pos[1].m_x && m_pos[0].m_y > m_pos[1].m_y)||
-                (m_pos[1].m_x < m_pos[0].m_x && m_pos[1].m_y > m_pos[0].m_y)) 
+            else if ((m_pos[0].m_x < m_pos[1].m_x && m_pos[0].m_y > m_pos[1].m_y) ||
+                     (m_pos[1].m_x < m_pos[0].m_x && m_pos[1].m_y > m_pos[0].m_y))
             {
                 angle = 135;
             }
@@ -153,6 +172,10 @@ public:
             std::cout << p << " ";
         }
         std::cout << std::endl;
+
+        auto center = getCenterPos();
+        std::cout << "center position: " << center;
+        std::cout << std::endl;
     }
 
     void updateShape(std::string type, double &diff)
@@ -183,6 +206,31 @@ public:
         std::cout << ")" << std::endl;
     }
 
+    double getLength()
+    {
+        if (m_pos.size() != 2)
+            return 0;
+        double length = m_pos[0].getDistance(m_pos[0], m_pos[1]);
+        return length;
+    }
+
+    void setPreviousPosition()
+    {
+        m_prePos = m_pos;
+    }
+
+    bool isMoved()
+    {
+        if (m_prePos == m_pos)
+            return false;
+        return true;
+    }
+
+    points_2d &getPreviousPosition()
+    {
+        return m_prePos;
+    }
+
 private:
     ObjectType m_type;
     int m_dbId; // id in kicad database
@@ -193,10 +241,11 @@ private:
     points_2d m_relativeShape;
     polygon_t m_poly;
     points_2d m_pos;
+    points_2d m_prePos;
     int m_layer;
     bool m_locked;
     bool m_bus;
-
+    std::pair<double, double> m_extraSpace; //<left width, right, width>
     box m_bbox;
     std::vector<std::pair<int, int>> m_ids; //< the ith rtree, id in rtree >
 
