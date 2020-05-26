@@ -168,6 +168,7 @@ bool kicadPcbDataBase::buildKicadPcb()
             component the_comp{comp_id, component_name};
             bool isBottomComp = false;
             int noNameId = 0;
+
             for (auto &&module_node : sub_node.m_branches)
             {
                 if (module_node.m_value == "locked")
@@ -601,8 +602,9 @@ bool kicadPcbDataBase::buildKicadPcb()
         else if (sub_node.m_value == "zone")
         {
             auto layer = sub_node.m_branches[2].m_branches[0].m_value;
-            if (sub_node.m_branches[8].m_value == "keepout")
+            if (sub_node.m_branches.size() > 8 && sub_node.m_branches[8].m_value == "keepout")
             {
+		    
                 for (auto &&zone_node : sub_node.m_branches)
                 {
                     if (zone_node.m_value == "polygon")
@@ -1549,7 +1551,7 @@ bool kicadPcbDataBase::getCompBBox(const int compId, point_2d *bBox)
     auto miny = double(1000000.0);
     auto maxx = double(-1000000.0);
     auto maxy = double(-1000000.0);
-
+/*
     for (size_t i = 0; i < comp.m_lines.size(); ++i)
     {
         auto start = comp.m_lines[i].m_start;
@@ -1565,7 +1567,7 @@ bool kicadPcbDataBase::getCompBBox(const int compId, point_2d *bBox)
         miny = std::min(end.m_y - width, miny);
         maxy = std::max(end.m_y + width, maxy);
     }
-
+*/
     for (size_t i = 0; i < comp.m_circles.size(); ++i)
     {
         auto center = comp.m_circles[i].m_center;
@@ -1590,7 +1592,7 @@ bool kicadPcbDataBase::getCompBBox(const int compId, point_2d *bBox)
             maxy = std::max(point.m_y + width, maxy);
         }
     }
-
+/*
     for (size_t i = 0; i < comp.m_arcs.size(); ++i)
     {
         auto start = comp.m_arcs[i].m_start;
@@ -1606,7 +1608,7 @@ bool kicadPcbDataBase::getCompBBox(const int compId, point_2d *bBox)
         miny = std::min(end.m_y - width, miny);
         maxy = std::max(end.m_y + width, maxy);
     }
-
+*/
     auto pads = comp.getPadstacks();
     for (auto &pad : pads)
     {
@@ -1619,20 +1621,20 @@ bool kicadPcbDataBase::getCompBBox(const int compId, point_2d *bBox)
 
         if (pad_angle == 0 || pad_angle == 180)
         {
-            minx = std::min(pad_x - size.m_x, minx);
-            maxx = std::max(pad_x + size.m_x, maxx);
+            minx = std::min(pad_x - size.m_x/2.0, minx);
+            maxx = std::max(pad_x + size.m_x/2.0, maxx);
 
-            miny = std::min(pad_y - size.m_y, miny);
-            maxy = std::max(pad_y + size.m_y, maxy);
+            miny = std::min(pad_y - size.m_y/2.0, miny);
+            maxy = std::max(pad_y + size.m_y/2.0, maxy);
         }
 
         if (pad_angle == 90 || pad_angle == 270)
         {
-            miny = std::min(pad_y - size.m_x, miny);
-            maxy = std::max(pad_y + size.m_x, maxy);
+            miny = std::min(pad_y - size.m_x/2.0, miny);
+            maxy = std::max(pad_y + size.m_x/2.0, maxy);
 
-            minx = std::min(pad_x - size.m_y, minx);
-            maxx = std::max(pad_x + size.m_y, maxx);
+            minx = std::min(pad_x - size.m_y/2.0, minx);
+            maxx = std::max(pad_x + size.m_y/2.0, maxx);
         }
     }
 
