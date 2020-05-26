@@ -569,6 +569,7 @@ bool kicadPcbDataBase::buildKicadPcb()
             auto p = point_2d{};
             std::vector<std::string> layers;
             layers.resize(2);
+            ViaType type = ViaType::THROUGH;
             for (auto &&via_node : sub_node.m_branches)
             {
                 if (via_node.m_value == "at")
@@ -588,11 +589,19 @@ bool kicadPcbDataBase::buildKicadPcb()
                     layers[0] = via_node.m_branches[0].m_value;
                     layers[1] = via_node.m_branches[1].m_value;
                 }
+                else if (via_node.m_value == "micro")
+                {
+                    type = ViaType::MICRO;
+                }
+                else if (via_node.m_value == "blind")
+                {
+                    type = ViaType::BLIND_BURIED;
+                }
             }
 
             auto &net = nets[netId];
             auto id = net.getViaCount();
-            Via via(id, netId, size);
+            Via via(id, netId, size, type);
             via.setPosition(p);
             via.setLayer(layers);
             net.addVia(via);
@@ -1929,6 +1938,8 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
     {
         for (auto &segment : net.m_segments)
         {
+            if (!segment.display())
+                continue;
             points_2d p = segment.getPos();
             auto seg = Tree{"segment", {}};
             auto start = Tree{"start", {}};

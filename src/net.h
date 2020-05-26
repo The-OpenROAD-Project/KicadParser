@@ -81,14 +81,16 @@ public:
     std::vector<Pin> &getPins() { return m_pins; }
     std::vector<Segment> &getSegments() { return m_segments; }
     std::vector<Via> &getVias() { return m_vias; }
-    Segment &getSegment(int& _id) {
+    Segment &getSegment(int &_id)
+    {
         return m_segments[_id];
     }
-    Via &getVia(int &_id) {
+    Via &getVia(int &_id)
+    {
         return m_vias[_id];
     }
-    void clearSegments() { m_segments.clear();}
-    void clearVias() { m_vias.clear();}
+    void clearSegments() { m_segments.clear(); }
+    void clearVias() { m_vias.clear(); }
     int getSegmentCount() { return (int)m_segments.size(); }
     void addSegment(const Segment &_segment) { m_segments.push_back(_segment); }
     int getViaCount() { return (int)m_vias.size(); }
@@ -109,6 +111,28 @@ public:
         return -1;
     }
 
+    bool isBus()
+    {
+        std::size_t found = m_name.find("DDR");
+        std::size_t foundClk = m_name.find("CLK");
+        std::size_t foundVdd = m_name.find("VDD");
+        std::size_t foundGnd = m_name.find("GND");
+        std::size_t foundPddr = m_name.find("PDDR");
+
+        if (foundClk != std::string::npos)
+            return false;
+        if (foundVdd != std::string::npos)
+            return false;
+        if (foundGnd != std::string::npos)
+            return false;
+        if (foundPddr != std::string::npos)
+            return false;
+
+        if (found != std::string::npos)
+            return true;
+        return false;
+    }
+
     friend class kicadPcbDataBase;
 
 private:
@@ -120,6 +144,8 @@ private:
     std::vector<Via> m_vias;
     std::pair<int, int> m_diff_pair;
     std::vector<Pin> m_pins;
+
+    //std::vector<Segment> m_snaking;
 };
 
 #endif
