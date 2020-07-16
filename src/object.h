@@ -38,6 +38,7 @@ public:
     void setShape(const points_2d &s) { m_shape = s; }
     void setRelativeShape(const points_2d &s) { m_relativeShape = s; }
     void setPoly(const polygon_t &poly) { m_poly = poly; }
+    void setMultipoly(const multipoly &poly) { m_mpoly = poly; }
     void setPos(const points_2d &pos) { m_pos = pos; }
     void setX(const double &x) { m_pos[0].m_x = x; }
     void setY(const double &y) { m_pos[0].m_y = y; }
@@ -121,6 +122,7 @@ public:
         return angle;
     }
     polygon_t &getPoly() { return m_poly; }
+    multipoly &getMultipoly() { return m_mpoly; }
     int &getNetId() { return m_netId; }
     int &getLayer() { return m_layer; }
     std::vector<std::pair<int, int>> &getRtreeId() { return m_ids; }
@@ -250,6 +252,7 @@ private:
     std::vector<std::pair<int, int>> m_ids; //< the ith rtree, id in rtree >
 
     std::vector<std::vector<double>> m_equs;
+    multipoly m_mpoly;
 };
 
 #endif

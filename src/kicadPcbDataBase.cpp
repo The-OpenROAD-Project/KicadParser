@@ -1896,7 +1896,8 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
         {
             x += bg::get<0>(*it);
             y += bg::get<1>(*it);
-            std::cout << "\t" << bg::get<0>(*it) << ", " << bg::get<1>(*it) << std::endl;
+            if (verbose)
+                std::cout << "\t" << bg::get<0>(*it) << ", " << bg::get<1>(*it) << std::endl;
             if (i == 3)
                 break;
             ++i;
@@ -1904,7 +1905,8 @@ void kicadPcbDataBase::printKiCad(const std::string folderName, const std::strin
         x = x / 4;
         y = y / 4;
 
-        std::cout << num << ":   x: " << x << ", y: " << y << ", area: " << boost::geometry::area(p) << std::endl;
+        if (verbose)
+            std::cout << num << ":   x: " << x << ", y: " << y << ", area: " << boost::geometry::area(p) << std::endl;
         auto size = Tree{"size", {}};
         size.m_branches.push_back(Tree{"0.3", {}});
         size.m_branches.push_back(Tree{"0.3", {}});
